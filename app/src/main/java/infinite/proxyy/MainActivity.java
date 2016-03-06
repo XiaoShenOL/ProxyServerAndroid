@@ -9,19 +9,30 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+
+import java.io.EOFException;
 
 
 public class MainActivity extends ActionBarActivity implements View.OnClickListener{
 
+    private TextView mTvShow;
+    private StringBuilder oldMsg;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         findViewById(R.id.connect).setOnClickListener(this);
+        mTvShow =(TextView)findViewById(R.id.show);
+        oldMsg = new StringBuilder();
         if (android.os.Build.VERSION.SDK_INT > 9) {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
         }
+        EventBus.getDefault().register(this);
     }
 
 
@@ -30,8 +41,18 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
     public void onClick(View v) {
 
         try {
-            new MyTestServer().init();
-            Log.d("~~~:", "proxy server initiated.");
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        new MyTestServer().init();
+                        Log.d("~~~:", "proxy server initiated.");
+                    }catch (Exception e){
+
+                    }
+                }
+            }).start();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -57,5 +78,28 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Subscribe
+    public void onEvent(final  MessageEvent event){
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(event != null ){
+                    Log.d("testEvent","接收到信息"+ oldMsg.length());
+                    if(oldMsg.length() == 0) {
+                        oldMsg.append(event.message);
+                    }else {
+                        oldMsg.append("\r\n");
+                        oldMsg.append(event.message);
+                    }
+
+                    Log.d("testEvent",oldMsg.toString());
+                    mTvShow.setText(oldMsg.toString());
+                }
+            }
+        });
+
     }
 }

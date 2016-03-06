@@ -2,6 +2,8 @@ package infinite.proxyy;
 
 import android.util.Log;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,9 +30,12 @@ public class MyTestServer {
 //        }
 
         try {
+            EventBus.getDefault().post(new MessageEvent("当前监听哪个端口" + port));
             serverSocket = new ServerSocket(port);
-            Log.d(TAG, "当前监听哪个端口" + port);
+
+
         } catch (IOException e) {
+            EventBus.getDefault().post(new MessageEvent(e.toString()));
             System.err.println("Could not listen on port!");
             System.exit(-1);
         }
@@ -38,6 +43,7 @@ public class MyTestServer {
         while (listening) {
             // new ProxyThread(serverSocket.accept()).start();
             try {
+                EventBus.getDefault().post(new MessageEvent("进入等待状态"));
                 Socket proxySocket = serverSocket.accept();
                 new Thread(new TestRunnable(proxySocket)).start();
             } catch (IOException e) {
@@ -58,6 +64,7 @@ public class MyTestServer {
         public void run() {
             try {
 
+                EventBus.getDefault().post(new MessageEvent("恭喜已经建立链接"));
                 Log.d(TAG,"已经建立了链接");
                 InputStream proxyInputStream = mTestClientSocket.getInputStream();
 
@@ -67,16 +74,16 @@ public class MyTestServer {
 
                 Log.d(TAG,"接收到socket:"+request);
 
+                EventBus.getDefault().post(new MessageEvent("接收到的socket" + request));
                 BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(mTestClientSocket.getOutputStream()));
                 bufferedWriter.write("接收到了");
                 bufferedWriter.flush();
-                Log.d(TAG,"回复socket");
+                Log.d(TAG, "回复socket");
+                EventBus.getDefault().post(new MessageEvent("回复serverSocket"));
                 mTestClientSocket.close();
             }catch (IOException e){
 
             }
-
-
         }
     }
 }
