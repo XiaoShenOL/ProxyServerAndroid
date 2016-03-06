@@ -20,4 +20,10 @@
 
     <Button style="@style/item" android:id="@+id/connect" android:text="@string/connect"/>
 
+    <TextView android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_margin="30dp"
+              android:textSize="20dp"
+              android:id="@+id/tv_socket_message"/>
+
 </LinearLayout>
