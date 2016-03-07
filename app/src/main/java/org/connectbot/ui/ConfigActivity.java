@@ -32,11 +32,14 @@ import org.connectbot.util.PubkeyDatabase;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
 import java.util.List;
 
 import infinite.proxyy.MessageEvent;
 import infinite.proxyy.MyProxyServer;
-import infinite.proxyy.MyTestServer;
 import infinite.proxyy.R;
 
 /**
@@ -116,11 +119,14 @@ public class ConfigActivity extends AppCompatActivity implements View.OnClickLis
 			Log.d(TAG,"之前已存,不需添加");
 		}
 
-        mQuickConnectField.setText("root@103.27.79.138");
+        mQuickConnectField.setText("ymserver@54.222.177.150");
         nickNameEdit.setText("test5");
-        destEdit.setText("192.168.13.100:1213");
-        sourcePortEdit.setText("12141");
+
+        destEdit.setText("172.16.110.180:1214");
+        sourcePortEdit.setText("9874");
 	}
+
+
 
 	private void print(String message){
 		EventBus.getDefault().postSticky(new MessageEvent(message));
@@ -175,6 +181,25 @@ public class ConfigActivity extends AppCompatActivity implements View.OnClickLis
 			print(message);
 			bindService(new Intent(this, TerminalManager.class), connection, Context.BIND_AUTO_CREATE);
 		}
+	}
+
+	public String getLocalIpAddress() {
+		try {
+			for (Enumeration<NetworkInterface> en = NetworkInterface
+					.getNetworkInterfaces(); en.hasMoreElements();) {
+				NetworkInterface intf = en.nextElement();
+				for (Enumeration<InetAddress> enumIpAddr = intf
+						.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+					InetAddress inetAddress = enumIpAddr.nextElement();
+					if (!inetAddress.isLoopbackAddress()) {
+						return inetAddress.getHostAddress().toString();
+					}
+				}
+			}
+		} catch (SocketException ex) {
+
+		}
+		return null;
 	}
 
 	private ServiceConnection connection = new ServiceConnection(){

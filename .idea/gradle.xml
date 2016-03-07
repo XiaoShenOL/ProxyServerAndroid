@@ -10,7 +10,10 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+<<<<<<< Updated upstream
             <option value="$PROJECT_DIR$/client" />
+=======
+>>>>>>> Stashed changes
           </set>
         </option>
       </GradleProjectSettings>
