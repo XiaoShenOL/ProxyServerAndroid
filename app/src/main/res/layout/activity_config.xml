@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android = "http://schemas.android.com/apk/res/android"
+            android:layout_width = "match_parent"
+            android:layout_height = "match_parent"
+            android:fillViewport = "true" >
+	<LinearLayout
+			android:focusable = "true"
+			android:focusableInTouchMode = "true"
+			android:orientation = "vertical"
+			android:layout_width = "match_parent"
+			android:layout_height = "match_parent" >
+
+		<LinearLayout
+
+				android:layout_marginTop="20dp"
+				android:layout_marginLeft="10dp"
+				android:layout_marginRight="10dp"
+				android:layout_width = "match_parent"
+				android:layout_height = "wrap_content"
+				android:animateLayoutChanges = "true"
+				>
+
+			<android.support.design.widget.TextInputLayout
+					android:id = "@+id/quickconnect_field_container"
+					android:layout_width = "0dp"
+					android:layout_weight = "1"
+					android:layout_height = "wrap_content"
+					>
+
+				<EditText
+						android:id = "@+id/quickconnect_field"
+						android:layout_width = "match_parent"
+						android:layout_weight = "1"
+						android:layout_height = "wrap_content"
+						android:maxLines = "1"
+						android:inputType = "textNoSuggestions"
+						/>
+
+			</android.support.design.widget.TextInputLayout >
+
+
+		</LinearLayout >
+
+
+		<TableLayout
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:paddingLeft="10dip"
+				android:paddingRight="10dip"
+				>
+
+			<TableRow>
+
+				<TextView
+						android:gravity="end|center_vertical"
+						android:paddingRight="10dip"
+						android:text="@string/prompt_nickname"
+						android:textAppearance="?android:attr/textAppearanceMedium"
+						/>
+
+				<EditText
+						android:id="@+id/nickname"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:layout_weight="1"
+						android:hint="Internal Webserver"
+						android:singleLine="true"
+						/>
+			</TableRow>
+			<TableRow>
+
+				<TextView
+						android:gravity="end|center_vertical"
+						android:paddingRight="10dip"
+						android:text="@string/prompt_source_port"
+						android:textAppearance="?android:attr/textAppearanceMedium"
+						/>
+
+				<EditText
+						android:id="@+id/portforward_source"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:layout_weight="1"
+						android:hint="8080"
+						android:inputType="number"
+						/>
+			</TableRow>
+
+			<TableRow>
+
+				<TextView
+						android:gravity="end|center_vertical"
+						android:paddingRight="10dip"
+						android:text="@string/prompt_destination"
+						android:textAppearance="?android:attr/textAppearanceMedium"
+						/>
+
+				<EditText
+						android:id="@+id/portforward_destination"
+						android:layout_width="fill_parent"
+						android:layout_height="wrap_content"
+						android:layout_weight="1"
+						android:hint="localhost:80"
+						android:inputType="textEmailAddress"
+						/>
+			</TableRow>
+		</TableLayout>
+
+
+		<LinearLayout
+				android:layout_marginTop="15dp"
+				android:paddingLeft="10dip"
+				android:paddingRight="10dip"
+				android:layout_width = "match_parent"
+				android:layout_height = "wrap_content" >
+			<TextView android:layout_width="wrap_content"
+			          android:layout_height="wrap_content"
+			          android:text="@string/generate_public_key"
+			          android:singleLine="true"
+					  android:textSize="30dp"
+					android:textColor="@android:color/holo_red_dark"/>
+		</LinearLayout >
+
+
+		<Button style="@style/item"
+		          android:textSize="30dp"
+		          android:text="@string/start_begin_proxy"
+		          android:id="@+id/tv_begin_proxy"
+				android:layout_margin="10dp"/>
+
+		<TextView android:layout_width="wrap_content"
+		          android:layout_height="wrap_content"
+		          android:singleLine="false"
+		          android:textSize="12dp"
+		         android:id="@+id/tv_prompt" />
+	</LinearLayout >
+
+</ScrollView >

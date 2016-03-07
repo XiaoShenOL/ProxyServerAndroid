@@ -1,10 +1,8 @@
 package infinite.proxyy;
 
-import android.content.Intent;
-import android.net.VpnService;
+import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -13,8 +11,6 @@ import android.widget.TextView;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
-
-import java.io.EOFException;
 
 
 public class MainActivity extends ActionBarActivity implements View.OnClickListener{
@@ -26,7 +22,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         findViewById(R.id.connect).setOnClickListener(this);
-        mTvShow =(TextView)findViewById(R.id.show);
+        mTvShow =(TextView)findViewById(R.id.tv_socket_message);
         oldMsg = new StringBuilder();
         if (android.os.Build.VERSION.SDK_INT > 9) {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -89,10 +85,10 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                 if(event != null ){
                     Log.d("testEvent","接收到信息"+ oldMsg.length());
                     if(oldMsg.length() == 0) {
-                        oldMsg.append(event.message);
+                        oldMsg.append(event.getSocketMessage());
                     }else {
                         oldMsg.append("\r\n");
-                        oldMsg.append(event.message);
+                        oldMsg.append(event.getSocketMessage());
                     }
 
                     Log.d("testEvent",oldMsg.toString());
@@ -102,4 +98,5 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
         });
 
     }
+
 }

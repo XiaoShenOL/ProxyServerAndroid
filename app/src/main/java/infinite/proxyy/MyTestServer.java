@@ -16,6 +16,7 @@ import java.net.Socket;
  */
 public class MyTestServer {
 
+    private int connectCount = 0;
     private static  int BUFFER_SIZE = 8192;
     private static String TAG = "testRunnable";
     public void init() throws IOException {
@@ -33,7 +34,7 @@ public class MyTestServer {
             EventBus.getDefault().post(new MessageEvent("当前监听哪个端口" + port));
             serverSocket = new ServerSocket(port);
 
-
+            Log.d(TAG, "当前监听哪个端口" + port);
         } catch (IOException e) {
             EventBus.getDefault().post(new MessageEvent(e.toString()));
             System.err.println("Could not listen on port!");
@@ -45,7 +46,8 @@ public class MyTestServer {
             try {
                 EventBus.getDefault().post(new MessageEvent("进入等待状态"));
                 Socket proxySocket = serverSocket.accept();
-                new Thread(new TestRunnable(proxySocket)).start();
+                connectCount++;
+                new Thread(new TestRunnable(proxySocket,connectCount)).start();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -56,15 +58,20 @@ public class MyTestServer {
     class TestRunnable implements  Runnable{
 
         private Socket mTestClientSocket;
-        public TestRunnable(Socket testClientSocket){
+        private int currentId;
+        private String message = null;
+        public TestRunnable(Socket testClientSocket,int currentId){
             this.mTestClientSocket = testClientSocket;
+            this.currentId = currentId;
         }
 
         @Override
         public void run() {
             try {
 
-                EventBus.getDefault().post(new MessageEvent("恭喜已经建立链接"));
+                message = "当前是 "+currentId+" 建立连接";
+                EventBus.getDefault().post(new MessageEvent(message));
+
                 Log.d(TAG,"已经建立了链接");
                 InputStream proxyInputStream = mTestClientSocket.getInputStream();
 
@@ -73,13 +80,20 @@ public class MyTestServer {
                 String request = new String(bytes);
 
                 Log.d(TAG,"接收到socket:"+request);
+                message = "当前是 "+currentId+" 接收到socket,内容是"+request;
+                EventBus.getDefault().post(new MessageEvent(message));
+
 
                 EventBus.getDefault().post(new MessageEvent("接收到的socket" + request));
                 BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(mTestClientSocket.getOutputStream()));
                 bufferedWriter.write("接收到了");
                 bufferedWriter.flush();
                 Log.d(TAG, "回复socket");
-                EventBus.getDefault().post(new MessageEvent("回复serverSocket"));
+
+
+                message ="当前是 "+currentId+" 回复serversocket";
+                EventBus.getDefault().post(new MessageEvent(message));
+
                 mTestClientSocket.close();
             }catch (IOException e){
 
