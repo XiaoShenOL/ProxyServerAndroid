@@ -30,16 +30,23 @@ public class HttpFirstLine {
 			parseHost(strArray[1]);
 			return;
 		}
-		if(strArray[1].toLowerCase(Locale.ENGLISH).startsWith("http://")){
+		if (strArray[1].toLowerCase(Locale.ENGLISH).startsWith("http://")) {
 			String str = strArray[1].substring(7);
 			int index = str.indexOf("/");
-			parseHost(str.substring(0,index));
-			Uri = str.substring(index);
-		} else{
+			if(index>0) {
+				parseHost(str.substring(0, index));
+				Uri = str.substring(index);
+			}else{
+				parseHost(str);
+				Uri = str.substring(index);
+			}
+		} else {
 			int index = strArray[1].indexOf('/');
 			if(index > 0) {
 				parseHost(strArray[1].substring(0, index));
 				Uri = strArray[1].substring(index);
+			}else{
+				Host = null;
 			}
 		}
 	}

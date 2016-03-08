@@ -14,8 +14,11 @@ import java.net.Socket;
  * Created by .hp on 29-12-2015.
  */
 public class ProxyConnectionHandler implements Runnable {
+	private static final boolean DEBUG = true;
 	private static final int BUFFER_SIZE = 32 * 1024;//默认是32KB
 	private static final String TAG = "proxyConnectionHandler";
+	private static final String CRLF = "\r\n";
+	private String[] filters = new String[]{"baidu", "sina", "ip38", "google"};
 
 	Socket mProxySocket;
 	Socket mOutsideSocket;
@@ -47,18 +50,33 @@ public class ProxyConnectionHandler implements Runnable {
 
 			if (host == null) return;
 			if (mHttpFirstLine == null) return;
+			Log.d("**~~~** Request Host: ", request);
+
+			if (DEBUG) {
+				int j = 0;
+				for (int i = 0; i < filters.length; i++) {
+					if (!host.contains(filters[i])) {
+						j++;
+					}
+				}
+				if (j == 4) {
+					mProxySocket.close();
+					return;
+				}
+			}
 
 			int port = mHttpFirstLine.Port;
-			message = "第" + currentId + "条代理通道:" + "主机:" + host + " 端口:" + port + " 请求:" + request;
+			String request1 = new String(bytes,"utf-8");
+			message = "第" + currentId + "条代理通道:" + "主机:" + host + " 端口:" + port + " 请求:" + request1;
 			print(message);
 
 			if (port == 443) {
-				new Https443RequestHandler(mProxySocket).handle(request);
+				new Https443RequestHandler(mProxySocket).handle(request,port,bytes);
 			} else {
 				mOutsideSocket = new Socket(host, port);
 				OutputStream outsideOutputStream = mOutsideSocket.getOutputStream();
 
-				outsideOutputStream.write(bytes, 0, bytesRead);
+				outsideOutputStream.write(bytes);
 				outsideOutputStream.flush();
 
 				InputStream outsideSocketInputStream = mOutsideSocket.getInputStream();
@@ -70,9 +88,9 @@ public class ProxyConnectionHandler implements Runnable {
 					if (bytesRead > 0) {
 						proxyOutputStream.write(responseArray, 0, bytesRead);
 						String response = new String(bytes, 0, bytesRead, "utf-8");
-						//Log.d("Outside IPS Response: ", response);
-						//message = "第" + currentId + "条代理通道返回的值:" + response;
-						//print(message);
+						Log.d("Outside IPS Response: ", response);
+						message = "第" + currentId + "条代理通道返回的值:" + response;
+						print(message);
 					}
 				} while (bytesRead > 0);
 
@@ -90,16 +108,23 @@ public class ProxyConnectionHandler implements Runnable {
 	}
 
 	private String extractHost(String request) {
-		int index = request.indexOf("\r\n");
+		int index = request.indexOf(CRLF);
 		if (index > 0) {
 			try {
 				String firstLine = request.substring(0, index);
+				Log.d(TAG, "第一行数据:" + firstLine);
 				mHttpFirstLine = new HttpFirstLine(firstLine);
-
 				if (mHttpFirstLine.Host == null) {
-					int hStart = request.indexOf("Host: ") + 6;
-					int hEnd = request.indexOf('\n', hStart);
-					return request.substring(hStart, hEnd - 1);
+					int startIndex = request.indexOf("Host: ");
+					if (startIndex > 0) {
+						int hStart = startIndex + 6;
+						int hEnd = request.indexOf('\r', hStart);
+						String temp = request.substring(hStart, hEnd - 1);
+						Log.d(TAG, "Key Host, Value : " + temp);
+						parseHost(mHttpFirstLine, temp);
+					} else {
+						mHttpFirstLine.Host = null;
+					}
 				}
 				return mHttpFirstLine.Host;
 			} catch (FirstLineFormatErrorException e) {
@@ -107,6 +132,17 @@ public class ProxyConnectionHandler implements Runnable {
 			}
 		}
 		return null;
+	}
+
+	public void parseHost(HttpFirstLine firstLine, String H) {
+		int index = H.indexOf(':');
+		if (index > 0) {
+			firstLine.Host = H.substring(0, index);
+			firstLine.Port = Integer.valueOf(H.substring(index + 1));
+		} else {
+			firstLine.Host = H;
+			firstLine.Port = 80;
+		}
 	}
 
 	private void print(String message) {

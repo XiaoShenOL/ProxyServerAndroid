@@ -9,6 +9,7 @@ import java.net.Socket;
  */
 public class Https443RequestHandler  {
 
+    private static final String TAG = "Https443";
     private static final int BUFFER_SIZE = 8192;
     private static final String CRLF = "\r\n";
 
@@ -20,14 +21,14 @@ public class Https443RequestHandler  {
         this.mProxySocket = proxySocket;
     }
 
-    public void handle(String host) throws Exception {
-        int port = 443;
+    public void handle(String host,int port,byte[] bytes) throws Exception {
         mOutsideSocket = new Socket();
         mOutsideSocket.setKeepAlive(true);
+
         mOutsideSocket.connect(new InetSocketAddress(host, port));
 
         OutputStream proxyOutputStream = mProxySocket.getOutputStream();
-        proxyOutputStream.write(("HTTP/1.1 200 Connection established" + CRLF + CRLF).getBytes());
+        proxyOutputStream.write(bytes);
         proxyOutputStream.flush();
 
         DirectionalConnectionHandler client = new DirectionalConnectionHandler(mProxySocket, mOutsideSocket);

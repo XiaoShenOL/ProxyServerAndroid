@@ -14,11 +14,11 @@ import java.net.Socket;
  * Created by .hp on 29-12-2015.
  */
 public class ProxyConnectionHandler implements Runnable {
+	private static final boolean DEBUG = true;
 	private static final String TAG = "proxyConnectionHandler";
 	private static final String CRLF = "\r\n";
-	private static final int BUFFER_SIZE = 8 * 1024;
-	private static final String test_proxy_host = "103.27.79.138";
-	private static final int test_proxy_port = 12145;
+	private static final int BUFFER_SIZE = 32 * 1024;
+	private String[] filters = new String[]{"baidu", "sina", "ip38", "google"};
 
 	Socket mProxySocket;
 	Socket mOutsideSocket;
@@ -39,20 +39,34 @@ public class ProxyConnectionHandler implements Runnable {
 			long startTimestamp = System.currentTimeMillis();
 
 			InputStream proxyInputStream = mProxySocket.getInputStream();
-
-			String request = inputStreamToString(proxyInputStream);
-			int bytesRead = 0;
-			byte[] bytes = new byte[BUFFER_SIZE];
-//			int bytesRead = proxyInputStream.read(bytes, 0, BUFFER_SIZE);
-//			String request = new String(bytes);
+			byte[] bytes = toByteArray(proxyInputStream);
+			int bytesRead = 1;
+			//byte[] bytes = new byte[BUFFER_SIZE];
+			//int bytesRead = proxyInputStream.read(bytes, 0, BUFFER_SIZE);
+			String request = new String(bytes);
 			String host = extractHost(request);
+
 			if (host == null) return;
 			if (mHttpFirstLine == null) return;
 			Log.d("**~~~** Request Host: ", request);
 
-			if (host.contains("youku")) isYoukuUrl = true;
+			if (DEBUG) {
+				int j = 0;
+				for (int i = 0; i < filters.length; i++) {
+					if (!host.contains(filters[i])) {
+						j++;
+					}
+				}
+				if (j == 4) {
+					mProxySocket.close();
+					return;
+				}
+			}
+
+			String request1 = new String(bytes,"utf-8");
 			int port = mHttpFirstLine.Port;
-			message = "第" + currentId + "条代理通道:" + "主机:" + host + " 端口:" + port + " 请求:" + request;
+			message = "第" + currentId + "条代理通道:" + "主机:" + host + " 端口:" + port + " 请求:" + request1 + " 长度:" + bytes
+					.length;
 			print(message);
 
 			if (port == 443) {
@@ -60,8 +74,7 @@ public class ProxyConnectionHandler implements Runnable {
 			} else {
 				mOutsideSocket = new Socket(host, port);
 				OutputStream outsideOutputStream = mOutsideSocket.getOutputStream();
-
-				outsideOutputStream.write(request.getBytes());
+				outsideOutputStream.write(bytes);
 				outsideOutputStream.flush();
 
 				InputStream outsideSocketInputStream = mOutsideSocket.getInputStream();
@@ -72,18 +85,17 @@ public class ProxyConnectionHandler implements Runnable {
 					bytesRead = outsideSocketInputStream.read(responseArray, 0, BUFFER_SIZE);
 					if (bytesRead > 0) {
 						proxyOutputStream.write(responseArray, 0, bytesRead);
-						String response = new String(bytes, 0, bytesRead, "utf-8");
+						String response = new String(bytes, 0, bytesRead);
 						Log.d("Outside IPS Response: ", response);
-//						message = "第" + currentId + "条代理通道返回的值:" + response;
-//						print(message);
 					}
 				} while (bytesRead > 0);
 				proxyOutputStream.flush();
 				mOutsideSocket.close();
 			}
 			mProxySocket.close();
-			Log.d("ACHTUNG", "Cycle: " + (System.currentTimeMillis() - startTimestamp));
+			Log.d(TAG, "花费时间 " + (System.currentTimeMillis() - startTimestamp) + "ms");
 		} catch (Exception e) {
+			Log.e(TAG, e.toString());
 			e.printStackTrace();
 		}
 
@@ -98,18 +110,15 @@ public class ProxyConnectionHandler implements Runnable {
 				mHttpFirstLine = new HttpFirstLine(firstLine);
 				if (mHttpFirstLine.Host == null) {
 					int startIndex = request.indexOf("Host: ");
-					if(startIndex > 0) {
+					if (startIndex > 0) {
 						int hStart = startIndex + 6;
-						int hEnd = request.indexOf('\r',hStart);
-						String temp = request.substring(hStart,hEnd-1);
-
-					}else{
+						int hEnd = request.indexOf('\r', hStart);
+						String temp = request.substring(hStart, hEnd - 1);
+						Log.d(TAG, "Key Host, Value : " + temp);
+						parseHost(mHttpFirstLine, temp);
+					} else {
 						mHttpFirstLine.Host = null;
 					}
-					if(hStart > 0) {
-						int hEnd = request.indexOf('\n', hStart);
-					}
-					request.substring(hStart, hEnd - 1);
 				}
 				return mHttpFirstLine.Host;
 			} catch (FirstLineFormatErrorException e) {
@@ -119,19 +128,29 @@ public class ProxyConnectionHandler implements Runnable {
 		return null;
 	}
 
-	private void print(String message) {
-		if (currentId % 10 == 0 | isYoukuUrl) {
-			EventBus.getDefault().postSticky(new MessageEvent(message));
+	public void parseHost(HttpFirstLine firstLine, String H) {
+		int index = H.indexOf(':');
+		if (index > 0) {
+			firstLine.Host = H.substring(0, index);
+			firstLine.Port = Integer.valueOf(H.substring(index + 1));
+		} else {
+			firstLine.Host = H;
+			firstLine.Port = 80;
 		}
 	}
 
-	private String inputStreamToString(InputStream in) throws IOException {
-		byte[] buf = new byte[1024];
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		for (int i; (i = in.read(buf)) != -1; ) {
-			baos.write(buf, 0, i);
+	private void print(String message) {
+		EventBus.getDefault().postSticky(new MessageEvent(message));
+
+	}
+
+	public static byte[] toByteArray(InputStream input) throws IOException {
+		ByteArrayOutputStream output = new ByteArrayOutputStream();
+		byte[] buffer = new byte[4096];
+		int n = 0;
+		while (-1 != (n = input.read(buffer))) {
+			output.write(buffer, 0, n);
 		}
-		String data = baos.toString("utf-8");
-		return data;
+		return output.toByteArray();
 	}
 }
