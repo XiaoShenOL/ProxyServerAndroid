@@ -119,7 +119,7 @@ public class ProxyConnectionHandler implements Runnable {
 					if (startIndex > 0) {
 						int hStart = startIndex + 6;
 						int hEnd = request.indexOf('\r', hStart);
-						String temp = request.substring(hStart, hEnd - 1);
+						String temp = request.substring(hStart, hEnd);
 						Log.d(TAG, "Key Host, Value : " + temp);
 						parseHost(mHttpFirstLine, temp);
 					} else {

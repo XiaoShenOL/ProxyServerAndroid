@@ -18,14 +18,12 @@ public class ProxyConnectionHandler implements Runnable {
 	private static final String TAG = "proxyConnectionHandler";
 	private static final String CRLF = "\r\n";
 	private static final int BUFFER_SIZE = 32 * 1024;
-	private String[] filters = new String[]{"baidu", "sina", "ip38", "google"};
+	private String[] filters = new String[]{ "sina"};
 
 	Socket mProxySocket;
 	Socket mOutsideSocket;
 	private int currentId;
 	private String message;
-	private boolean isBaiduUrl;
-	private boolean isYoukuUrl;
 	private HttpFirstLine mHttpFirstLine;
 
 	public ProxyConnectionHandler(Socket proxySocket, int currentId) {
@@ -39,16 +37,18 @@ public class ProxyConnectionHandler implements Runnable {
 			long startTimestamp = System.currentTimeMillis();
 
 			InputStream proxyInputStream = mProxySocket.getInputStream();
-			byte[] bytes = toByteArray(proxyInputStream);
-			int bytesRead = 1;
-			//byte[] bytes = new byte[BUFFER_SIZE];
-			//int bytesRead = proxyInputStream.read(bytes, 0, BUFFER_SIZE);
+			//byte[] bytes = toByteArray(proxyInputStream);
+
+
+			//int bytesRead = 1;
+			byte[] bytes = new byte[BUFFER_SIZE];
+			int bytesRead = proxyInputStream.read(bytes, 0, BUFFER_SIZE);
 			String request = new String(bytes);
 			String host = extractHost(request);
+            Log.d("**~~~** Request Host: ", request);
 
-			if (host == null) return;
-			if (mHttpFirstLine == null) return;
-			Log.d("**~~~** Request Host: ", request);
+            if (host == null) return;
+            if (mHttpFirstLine == null) return;
 
 			if (DEBUG) {
 				int j = 0;
@@ -57,16 +57,17 @@ public class ProxyConnectionHandler implements Runnable {
 						j++;
 					}
 				}
-				if (j == 4) {
+				if (j == 1) {
 					mProxySocket.close();
 					return;
 				}
 			}
 
-			String request1 = new String(bytes,"utf-8");
+            Log.d("sina","长度:"+bytes.length+":"+bytes[10]+"-->"+bytes[100]+"-->"+bytes[bytes.length-1]);
+
 			int port = mHttpFirstLine.Port;
-			message = "第" + currentId + "条代理通道:" + "主机:" + host + " 端口:" + port + " 请求:" + request1 + " 长度:" + bytes
-					.length;
+			message = "第" + currentId + "条代理通道:" + "主机:" + host + " 端口:" + port + " 长度:" + bytes
+                    .length+ " 请求:" + request ;
 			print(message);
 
 			if (port == 443) {
@@ -74,6 +75,7 @@ public class ProxyConnectionHandler implements Runnable {
 			} else {
 				mOutsideSocket = new Socket(host, port);
 				OutputStream outsideOutputStream = mOutsideSocket.getOutputStream();
+
 				outsideOutputStream.write(bytes);
 				outsideOutputStream.flush();
 
@@ -113,7 +115,7 @@ public class ProxyConnectionHandler implements Runnable {
 					if (startIndex > 0) {
 						int hStart = startIndex + 6;
 						int hEnd = request.indexOf('\r', hStart);
-						String temp = request.substring(hStart, hEnd - 1);
+						String temp = request.substring(hStart, hEnd);
 						Log.d(TAG, "Key Host, Value : " + temp);
 						parseHost(mHttpFirstLine, temp);
 					} else {

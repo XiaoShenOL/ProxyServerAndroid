@@ -122,7 +122,7 @@ public class ConfigActivity extends AppCompatActivity implements View.OnClickLis
         mQuickConnectField.setText("ymserver@54.222.177.150");
         nickNameEdit.setText("test5");
 
-        destEdit.setText("172.16.110.180:1214");
+        destEdit.setText("192.168.13.100:8964");
         sourcePortEdit.setText("9874");
 	}
 
@@ -274,23 +274,23 @@ public class ConfigActivity extends AppCompatActivity implements View.OnClickLis
     @Subscribe
     public void onEvent(final WaitForSocketEvent event){
 
-        if(event != null) {
-            try {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            new MyProxyServer().init();
-                            Log.d("~~~:", "proxy server initiated.");
-                        } catch (Exception e) {
-
-                        }
-                    }
-                }).start();
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
+//        if(event != null) {
+//            try {
+//                new Thread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        try {
+//                            new MyProxyServer().init();
+//                            Log.d("~~~:", "proxy server initiated.");
+//                        } catch (Exception e) {
+//
+//                        }
+//                    }
+//                }).start();
+//
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
     }
 }

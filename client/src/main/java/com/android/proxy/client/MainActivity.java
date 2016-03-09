@@ -85,7 +85,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
             @Override
             public void run() {
                 if(event != null ){
-                    Log.d("testEvent","接收到信息"+ oldMsg.length());
+
                     if(oldMsg.length() == 0) {
                         oldMsg.append(event.getSocketMessage());
                     }else {
@@ -93,7 +93,6 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
                         oldMsg.append(event.getSocketMessage());
                     }
 
-                    Log.d("testEvent",oldMsg.toString());
                     mTvShow.setText(oldMsg.toString());
                 }
             }
