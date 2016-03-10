@@ -1,1 +1,1 @@
-include ':app', ':client', ':httpProxyTest1', ':identifyCode'
+include ':app', ':client', ':httpProxyTest1', ':identifyCode', ':injectProxyForSMS'
