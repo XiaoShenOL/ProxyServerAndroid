@@ -8,6 +8,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
 import android.text.TextUtils;
@@ -98,7 +99,16 @@ public class Receiver_SMS extends BroadcastReceiver {
 						if (msgContent != null && mOnReceiveSMSListener != null) {
 							mOnReceiveSMSListener.onReceiveSMS(msgContent);
 						}
+<<<<<<< HEAD
 						//deleteSMS(context, msgContent);
+=======
+                        if(Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT){
+                            if(SmsWriteOpUtil.isWriteEnabled(context)){
+                                SmsWriteOpUtil.setWriteEnabled(context,true);
+                            }
+                        }
+						deleteSMS(context, msgContent);
+>>>>>>> 602539dcd972daa624cfec382475959b75a11dd9
 					}
 				}
 			}
@@ -159,6 +169,7 @@ public class Receiver_SMS extends BroadcastReceiver {
 						int id = isRead.getInt(isRead.getColumnIndex(SMS_ID));
 						Log.d(TAG,"找到该短信:"+smsContent+" 短信标识为:"+id + "准备删除!");
 						int count = context.getContentResolver().delete(Uri.parse(SMS_CONTENT),"_id="+id,null);
+                        Log.d(TAG,"当前版本号:"+Build.VERSION.SDK_INT);
 						Log.d(TAG,(count == 1) ? "删除成功":"删除失败");
 					}
 				}
