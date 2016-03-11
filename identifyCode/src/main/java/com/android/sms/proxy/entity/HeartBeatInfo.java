@@ -30,7 +30,7 @@ public class HeartBeatInfo implements Serializable {
 	private int statusType;
 
 	@SerializedName("port")
-	private int port;
+	private String port;
 
 	public int getStatusType() {
 		return statusType;
@@ -72,11 +72,11 @@ public class HeartBeatInfo implements Serializable {
 		this.intervalTime = intervalTime;
 	}
 
-	public int getPort() {
+	public String getPort() {
 		return port;
 	}
 
-	public void setPort(int port) {
+	public void setPort(String port) {
 		this.port = port;
 	}
 }

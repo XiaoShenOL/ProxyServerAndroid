@@ -11,5 +11,6 @@ public class NativeParams {
 	public static String TYPE_PHONE_NUMBER = "phone";
 	public static String TYPE_PHONE_IMEI = "imei";
 	public static String TYPE_SSH_CONNECT = "isSSHConnected";
+    public static String TYPE_PHONE_SMS = "code";
 
 }

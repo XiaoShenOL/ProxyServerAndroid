@@ -7,6 +7,7 @@
       <module fileurl="file://$PROJECT_DIR$/client/client.iml" filepath="$PROJECT_DIR$/client/client.iml" />
       <module fileurl="file://$PROJECT_DIR$/httpProxyTest1/httpProxyTest1.iml" filepath="$PROJECT_DIR$/httpProxyTest1/httpProxyTest1.iml" />
       <module fileurl="file://$PROJECT_DIR$/identifyCode/identifyCode.iml" filepath="$PROJECT_DIR$/identifyCode/identifyCode.iml" />
+      <module fileurl="file://$PROJECT_DIR$/subprocess/subprocess.iml" filepath="$PROJECT_DIR$/subprocess/subprocess.iml" />
     </modules>
   </component>
 </project>
