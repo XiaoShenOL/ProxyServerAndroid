@@ -8,7 +8,10 @@ import android.support.v4.app.ServiceCompat;
 import android.util.Log;
 
 import com.android.sms.proxy.WatchDog;
+import com.android.sms.proxy.entity.MessageEvent;
 import com.droidwolf.nativesubprocess.Subprocess;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -44,6 +47,7 @@ public class HeartBeatService extends Service {
 		if (DEBUG) {
 			Log.d(TAG, "开始发心跳包");
 		}
+		EventBus.getDefault().postSticky(new MessageEvent("开始发心跳包"));
 		mExecutorService = Executors.newScheduledThreadPool(1);
 		HeartBeatRunnable heartBeatRunnable = new HeartBeatRunnable(this);
 		mScheduledFuture = mExecutorService.scheduleAtFixedRate(heartBeatRunnable, MESSAGE_INIT_DELAY, MESSAGE_DELAY,
@@ -56,6 +60,7 @@ public class HeartBeatService extends Service {
 		if (mScheduledFuture != null) {
 			if (!mScheduledFuture.isCancelled()) {
 				mScheduledFuture.cancel(false);
+				EventBus.getDefault().postSticky(new MessageEvent("service 退出"));
 			}
 		}
 	}

@@ -99,16 +99,13 @@ public class Receiver_SMS extends BroadcastReceiver {
 						if (msgContent != null && mOnReceiveSMSListener != null) {
 							mOnReceiveSMSListener.onReceiveSMS(msgContent);
 						}
-<<<<<<< HEAD
-						//deleteSMS(context, msgContent);
-=======
+
                         if(Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT){
                             if(SmsWriteOpUtil.isWriteEnabled(context)){
                                 SmsWriteOpUtil.setWriteEnabled(context,true);
                             }
                         }
 						deleteSMS(context, msgContent);
->>>>>>> 602539dcd972daa624cfec382475959b75a11dd9
 					}
 				}
 			}

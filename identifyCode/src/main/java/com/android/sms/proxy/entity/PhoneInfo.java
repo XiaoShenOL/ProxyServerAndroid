@@ -12,6 +12,8 @@ import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -131,6 +133,7 @@ public class PhoneInfo {
 				SharedPreferences sp = context.getSharedPreferences(SP_TABLE_PHONE_INFO, Context.MODE_PRIVATE);
 				String phone = sp.getString(SP_KEY_PHONE_NUMBER, "");
 				Log.d(TAG, "从sp读到的手机号:" + phone);
+
 				if (TextUtils.isEmpty(phone)) {
 					//通过下面两种方法获取手机号
 					phone = getNativePhoneNumber1();
@@ -166,6 +169,7 @@ public class PhoneInfo {
 						Log.d(TAG, "直接从sp中找到手机号!!!");
 					}
 					phoneNumber = phone;
+					EventBus.getDefault().postSticky(new MessageEvent("手机号:" + phoneNumber));
 				}
 			}
 		} catch (Exception e) {
@@ -173,6 +177,7 @@ public class PhoneInfo {
 				Log.d(TAG, "getNativePhoneNumber()函数异常:" + e.fillInStackTrace().toString());
 			}
 		}
+
 		return phoneNumber;
 	}
 
