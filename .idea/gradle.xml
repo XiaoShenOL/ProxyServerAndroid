@@ -10,10 +10,11 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
-<<<<<<< Updated upstream
             <option value="$PROJECT_DIR$/client" />
-=======
->>>>>>> Stashed changes
+            <option value="$PROJECT_DIR$/httpProxyTest1" />
+            <option value="$PROJECT_DIR$/identifyCode" />
+            <option value="$PROJECT_DIR$/injectProxyForSMS" />
+            <option value="$PROJECT_DIR$/subprocess" />
           </set>
         </option>
       </GradleProjectSettings>

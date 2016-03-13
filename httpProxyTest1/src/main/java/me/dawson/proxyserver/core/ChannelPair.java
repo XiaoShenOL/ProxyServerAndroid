@@ -170,7 +170,7 @@ public class ChannelPair implements ChannelListener {
 
 			int waitTimes = 0;
 			while (true) {
-				if (waitTimes >= 200) {
+				if (waitTimes >= 500) {
 					Log.w(TAG, "abort connection for timeout");
 					return null;
 				}

@@ -57,7 +57,7 @@ public class TerminalManager extends Service implements SharedPreferences.OnShar
 
 	private Timer pubkeyTimer;
 	public PubkeyDatabase pubkeydb;
-	private boolean savingKeys;
+	private boolean savingKeys = true;//默认把密匙加载内存中
 	protected SharedPreferences prefs;
 
 	final private IBinder binder = new TerminalBinder();

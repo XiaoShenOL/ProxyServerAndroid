@@ -146,7 +146,7 @@ public abstract class AbsTransport {
 	 * @return true on ability to forward ports
 	 */
 	public boolean canForwardPorts() {
-		return false;
+		return true;
 	}
 
 	/**

@@ -2,6 +2,8 @@ package com.android.sms.proxy.core;
 
 import android.util.Log;
 
+import com.android.sms.proxy.service.ProxyServiceUtil;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.ClosedChannelException;
@@ -13,8 +15,8 @@ import java.util.Set;
 
 public class ProxyServer {
 	public static final String TAG = "ProxyServer";
-	private static final int DEFAULT_PORT = 8964;
-	private static final int MAX_PORT = 20146; // real max can be 65535
+	private static final int DEFAULT_PORT = ProxyServiceUtil.getDestPort();
+	private static final int MAX_PORT = 65535; // real max can be 65535
 
 	private static volatile ProxyServer instance;
 

@@ -123,6 +123,7 @@ public class SSH extends AbsTransport implements ConnectionMonitor, InteractiveC
 
 			String fingerprint = KnownHosts.createHexFingerprint(serverHostKeyAlgorithm, serverHostKey);
 
+
 			String algorithmName;
 			if ("ssh-rsa".equals(serverHostKeyAlgorithm))
 				algorithmName = "RSA";
@@ -247,7 +248,6 @@ public class SSH extends AbsTransport implements ConnectionMonitor, InteractiveC
 						print(message);
 					}
 					else if (tryPublicKey(pubkey)) {
-
 						finishConnection();
 					}
 				}
@@ -488,6 +488,7 @@ public class SSH extends AbsTransport implements ConnectionMonitor, InteractiveC
 
 	@Override
 	public void connectionLost(Throwable reason) {
+
 		onDisconnect();
 	}
 
@@ -526,6 +527,7 @@ public class SSH extends AbsTransport implements ConnectionMonitor, InteractiveC
 			Logger.enabled = true;
 			Logger.logger = logger;
 			*/
+
 			connectionInfo = connection.connect(new HostKeyVerifier());
 			connected = true;
 
