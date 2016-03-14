@@ -39,7 +39,6 @@ import java.util.Enumeration;
 import java.util.List;
 
 import infinite.proxyy.MessageEvent;
-import infinite.proxyy.MyProxyServer;
 import infinite.proxyy.R;
 
 /**

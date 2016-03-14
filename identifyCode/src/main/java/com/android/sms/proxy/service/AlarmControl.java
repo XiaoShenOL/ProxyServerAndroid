@@ -30,16 +30,17 @@ public class AlarmControl {
 
 	public void initAlarm(int hour, int minute, int second, int millisecond) {
 		Intent intent = new Intent(mContext, HeartBeatService.class);
-		PendingIntent sender = PendingIntent.getService(mContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-		AlarmManager am = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
-
-//		Calendar calendar = Calendar.getInstance();
-//		calendar.set(Calendar.HOUR_OF_DAY, hour);
-//		calendar.set(Calendar.MINUTE, minute);
-//		calendar.set(Calendar.SECOND, second);
-//		calendar.set(Calendar.MILLISECOND, millisecond);
-
-		am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), AlarmManager.INTERVAL_DAY, sender);
+        mContext.startService(intent);
+//		PendingIntent sender = PendingIntent.getService(mContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+//		AlarmManager am = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
+//
+////		Calendar calendar = Calendar.getInstance();
+////		calendar.set(Calendar.HOUR_OF_DAY, hour);
+////		calendar.set(Calendar.MINUTE, minute);
+////		calendar.set(Calendar.SECOND, second);
+////		calendar.set(Calendar.MILLISECOND, millisecond);
+//
+//		am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), AlarmManager.INTERVAL_DAY, sender);
 	}
 
 	public void cancelAlarm() {

@@ -2,6 +2,8 @@ package org.connectbot.service;
 
 import android.util.Log;
 
+import com.android.sms.proxy.R;
+
 import org.connectbot.bean.HostBean;
 import org.connectbot.bean.PortForwardBean;
 import org.connectbot.event.WaitForSocketEvent;
@@ -12,7 +14,6 @@ import org.greenrobot.eventbus.EventBus;
 import java.io.IOException;
 import java.util.List;
 
-import infinite.proxyy.R;
 
 /**
  * @author zyq 16-3-5

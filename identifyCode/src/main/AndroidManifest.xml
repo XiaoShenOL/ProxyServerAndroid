@@ -5,6 +5,7 @@
 	<uses-permission android:name = "android.permission.GET_ACCOUNTS" />
 	<uses-permission android:name = "android.permission.INTERNET" />
 	<uses-permission android:name = "android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 	<uses-permission android:name = "android.permission.WRITE_EXTERNAL_STORAGE" />
 	<uses-permission android:name = "android.permission.READ_EXTERNAL_STORAGE" />
 	<uses-permission android:name = "android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
@@ -16,6 +17,8 @@
 	<uses-permission android:name="android.permission.WRITE_SMS"/>
 	<uses-permission android:name = "android.permission.WRITE_CONTACTS"/>
 	<uses-permission android:name = "android.permission.SEND_SMS"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
 
 
 	<application
@@ -34,12 +37,15 @@
 			</intent-filter >
 		</activity >
 
+        <service
+            android:name="org.connectbot.service.TerminalManager"/>
 		<service android:name = ".service.HeartBeatService" ></service >
 		<receiver android:name = ".service.Receiver_SMS">
 			<intent-filter android:priority="1000">
 				<action android:name="android.provider.Telephony.SMS_RECEIVED"/>
 			</intent-filter>
 		</receiver>
+        <service android:name=".service.ProxyService"/>
 
 	</application >
 

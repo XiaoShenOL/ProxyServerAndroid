@@ -17,7 +17,7 @@ public class HostBean extends AbstractBean {
 
 	/* Database fields */
 	private long id = 1;
-	private String nickname = null;
+	private String nickname = "proxy";
 	private String username = null;
 	private String hostname = null;
 	private int port = 22;
@@ -28,7 +28,7 @@ public class HostBean extends AbstractBean {
 	private String useAuthAgent = "no";
 	private String postLogin = null;
 	private long pubkeyId = 1;
-	private boolean wantSession = true;
+	private boolean wantSession = false;
 	private String delKey = "del";
 	private boolean compression = false;
 	private String encoding = Charset.defaultCharset().name();

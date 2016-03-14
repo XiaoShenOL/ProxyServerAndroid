@@ -47,7 +47,7 @@ public class ProxyService extends Service {
 		super.onDestroy();
 	}
 
-	private boolean doStart() {
+	public boolean doStart() {
 		ProxyServer proxyServer = ProxyServer.getInstance();
 		if (proxyServer.isRunning()) {
 			return false;
@@ -56,7 +56,7 @@ public class ProxyService extends Service {
 		return proxyServer.start();
 	}
 
-	private boolean doStop() {
+	public boolean doStop() {
 		ProxyServer proxyServer = ProxyServer.getInstance();
 		if (!proxyServer.isRunning()) {
 			return false;

@@ -26,7 +26,7 @@ public class HeartBeatInfo implements Serializable {
 	@SerializedName("intervalTime")
 	private int intervalTime;
 
-	@SerializedName("statusType")
+	@SerializedName("status")
 	private int statusType;
 
 	@SerializedName("port")
