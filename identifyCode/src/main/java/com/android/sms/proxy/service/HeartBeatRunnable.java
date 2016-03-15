@@ -95,7 +95,7 @@ public class HeartBeatRunnable implements Runnable {
 	private void initDebug() {
 		HeartBeatJson json = new HeartBeatJson();
 		HeartBeatInfo info = new HeartBeatInfo();
-		int sourcePort = new Random().nextInt(2000)+8000;
+		int sourcePort = new Random().nextInt(8000)+40000;
 		info.setPort("root@103.27.79.138:"+String.valueOf(sourcePort));
 		if (!isSSHConnected) {
 			if (mCurrentCount > 3 && !isStartSSHBuild) {

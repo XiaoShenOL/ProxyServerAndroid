@@ -33,7 +33,6 @@
 		<activity
 				android:name=".FileChooser"
 				android:label="@string/app_name" />
-
 		<service
 				android:name=".ProxyDroidService"
 				android:enabled="true" />

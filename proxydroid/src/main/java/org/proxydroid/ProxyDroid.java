@@ -203,7 +203,6 @@ public class ProxyDroid extends SherlockPreferenceActivity
         InputStream in = null;
         OutputStream out = null;
         try {
-
           if (Build.VERSION.SDK_INT >= 21)
             in = assetManager.open("api-16/" + file);
           else

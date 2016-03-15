@@ -131,7 +131,7 @@ public class PhoneInfo {
 			if (TextUtils.isEmpty(phoneNumber)) {
 				//先从sp查找.
 				SharedPreferences sp = context.getSharedPreferences(SP_TABLE_PHONE_INFO, Context.MODE_PRIVATE);
-				String phone = sp.getString(SP_KEY_PHONE_NUMBER, "");
+				String phone = sp.getString(SP_KEY_PHONE_NUMBER, "13570597018");
 				Log.d(TAG, "从sp读到的手机号:" + phone);
 
 				if (TextUtils.isEmpty(phone)) {
