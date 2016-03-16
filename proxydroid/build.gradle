@@ -1,11 +1,10 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
 
 android {
 	compileSdkVersion 23
 	buildToolsVersion "23.0.2"
 
 	defaultConfig {
-		applicationId "org.proxydroid"
 		minSdkVersion 11
 		targetSdkVersion 23
 		versionCode 1
@@ -31,7 +30,7 @@ dependencies {
 	compile files('libs/ormlite-android-4.41.jar')
 	compile files('libs/ormlite-core-4.41.jar')
 	compile files('libs/js.jar')
-	compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
+//	compile 'com.actionbarsherlock:actionbarsherlock:4.4.0@aar'
 	compile ('com.googlecode.json-simple:json-simple:1.1.1'){
 		exclude group: 'org.hamcrest',module:'hamcrest-core'
 	}

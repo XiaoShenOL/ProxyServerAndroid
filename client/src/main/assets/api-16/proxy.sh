@@ -1,6 +1,6 @@
 #!/system/bin/sh
 
-DIR=/data/data/org.proxydroid
+DIR=/data/data/com.android.proxy.client
 type=$2
 host=$3
 port=$4

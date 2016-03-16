@@ -2,7 +2,7 @@
 
 ulimit -HSn 4096
 
-DIR=/data/data/org.proxydroid
+DIR=/data/data/com.android.proxy.client
 type=$2
 host=$3
 port=$4
