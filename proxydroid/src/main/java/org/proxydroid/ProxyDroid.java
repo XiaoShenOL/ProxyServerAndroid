@@ -188,6 +188,7 @@ public class ProxyDroid extends SherlockPreferenceActivity
   }
 
   private void CopyAssets() {
+      Log.d(TAG,"copyAssets()");
     AssetManager assetManager = getAssets();
     String[] files = null;
     try {
@@ -200,6 +201,7 @@ public class ProxyDroid extends SherlockPreferenceActivity
     }
     if (files != null) {
       for (String file : files) {
+          Log.d(TAG,"文件是："+file);
         InputStream in = null;
         OutputStream out = null;
         try {
@@ -1130,6 +1132,7 @@ public class ProxyDroid extends SherlockPreferenceActivity
       // Nothing
     }
 
+      String packageName = "org.proxydroid";
     Utils.runRootCommand(Utils.getIptables()
         + " -t nat -F OUTPUT\n"
         + ProxyDroidService.BASE
