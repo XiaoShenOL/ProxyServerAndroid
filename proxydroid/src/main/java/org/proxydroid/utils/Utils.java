@@ -26,7 +26,7 @@ public class Utils {
 	public final static String DEFAULT_SHELL = "/system/bin/sh";
 	public final static String DEFAULT_ROOT = "/system/bin/su";
 	public final static String ALTERNATIVE_ROOT = "/system/xbin/su";
-	public final static String DEFAULT_IPTABLES = "/data/data/com.android.proxy.client/iptables";
+	public final static String DEFAULT_IPTABLES = "/data/data/org.proxydroid/iptables";
 	public final static String ALTERNATIVE_IPTABLES = "/system/bin/iptables";
 	public final static int TIME_OUT = -99;
 	private static boolean initialized = false;

@@ -10,7 +10,6 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.android.proxy.client.GlobalProxyUtil;
 import com.android.proxy.client.MessageEvent;
 import com.android.proxy.client.R;
 
@@ -38,7 +37,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 		}
 		EventBus.getDefault().register(this);
 		mTvShow.setMovementMethod(ScrollingMovementMethod.getInstance());
-		GlobalProxyUtil.getInstance(this);
+		//GlobalProxyUtil.getInstance(this);
 	}
 
 
@@ -48,7 +47,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 			String portStr = mEdtPort.getText().toString();
 			int port = Integer.valueOf(portStr);
 			String host = "103.27.79.138";
-			GlobalProxyUtil.getInstance(this).startProxy(host, port);
+			//GlobalProxyUtil.getInstance(this).startProxy(host, port);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

@@ -25,7 +25,7 @@
 		          android:id = "@+id/port"
 		          android:hint = "请填写端口号" />
 
-		<!--<Button style = "@style/item" android:id = "@+id/connect" android:text = "@string/connect" />-->
+		<Button style = "@style/item" android:id = "@+id/connect" android:text = "@string/connect" />
 		<TextView android:layout_width = "wrap_content"
 		          android:layout_height = "wrap_content"
 		          android:layout_marginLeft = "10dp"
