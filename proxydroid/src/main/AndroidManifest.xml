@@ -14,9 +14,9 @@
 			android:icon = "@mipmap/ic_launcher"
 			android:label = "@string/app_name"
 			android:supportsRtl = "true"
-			android:theme = "@style/Theme.Sherlock" >
+			>
 		<activity
-				android:name="ProxyDroid"
+				android:name=".MainActivity"
 				android:label="@string/app_name" >
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
@@ -24,15 +24,15 @@
 				<category android:name="android.intent.category.LAUNCHER" />
 			</intent-filter>
 		</activity>
-		<activity
-				android:name=".AppManager"
-				android:label="@string/app_name" />
-		<activity
-				android:name=".BypassListActivity"
-				android:label="@string/app_name" />
-		<activity
-				android:name=".FileChooser"
-				android:label="@string/app_name" />
+		<!--<activity-->
+				<!--android:name=".AppManager"-->
+				<!--android:label="@string/app_name" />-->
+		<!--<activity-->
+				<!--android:name=".BypassListActivity"-->
+				<!--android:label="@string/app_name" />-->
+		<!--<activity-->
+				<!--android:name=".FileChooser"-->
+				<!--android:label="@string/app_name" />-->
 		<service
 				android:name=".ProxyDroidService"
 				android:enabled="true" />
