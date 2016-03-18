@@ -20,6 +20,7 @@
 	              android:orientation = "vertical"
 	              android:padding = "3mm" >
 
+		<Button style = "@style/item" android:id = "@+id/appmanager" android:text = "@string/proxymode" />
 
 		<EditText android:layout_width = "match_parent" android:layout_height = "wrap_content"
 		          android:id = "@+id/port"

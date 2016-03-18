@@ -1,5 +1,6 @@
 package com.android.sms.client;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v7.app.ActionBarActivity;
@@ -24,12 +25,14 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 	private StringBuilder oldMsg;
 	private EditText mEdtPort;
 
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		findViewById(R.id.connect).setOnClickListener(this);
 		findViewById(R.id.disconnect).setOnClickListener(this);
+		findViewById(R.id.appmanager).setOnClickListener(this);
 		mTvShow = (TextView) findViewById(R.id.tv_socket_message);
 		mEdtPort = (EditText) findViewById(R.id.port);
 		oldMsg = new StringBuilder();
@@ -40,6 +43,8 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 		EventBus.getDefault().register(this);
 		mTvShow.setMovementMethod(ScrollingMovementMethod.getInstance());
 		GlobalProxyUtil.getInstance(this).init();
+		GlobalProxyUtil.getInstance(this).addProxyPackage(this, "com.android.vending");
+		GlobalProxyUtil.getInstance(this).addProxyPackage(this,"com.google.android.gm");
 	}
 
 
@@ -55,6 +60,10 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 					break;
 				case R.id.disconnect:
 					GlobalProxyUtil.getInstance(this).serviceStop(this);
+					break;
+				case R.id.appmanager:
+					Intent intent = new Intent(this,AppManager.class);
+					startActivity(intent);
 					break;
 			}
 		} catch (Exception e) {
