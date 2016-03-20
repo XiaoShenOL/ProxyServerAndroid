@@ -15,8 +15,8 @@ case $1 in
 
 echo "
 base {
- log_debug = off;
- log_info = off;
+ log_debug = on;
+ log_info = on;
  log = stderr;
  daemon = on;
  redirector = iptables;

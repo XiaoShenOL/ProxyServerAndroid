@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.android.proxy.client.GlobalProxyUtil;
 import com.android.proxy.client.MessageEvent;
 import com.android.proxy.client.R;
 
@@ -28,6 +29,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		findViewById(R.id.connect).setOnClickListener(this);
+		findViewById(R.id.disconnect).setOnClickListener(this);
 		mTvShow = (TextView) findViewById(R.id.tv_socket_message);
 		mEdtPort = (EditText) findViewById(R.id.port);
 		oldMsg = new StringBuilder();
@@ -37,17 +39,24 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 		}
 		EventBus.getDefault().register(this);
 		mTvShow.setMovementMethod(ScrollingMovementMethod.getInstance());
-		//GlobalProxyUtil.getInstance(this);
+		GlobalProxyUtil.getInstance(this).init();
 	}
 
 
 	@Override
 	public void onClick(View v) {
 		try {
-			String portStr = mEdtPort.getText().toString();
-			int port = Integer.valueOf(portStr);
-			String host = "103.27.79.138";
-			//GlobalProxyUtil.getInstance(this).startProxy(host, port);
+			switch (v.getId()){
+				case R.id.connect:
+					String portStr = mEdtPort.getText().toString();
+					int port = Integer.valueOf(portStr);
+					String host = "103.27.79.138";
+					GlobalProxyUtil.getInstance(this).startProxy(host, port);
+					break;
+				case R.id.disconnect:
+					GlobalProxyUtil.getInstance(this).serviceStop(this);
+					break;
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

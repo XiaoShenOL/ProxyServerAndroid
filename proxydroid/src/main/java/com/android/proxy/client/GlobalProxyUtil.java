@@ -2,9 +2,12 @@ package com.android.proxy.client;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.j256.ormlite.android.apptools.OpenHelperManager;
@@ -36,6 +39,7 @@ public class GlobalProxyUtil {
 	private ExecutorService exec;
 	private boolean isRoot;
 	private String packageName;
+	private final String SP_FILE_IS_SAVE = "isFileSave";
 
 	public static GlobalProxyUtil getInstance(Context context) {
 		if (instance == null) {
@@ -52,15 +56,54 @@ public class GlobalProxyUtil {
 		mContext = context;
 		exec = Executors.newCachedThreadPool();
 		packageName = mContext.getPackageName();
+		Utils.DEFAULT_IPTABLES = "/data/data/" + packageName + "/iptables";
+		ProxyDroidService.BASE = "/data/data" + packageName + "/";
 		isRoot = Utils.isRoot();
 		if (!isRoot) {
 			Log.d(TAG, "当前没有root");
 		}
-		reset(context);
+	}
+
+	public void init() {
+		new Thread(new ProxyInitRunnable(mContext)).start();
+	}
+
+	private class ProxyInitRunnable implements Runnable {
+
+		private Context mContext;
+
+		public ProxyInitRunnable(Context context) {
+			mContext = context;
+		}
+
+		@Override
+		public void run() {
+			final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mContext);
+			String versionName;
+			try {
+				versionName = mContext.getPackageManager().getPackageInfo(mContext.getPackageName(), 0).versionName;
+			} catch (PackageManager.NameNotFoundException e) {
+				versionName = "NONE";
+			}
+
+			if (!settings.getBoolean(versionName, false)) {
+				String version;
+				try {
+					version = mContext.getPackageManager().getPackageInfo(mContext.getPackageName(), 0).versionName;
+				} catch (PackageManager.NameNotFoundException e) {
+					version = "NONE";
+				}
+				reset(mContext);
+				Log.d(TAG, "所有的工作准备完毕!!!!!!");
+				SharedPreferences.Editor edit = settings.edit();
+				edit.putBoolean(version, true);
+				edit.commit();
+			}
+		}
 	}
 
 	public void startProxy(String host, int port) {
-		if (mContext != null && isRoot) {
+		if (mContext != null) {
 			boolean result = serviceStart(mContext, host, port);
 			Log.d(TAG, "开启service结果:" + result);
 		}
@@ -83,6 +126,7 @@ public class GlobalProxyUtil {
 	private boolean serviceStart(Context context, String host, int port) {
 		try {
 			Future<Boolean> future = exec.submit(new WaitStartService(context, host, port));
+			Log.d(TAG, "之前是否有service存在:" + future.get());
 			if (future.get()) {
 				startService(context, host, port);
 			}
@@ -112,7 +156,8 @@ public class GlobalProxyUtil {
 		bundle.putBoolean("isDNSProxy", false);
 		bundle.putBoolean("isPAC", false);
 		bundle.putInt("port", port);
-		bundle.putString("packageName",packageName);
+		bundle.putString("packageName", packageName);
+		Log.d(TAG, "host:" + host + "\nport:" + port);
 		it.putExtras(bundle);
 		context.startService(it);
 	}
@@ -158,6 +203,7 @@ public class GlobalProxyUtil {
 			context.stopService(new Intent(context, ProxyDroidService.class));
 		} catch (Exception e) {
 			// Nothing
+			Log.d(TAG, e.fillInStackTrace().toString());
 		}
 
 		CopyAssets(context);
@@ -171,22 +217,32 @@ public class GlobalProxyUtil {
 			}
 		} catch (Exception ignore) {
 			// Nothing
+			Log.d(TAG, ignore.fillInStackTrace().toString());
 		}
+
+		final SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(mContext);
+		if (!settings.getBoolean(SP_FILE_IS_SAVE, false)) {
+			Log.d(TAG, "修改文件权限!!!!!!!!!!!");
+			Utils.runRootCommand("chmod 700 /data/data/" + packageName + "/iptables\n"
+					+ "chmod 700 /data/data/" + packageName + "/redsocks\n"
+					+ "chmod 700 /data/data/" + packageName + "/proxy.sh\n"
+					+ "chmod 700 /data/data/" + packageName + "/cntlm\n"
+					+ "chmod 700 /data/data/" + packageName + "/stunnel\n"
+					+ "chmod 700 /data/data/" + packageName + "/shrpx\n");
+			SharedPreferences.Editor edit = settings.edit();
+			edit.putBoolean(SP_FILE_IS_SAVE, true);
+			edit.commit();
+		}
+
+		Log.d(TAG, "kill -9 stunnel.pid,shrpx.pid,cntlm.pid");
 
 		Utils.runRootCommand(Utils.getIptables()
 				+ " -t nat -F OUTPUT\n"
-				+ "/data/data/"+packageName+"/"
+				+ ProxyDroidService.BASE
 				+ "proxy.sh stop\n"
-				+ "kill -9 `cat /data/data/"+packageName+"/stunnel.pid`\n"
-				+ "kill -9 `cat /data/data/"+packageName+"/shrpx.pid`\n"
-				+ "kill -9 `cat /data/data/"+packageName+"/cntlm.pid`\n");
-
-		Utils.runRootCommand("chmod 700 /data/data/"+packageName+"/iptables\n"
-				+ "chmod 700 /data/data/"+packageName+"/redsocks\n"
-				+ "chmod 700 /data/data/"+packageName+"/proxy.sh\n"
-				+ "chmod 700 /data/data/"+packageName+"/cntlm\n"
-				+ "chmod 700 /data/data/"+packageName+"/stunnel\n"
-				+ "chmod 700 /data/data/"+packageName+"/shrpx\n");
+				+ "kill -9 `cat /data/data/" + packageName + "/stunnel.pid`\n"
+				+ "kill -9 `cat /data/data/" + packageName + "/shrpx.pid`\n"
+				+ "kill -9 `cat /data/data/" + packageName + "/cntlm.pid`\n");
 	}
 
 	private void CopyAssets(Context context) {
@@ -211,7 +267,7 @@ public class GlobalProxyUtil {
 						in = assetManager.open("api-16/" + file);
 					else
 						in = assetManager.open(file);
-					out = new FileOutputStream("/data/data/" + packageName + "/"+file);
+					out = new FileOutputStream("/data/data/" + packageName + "/" + file);
 					copyFile(in, out);
 					in.close();
 					in = null;

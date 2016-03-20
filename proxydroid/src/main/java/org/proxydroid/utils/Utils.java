@@ -26,7 +26,7 @@ public class Utils {
 	public final static String DEFAULT_SHELL = "/system/bin/sh";
 	public final static String DEFAULT_ROOT = "/system/bin/su";
 	public final static String ALTERNATIVE_ROOT = "/system/xbin/su";
-	public final static String DEFAULT_IPTABLES = "/data/data/org.proxydroid/iptables";
+	public static String DEFAULT_IPTABLES = "/data/data/org.proxydroid/iptables";
 	public final static String ALTERNATIVE_IPTABLES = "/system/bin/iptables";
 	public final static int TIME_OUT = -99;
 	private static boolean initialized = false;
@@ -75,15 +75,13 @@ public class Utils {
 		StringBuilder sb = new StringBuilder();
 		String command = iptables + " --version\n" + iptables
 				+ " -L -t nat -n\n" + "exit\n";
-
-		Log.d(TAG, "checkIptables.command:" + command);
 		int exitcode = runScript(command, sb, 10 * 1000, true);
-
 		if (exitcode == TIME_OUT)
 			return;
-
 		lines = sb.toString();
-		Log.d(TAG, "通过执行该命令后,得到的输出:" + lines);
+
+		Log.d(TAG, "getIptablse得到的结果是:" + lines);
+
 
 		if (lines.contains("OUTPUT")) {
 			compatible = true;
@@ -97,6 +95,7 @@ public class Utils {
 			if (!new File(iptables).exists())
 				iptables = "iptables";
 		}
+		Log.d(TAG,"iptables的路径是:"+iptables);
 
 	}
 
@@ -243,10 +242,7 @@ public class Utils {
 
 	public static boolean runRootCommand(String command, int timeout) {
 
-		Log.d(TAG, "runRootCommand():" + command);
-
 		runScript(command, null, timeout, true);
-
 		return true;
 	}
 
@@ -370,6 +366,23 @@ public class Utils {
 			String arg0 = argList.get(0);
 			String[] args = argList.toArray(new String[1]);
 
+			StringBuilder sb = new StringBuilder();
+			sb.append("result:" + result);
+			sb.append("\nparse(cmd):");
+			for (int i = 0; i < argList.size(); i++) {
+				sb.append(argList.get(i) + " ");
+			}
+			sb.append("\narg0" + arg0);
+			sb.append("\nargs:");
+			for (int i = 0; i < args.length; i++) {
+				sb.append(args[i] + " ");
+			}
+			sb.append("\nscripts:" + scripts);
+			sb.append("\nprocessId:");
+			for (int i = 0; i < processId.length; i++) {
+				sb.append(processId[i] + " ");
+			}
+			Log.d(TAG, "createSubprocess:" + sb.toString());
 			return Exec.createSubprocess(result != null ? 1 : 0, arg0, args, null,
 					scripts + "\nexit\n", processId);
 		}
@@ -419,19 +432,13 @@ public class Utils {
 			if (builder.length() > 0) {
 				result.add(builder.toString());
 			}
-			Log.d(TAG, "runScript.parse(cmd)解析之后的字符串如下");
-			for (int i = 0; i < result.size(); i++) {
-				Log.d(TAG, result.get(i));
-			}
 			return result;
 		}
 
 		@Override
 		public void run() {
 			pid[0] = -1;
-
 			try {
-				Log.d(TAG, "创建子进程,然后在子进程中跑脚本");
 				if (this.asroot) {
 					// Create the "su" request to run the script
 					pipe = createSubprocess(pid, root_shell);
@@ -442,10 +449,8 @@ public class Utils {
 
 				if (pid[0] != -1) {
 					exitcode = Exec.waitFor(pid[0]);
-					Log.d(TAG, "exitcode:" + exitcode);
 				}
 
-				Log.d(TAG, "在子进程中结果请求:" + scripts + " 后返回的结果是:" + result + " pipe:" + pipe);
 				if (result == null || pipe == null) return;
 
 				final InputStream stdout = new FileInputStream(pipe);
@@ -458,6 +463,7 @@ public class Utils {
 					result.append(new String(buf, 0, read));
 				}
 
+				Log.d(TAG, "在子进程中结果请求:" + scripts + "\n后返回的结果是:" + result.toString() + "\npipe:" + pipe + "\n\n\n");
 
 			} catch (Exception ex) {
 				Log.e(TAG, "Cannot execute command", ex);
@@ -465,11 +471,9 @@ public class Utils {
 					result.append("\n").append(ex);
 			} finally {
 				if (pipe != null) {
-					Log.d(TAG,"关掉该管道");
 					Exec.close(pipe);
 				}
 				if (pid[0] != -1) {
-					Log.d(TAG,"挂起进程组");
 					Exec.hangupProcessGroup(pid[0]);
 				}
 			}

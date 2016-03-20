@@ -91,7 +91,7 @@ public class ProxyDroidService extends Service {
 	private NotificationManager notificationManager;
 	private PendingIntent pendIntent;
 
-	public static  String BASE = "/data/data/org.proxydroid/";
+	public static String BASE = "/data/data/org.proxydroid/";
 	public final static String PREFS_KEY_PROXYED = "Proxyed";
 	private static final int MSG_CONNECT_START = 0;
 	private static final int MSG_CONNECT_FINISH = 1;
@@ -320,7 +320,7 @@ public class ProxyDroidService extends Service {
 						+ (!domain.equals("") ? "@" + domain : "@local") + " -p " + password + " "
 						+ proxyHost + ":" + proxyPort + "\n");
 			} else {
-				Log.d(TAG,"用户名和密码分别是:"+user +" "+password);
+				Log.d(TAG, "用户名和密码分别是:" + user + " " + password);
 				final String u = Utils.preserve(user);
 				final String p = Utils.preserve(password);
 				final String command = BASE + "proxy.sh start" + " " + proxyType + " " + proxyHost
@@ -395,7 +395,7 @@ public class ProxyDroidService extends Service {
 			}
 
 			String rules = cmd.toString();
-			Log.d(TAG,"规则是啥:"+rules);
+			Log.d(TAG, "规则是啥:" + rules);
 
 			rules = rules.replace("iptables", Utils.getIptables());
 
@@ -476,13 +476,13 @@ public class ProxyDroidService extends Service {
 	 */
 	public boolean handleCommand() {
 
-		Log.d(TAG,"修改文件的权限");
-		Utils.runRootCommand("chmod 700 /data/data/"+packageName+"/iptables\n"
-				+ "chmod 700 /data/data/"+packageName+"/redsocks\n"
-				+ "chmod 700 /data/data/"+packageName+"/proxy.sh\n"
-				+ "chmod 700 /data/data/"+packageName+"/cntlm\n"
-				+ "chmod 700 /data/data/"+packageName+"/stunnel\n"
-				+ "chmod 700 /data/data/"+packageName+"/shrpx\n");
+		Log.d(TAG, "修改文件的权限");
+		Utils.runRootCommand("chmod 700 /data/data/" + packageName + "/iptables\n"
+				+ "chmod 700 /data/data/" + packageName + "/redsocks\n"
+				+ "chmod 700 /data/data/" + packageName + "/proxy.sh\n"
+				+ "chmod 700 /data/data/" + packageName + "/cntlm\n"
+				+ "chmod 700 /data/data/" + packageName + "/stunnel\n"
+				+ "chmod 700 /data/data/" + packageName + "/shrpx\n");
 
 		enableProxy();
 
@@ -544,25 +544,7 @@ public class ProxyDroidService extends Service {
 		settings = PreferenceManager.getDefaultSharedPreferences(this);
 		notificationManager = (NotificationManager) this.getSystemService(NOTIFICATION_SERVICE);
 
-//		Intent intent = new Intent(this, ProxyDroid.class);
-//		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//		pendIntent = PendingIntent.getActivity(this, 0, intent, 0);
-		notification = new Notification();
 
-		try {
-			mStartForeground = getClass().getMethod("startForeground", mStartForegroundSignature);
-			mStopForeground = getClass().getMethod("stopForeground", mStopForegroundSignature);
-		} catch (NoSuchMethodException e) {
-			// Running on an older platform.
-			mStartForeground = mStopForeground = null;
-		}
-
-		try {
-			mSetForeground = getClass().getMethod("setForeground", mSetForegroundSignature);
-		} catch (NoSuchMethodException e) {
-			throw new IllegalStateException(
-					"OS doesn't have Service.startForeground OR Service.setForeground!");
-		}
 	}
 
 	/**
@@ -573,7 +555,7 @@ public class ProxyDroidService extends Service {
 
 		Utils.setConnecting(true);
 
-		stopForegroundCompat(1);
+		//stopForegroundCompat(1);
 
 		//FlurryAgent.onEndSession(this);
 
@@ -630,15 +612,16 @@ public class ProxyDroidService extends Service {
 		sb.append(Utils.getIptables()).append(" -t nat -F OUTPUT\n");
 
 		if ("https".equals(proxyType)) {
-			sb.append("kill -9 `cat /data/data/"+packageName+"/stunnel.pid`\n");
+			sb.append("kill -9 `cat /data/data/" + packageName + "/stunnel.pid`\n");
 		}
 
 		if (isAuth && isNTLM) {
-			sb.append("kill -9 `cat /data/data/"+packageName+"/cntlm.pid`\n");
+			sb.append("kill -9 `cat /data/data/" + packageName + "/cntlm.pid`\n");
 		}
 
 		sb.append(BASE + "proxy.sh stop\n");
 
+		Log.d(TAG, "onDisconnect命令:" + sb.toString());
 		new Thread() {
 			@Override
 			public void run() {
@@ -654,31 +637,35 @@ public class ProxyDroidService extends Service {
 			Editor ed = settings.edit();
 			switch (msg.what) {
 				case MSG_CONNECT_START:
-					Log.d(TAG,"connect_start");
+					Log.d(TAG, "connect_start");
+					Toast.makeText(ProxyDroidService.this, "动态代理连接开始", Toast.LENGTH_SHORT).show();
 					ed.putBoolean("isConnecting", true);
 					Utils.setConnecting(true);
 					break;
 				case MSG_CONNECT_FINISH:
-					Log.d(TAG,"connect_finish");
+					Log.d(TAG, "connect_finish");
+					Toast.makeText(ProxyDroidService.this, "动态代理连接结束", Toast.LENGTH_SHORT).show();
 					ed.putBoolean("isConnecting", false);
 					Utils.setConnecting(false);
 					break;
 				case MSG_CONNECT_SUCCESS:
-					Log.d(TAG,"connect_success");
+					Log.d(TAG, "connect_success");
+					Toast.makeText(ProxyDroidService.this,"动态代理连接成功",Toast.LENGTH_SHORT).show();
 					ed.putBoolean("isRunning", true);
 					break;
 				case MSG_CONNECT_FAIL:
-					Log.d(TAG,"connect_fail");
+					Log.d(TAG, "connect_fail");
+					Toast.makeText(ProxyDroidService.this,"动态代理连接失败",Toast.LENGTH_SHORT).show();
 					ed.putBoolean("isRunning", false);
 					break;
 				case MSG_CONNECT_PAC_ERROR:
-					Log.d(TAG,"connect_pac_error");
+					Log.d(TAG, "connect_pac_error");
 					Toast.makeText(ProxyDroidService.this, R.string.msg_pac_error, Toast.LENGTH_SHORT)
 							.show();
 					break;
 				case MSG_CONNECT_RESOLVE_ERROR:
-					Log.d(TAG,"connect_resolve_error");
-					Toast.makeText(ProxyDroidService.this, R.string.msg_resolve_error,
+					Log.d(TAG, "connect_resolve_error");
+					Toast.makeText(ProxyDroidService.this, "未知的host错误",
 							Toast.LENGTH_SHORT).show();
 					break;
 			}
@@ -750,9 +737,6 @@ public class ProxyDroidService extends Service {
 			return false;
 		}
 
-		Log.d(TAG, "Proxy: " + host);
-		Log.d(TAG, "Local Port: " + port);
-
 		return true;
 	}
 
@@ -773,11 +757,9 @@ public class ProxyDroidService extends Service {
 		if (intent == null || intent.getExtras() == null) {
 			return;
 		}
-
 		//FlurryAgent.onStartSession(this, "AV372I7R5YYD52NWPUPE");
 
 		Log.d(TAG, "Service Start");
-
 		Bundle bundle = intent.getExtras();
 		host = bundle.getString("host");
 		bypassAddrs = bundle.getString("bypassAddrs");
@@ -790,7 +772,23 @@ public class ProxyDroidService extends Service {
 		isDNSProxy = bundle.getBoolean("isDNSProxy");
 		isPAC = bundle.getBoolean("isPAC");
 		packageName = bundle.getString("packageName");
-		BASE = "/data/data/"+packageName+"/";
+		BASE = "/data/data/" + packageName + "/";
+
+		try {
+			mStartForeground = getClass().getMethod("startForeground", mStartForegroundSignature);
+			mStopForeground = getClass().getMethod("stopForeground", mStopForegroundSignature);
+		} catch (NoSuchMethodException e) {
+			// Running on an older platform.
+			mStartForeground = mStopForeground = null;
+		}
+
+		try {
+			mSetForeground = getClass().getMethod("setForeground", mSetForegroundSignature);
+		} catch (NoSuchMethodException e) {
+			throw new IllegalStateException(
+					"OS doesn't have Service.startForeground OR Service.setForeground!");
+		}
+
 
 		if (isAuth) {
 			auth = "true";
@@ -817,7 +815,7 @@ public class ProxyDroidService extends Service {
 				handler.sendEmptyMessage(MSG_CONNECT_START);
 
 				hasRedirectSupport = Utils.getHasRedirectSupport();
-                Log.d(TAG,"是否支持重定向:"+hasRedirectSupport);
+				Log.d(TAG, "是否支持重定向:" + hasRedirectSupport);
 				if (getAddress() && handleCommand()) {
 					// Connection and forward successful
 					notifyAlert(getString(R.string.forward_success) + " | " + getProfileName(),
@@ -826,16 +824,16 @@ public class ProxyDroidService extends Service {
 					handler.sendEmptyMessage(MSG_CONNECT_SUCCESS);
 
 					// for widget, maybe exception here
-					try {
-						RemoteViews views = new RemoteViews(getPackageName(),
-								R.layout.proxydroid_appwidget);
-						views.setImageViewResource(R.id.serviceToggle, R.drawable.on);
-						AppWidgetManager awm = AppWidgetManager.getInstance(ProxyDroidService.this);
-						awm.updateAppWidget(awm.getAppWidgetIds(new ComponentName(
-								ProxyDroidService.this, ProxyDroidWidgetProvider.class)), views);
-					} catch (Exception ignore) {
-						// Nothing
-					}
+//					try {
+//						RemoteViews views = new RemoteViews(getPackageName(),
+//								R.layout.proxydroid_appwidget);
+//						views.setImageViewResource(R.id.serviceToggle, R.drawable.on);
+//						AppWidgetManager awm = AppWidgetManager.getInstance(ProxyDroidService.this);
+//						awm.updateAppWidget(awm.getAppWidgetIds(new ComponentName(
+//								ProxyDroidService.this, ProxyDroidWidgetProvider.class)), views);
+//					} catch (Exception ignore) {
+//						// Nothing
+//					}
 
 				} else {
 					// Connection or forward unsuccessful
