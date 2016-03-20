@@ -146,9 +146,9 @@ public class HeartBeatRunnable implements Runnable {
 					case HeartBeatInfo.TYPE_BUILD_SSH_SUCCESS:
 						try {
 							Log.d(TAG, "建立隧道成功");
-							printMessage = "建立隧道成功,改变心跳时间为20秒";
-							printMessage(printMessage);
-							HeartBeatService.getInstance().cancelScheduledTasks();
+							//printMessage = "建立隧道成功,改变心跳时间为20秒";
+							//printMessage(printMessage);
+							//HeartBeatService.getInstance().cancelScheduledTasks();
 							//HeartBeatService.getInstance().restScheduledTasks();
 						} catch (Exception e) {
 							if (DEBUG) {

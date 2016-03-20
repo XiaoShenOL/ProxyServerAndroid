@@ -3,6 +3,7 @@ package com.android.proxy.client;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.os.Build;
@@ -14,6 +15,7 @@ import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 
 import org.proxydroid.ProxyDroidService;
+import org.proxydroid.ProxyedApp;
 import org.proxydroid.db.DNSResponse;
 import org.proxydroid.db.DatabaseHelper;
 import org.proxydroid.utils.Utils;
@@ -22,7 +24,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.StringTokenizer;
+import java.util.Vector;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -40,6 +46,7 @@ public class GlobalProxyUtil {
 	private boolean isRoot;
 	private String packageName;
 	private final String SP_FILE_IS_SAVE = "isFileSave";
+	public final static String PREFS_KEY_PROXYED = "Proxyed";
 
 	public static GlobalProxyUtil getInstance(Context context) {
 		if (instance == null) {
@@ -66,6 +73,37 @@ public class GlobalProxyUtil {
 
 	public void init() {
 		new Thread(new ProxyInitRunnable(mContext)).start();
+	}
+
+	public void addProxyPackage(Context context, String packageName) {
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		String tordAppString = prefs.getString(PREFS_KEY_PROXYED, "");
+		String[] tordApps;
+		StringTokenizer st = new StringTokenizer(tordAppString, "|");
+		tordApps = new String[st.countTokens()];
+		int tordIdx = 0;
+		while (st.hasMoreTokens()) {
+			tordApps[tordIdx++] = st.nextToken();
+		}
+		boolean isOriginalSave = false;
+		for (int i = 0; i < tordApps.length; i++) {
+			if (tordApps[i].equals(packageName)) {
+				isOriginalSave = true;
+			}
+		}
+		StringBuilder sb = new StringBuilder(tordAppString);
+		if (!isOriginalSave) {
+			sb.append(packageName).append("|");
+			SharedPreferences.Editor et = prefs.edit();
+			et.putString(PREFS_KEY_PROXYED, sb.toString());
+			et.commit();
+		}
+
+		SharedPreferences prefs1 = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		String tordAppString1 = prefs1.getString(PREFS_KEY_PROXYED, "");
+		Log.d(TAG,"添加代理包名："+tordAppString1);
 	}
 
 	private class ProxyInitRunnable implements Runnable {
@@ -114,6 +152,14 @@ public class GlobalProxyUtil {
 		if (!Utils.isWorking()) return false;
 		try {
 			context.stopService(new Intent(context, ProxyDroidService.class));
+			Log.d(TAG, "kill -9 stunnel.pid,shrpx.pid,cntlm.pid");
+			Utils.runRootCommand(Utils.getIptables()
+					+ " -t nat -F OUTPUT\n"
+					+ ProxyDroidService.BASE
+					+ "proxy.sh stop\n"
+					+ "kill -9 `cat /data/data/" + packageName + "/stunnel.pid`\n"
+					+ "kill -9 `cat /data/data/" + packageName + "/shrpx.pid`\n"
+					+ "kill -9 `cat /data/data/" + packageName + "/cntlm.pid`\n");
 		} catch (Exception e) {
 			return false;
 		}
@@ -128,7 +174,9 @@ public class GlobalProxyUtil {
 			Future<Boolean> future = exec.submit(new WaitStartService(context, host, port));
 			Log.d(TAG, "之前是否有service存在:" + future.get());
 			if (future.get()) {
-				startService(context, host, port);
+				final boolean isGlobalMode = isGlobalMode(context, context.getPackageName(), true);
+				Log.d(TAG, "当前是不是全局模式：" + isGlobalMode);
+				startService(context, host, port, isGlobalMode);
 			}
 		} catch (Exception e) {
 			Log.d(TAG, e.fillInStackTrace().toString());
@@ -137,7 +185,76 @@ public class GlobalProxyUtil {
 		return true;
 	}
 
-	private void startService(Context context, String host, int port) {
+
+	public boolean isGlobalMode(Context context, String packageName, boolean self) {
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		String tordAppString = prefs.getString(PREFS_KEY_PROXYED, "");
+		String[] tordApps;
+		StringTokenizer st = new StringTokenizer(tordAppString, "|");
+		tordApps = new String[st.countTokens()];
+		int tordIdx = 0;
+		while (st.hasMoreTokens()) {
+			tordApps[tordIdx++] = st.nextToken();
+		}
+
+		Arrays.sort(tordApps);
+
+		// else load the apps up
+		PackageManager pMgr = context.getPackageManager();
+
+		List<ApplicationInfo> lAppInfo = pMgr.getInstalledApplications(0);
+
+		Iterator<ApplicationInfo> itAppInfo = lAppInfo.iterator();
+
+		Vector<ProxyedApp> vectorApps = new Vector<ProxyedApp>();
+
+		ApplicationInfo aInfo = null;
+
+		int appIdx = 0;
+
+		while (itAppInfo.hasNext()) {
+			aInfo = itAppInfo.next();
+
+			// ignore all system apps
+			if (aInfo.uid < 10000)
+				continue;
+
+			ProxyedApp app = new ProxyedApp();
+
+			app.setUid(aInfo.uid);
+
+			app.setUsername(pMgr.getNameForUid(app.getUid()));
+
+			// check if this application is allowed
+			if (aInfo.packageName != null
+					&& aInfo.packageName.equals(packageName)) {
+				if (self)
+					app.setProxyed(true);
+			} else if (Arrays.binarySearch(tordApps, app.getUsername()) >= 0) {
+				app.setProxyed(true);
+			} else {
+				app.setProxyed(false);
+			}
+
+			if (app.isProxyed())
+				vectorApps.add(app);
+
+		}
+
+		ProxyedApp[] apps = new ProxyedApp[vectorApps.size()];
+		vectorApps.toArray(apps);
+		//如果数据库中存在选中字段,apps.length >１,则表示不是全局状态．
+		for (int i = 0; i < apps.length; i++) {
+			Log.d(TAG, "要代理的ａｐｐ有:" + apps[i].getUsername());
+		}
+		if (apps.length > 1) {
+			return false;
+		}
+		return true;
+	}
+
+	private void startService(Context context, String host, int port, boolean isGlobalMode) {
 		Log.d(TAG, "开始启动service");
 		Intent it = new Intent(context, ProxyDroidService.class);
 		Bundle bundle = new Bundle();
@@ -147,9 +264,8 @@ public class GlobalProxyUtil {
 		bundle.putString("password", "");
 		bundle.putString("domain", "");
 		bundle.putString("certificate", "");
-
 		bundle.putString("proxyType", "http");
-		bundle.putBoolean("isAutoSetProxy", true);
+		bundle.putBoolean("isAutoSetProxy", isGlobalMode);
 		bundle.putBoolean("isBypassApps", false);
 		bundle.putBoolean("isAuth", false);
 		bundle.putBoolean("isNTLM", false);

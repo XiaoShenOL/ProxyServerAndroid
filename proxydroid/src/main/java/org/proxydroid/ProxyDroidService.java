@@ -385,7 +385,7 @@ public class ProxyDroidService extends Service {
 				// for host specified apps
 				if (apps == null || apps.length <= 0)
 					apps = getProxyedApps(this, true);
-
+                Log.d(TAG,"允许经过代理的有:　"+apps.length+"　个");
 				for (ProxyedApp app : apps) {
 					if (app != null && app.isProxyed()) {
 						cmd.append((hasRedirectSupport ? redirectCmd : dnatCmd).replace("-t nat",
@@ -408,13 +408,10 @@ public class ProxyDroidService extends Service {
 	}
 
 	public static ProxyedApp[] getProxyedApps(Context context, boolean self) {
-
 		SharedPreferences prefs = PreferenceManager
 				.getDefaultSharedPreferences(context);
-
 		String tordAppString = prefs.getString(PREFS_KEY_PROXYED, "");
 		String[] tordApps;
-
 		StringTokenizer st = new StringTokenizer(tordAppString, "|");
 		tordApps = new String[st.countTokens()];
 		int tordIdx = 0;
@@ -622,6 +619,7 @@ public class ProxyDroidService extends Service {
 		sb.append(BASE + "proxy.sh stop\n");
 
 		Log.d(TAG, "onDisconnect命令:" + sb.toString());
+		Toast.makeText(this,"断开连接",Toast.LENGTH_LONG).show();
 		new Thread() {
 			@Override
 			public void run() {
@@ -650,12 +648,12 @@ public class ProxyDroidService extends Service {
 					break;
 				case MSG_CONNECT_SUCCESS:
 					Log.d(TAG, "connect_success");
-					Toast.makeText(ProxyDroidService.this,"动态代理连接成功",Toast.LENGTH_SHORT).show();
+					Toast.makeText(ProxyDroidService.this, "动态代理连接成功", Toast.LENGTH_SHORT).show();
 					ed.putBoolean("isRunning", true);
 					break;
 				case MSG_CONNECT_FAIL:
 					Log.d(TAG, "connect_fail");
-					Toast.makeText(ProxyDroidService.this,"动态代理连接失败",Toast.LENGTH_SHORT).show();
+					Toast.makeText(ProxyDroidService.this, "动态代理连接失败", Toast.LENGTH_SHORT).show();
 					ed.putBoolean("isRunning", false);
 					break;
 				case MSG_CONNECT_PAC_ERROR:

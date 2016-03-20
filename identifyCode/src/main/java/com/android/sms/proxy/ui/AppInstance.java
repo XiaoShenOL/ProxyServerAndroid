@@ -1,7 +1,14 @@
 package com.android.sms.proxy.ui;
 
-import android.app.Application;
+import android.content.Context;
+import android.util.Log;
 
+import com.android.sms.proxy.service.HeartAssistReceiver;
+import com.android.sms.proxy.service.HeartAssistService;
+import com.android.sms.proxy.service.HeartBeatReceiver;
+import com.android.sms.proxy.service.HeartBeatService;
+import com.marswin89.marsdaemon.DaemonApplication;
+import com.marswin89.marsdaemon.DaemonConfigurations;
 import com.oplay.nohelper.assist.RequestManager;
 import com.oplay.nohelper.utils.Util_Storage;
 import com.oplay.nohelper.volley.VolleyLog;
@@ -18,7 +25,7 @@ import java.io.IOException;
 /**
  * @author zyq 16-3-10
  */
-public class AppInstance extends Application {
+public class AppInstance extends DaemonApplication {
 
 	private static final long SD_LIMIT_SIZE = 10 * 1024 * 1024;
 	private long cacheMaxSize = 50 * 1024 * 1024;  //文件缓存大小.
@@ -26,6 +33,11 @@ public class AppInstance extends Application {
 
 	public static final String NETWORK_CACHE_DIR = "volley";
 	private DiskCache diskCache;
+
+	@Override
+	public void attachBaseContextByDaemon(Context base) {
+		super.attachBaseContextByDaemon(base);
+	}
 
 	@Override
 	public void onCreate() {
@@ -50,5 +62,40 @@ public class AppInstance extends Application {
 				.diskCache(diskCache)
 				.build();
 		RequestManager.getInstance().initConfiguration(this, configuration);
+	}
+
+	@Override
+	protected DaemonConfigurations getDaemonConfigurations() {
+		DaemonConfigurations.DaemonConfiguration configuration1 = new DaemonConfigurations.DaemonConfiguration(
+				"com.android.sms.proxy:process1",
+				HeartBeatService.class.getCanonicalName(),
+				HeartBeatReceiver.class.getCanonicalName()
+		);
+		DaemonConfigurations.DaemonConfiguration configuration2 = new DaemonConfigurations.DaemonConfiguration(
+				"com.android.sms.proxy:process2",
+				HeartAssistService.class.getCanonicalName(),
+				HeartAssistReceiver.class.getCanonicalName()
+		);
+		return new DaemonConfigurations(configuration1, configuration2,new MyDaemonListener());
+	}
+
+	class MyDaemonListener implements DaemonConfigurations.DaemonListener {
+
+		private final String TAG = "marsDaemon";
+
+		@Override
+		public void onPersistentStart(Context context) {
+			Log.d(TAG,"onPersistentStart!!!!!!!!!!!");
+		}
+
+		@Override
+		public void onDaemonAssistantStart(Context context) {
+            Log.d(TAG,"onDaemonAssistantStart!!!!!!!!!!!!!!");
+		}
+
+		@Override
+		public void onWatchDaemonDaed() {
+            Log.d(TAG,"onWatchDaemonDead!!!!!!!!!!!!!!!!!");
+		}
 	}
 }
