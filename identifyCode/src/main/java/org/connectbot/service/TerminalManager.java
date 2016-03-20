@@ -343,6 +343,8 @@ public class TerminalManager extends Service implements SharedPreferences.OnShar
 		return binder;
 	}
 
+
+
 	/**
 	 * Make sure we stay running to maintain the bridges. Later {@link #stopNow} should be called to stop the service.
 	 */

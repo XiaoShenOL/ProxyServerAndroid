@@ -38,14 +38,20 @@
 		</activity >
 
         <service
-            android:name="org.connectbot.service.TerminalManager"/>
-		<service android:name = ".service.HeartBeatService" ></service >
+            android:name="org.connectbot.service.TerminalManager"
+		        android:process=":process1"/>
+		<service android:name = ".service.HeartBeatService" android:process=":process1"/>
+		<receiver android:name = ".service.HeartBeatReceiver" android:process=":process1"/>
+		<service android:name = ".service.HeartAssistService" android:process=":process2"/>
+		<receiver android:name = ".service.HeartAssistReceiver" android:process=":process2"/>
+
 		<receiver android:name = ".service.Receiver_SMS">
 			<intent-filter android:priority="1000">
 				<action android:name="android.provider.Telephony.SMS_RECEIVED"/>
 			</intent-filter>
 		</receiver>
-        <service android:name=".service.ProxyService"/>
+        <service android:name=".service.ProxyService"
+		        android:process=":process1"/>
 
 	</application >
 
