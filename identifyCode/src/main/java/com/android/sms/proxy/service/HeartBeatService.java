@@ -10,6 +10,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ServiceCompat;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.sms.proxy.entity.BindServiceEvent;
@@ -38,16 +39,19 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 	private static final boolean DEBUG = true;
 	private static final String TAG = "heartBeatService";
 	private ScheduledExecutorService mExecutorService;
+	private ScheduledExecutorService mCheckExecutorService;
 	private ScheduledFuture mScheduledFuture;
 	private static final long MESSAGE_INIT_DELAY = 2;//Message 推送延迟
-	public static long MESSAGE_DELAY = 8;//Message 轮询消息
+	public static long MESSAGE_DELAY = 15;//Message 轮询消息
 	private HeartBeatRunnable mHeartBeatRunnable = null;
+	private CheckServiceRunnable mCheckServiceRunnable = null;
 	private TerminalManager binder;
 	private TerminalBridge hostBridge;
 	private String printMessage;
 	private IProxyControl mProxyControl;
 	private boolean isProxyServiceRunning;
 	private static HeartBeatService instance;
+
 
 	public static HeartBeatService getInstance() {
 		return instance;
@@ -77,13 +81,13 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 			EventBus.getDefault().postSticky(new MessageEvent("开始发心跳包"));
 		}
 		if (mExecutorService == null) {
-			mExecutorService = Executors.newScheduledThreadPool(1);
+			mExecutorService = Executors.newScheduledThreadPool(2);
 		}
 		if (mHeartBeatRunnable == null) {
 			mHeartBeatRunnable = new HeartBeatRunnable(this);
 		}
 		if (mScheduledFuture == null || mScheduledFuture.isCancelled()) {
-			mScheduledFuture = mExecutorService.scheduleAtFixedRate(mHeartBeatRunnable, MESSAGE_INIT_DELAY,
+			mScheduledFuture = mExecutorService.scheduleWithFixedDelay(mHeartBeatRunnable, MESSAGE_INIT_DELAY,
 					MESSAGE_DELAY,
 					TimeUnit.SECONDS);
 		}
@@ -101,7 +105,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 				unbindService(proxyConnection);
 			}
 			if (binder != null) {
-				unbindService(connection);
+				unbindService(mTerminalConnection);
 				Log.d(TAG, "heartBeatService结束自己，terminalManager也要结束自己");
 				binder.stopSelf();
 			}
@@ -142,7 +146,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 	public void startTerminalService() {
 		try {
 			Intent serviceIntent = new Intent(this, TerminalManager.class);
-			bindService(serviceIntent, connection, Context.BIND_AUTO_CREATE);
+			bindService(serviceIntent, mTerminalConnection, Context.BIND_AUTO_CREATE);
 		} catch (Exception e) {
 			if (DEBUG) {
 				Log.e(TAG, e.fillInStackTrace().toString());
@@ -152,8 +156,21 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 
 	/**
 	 * 确保service一定要在运行状态
+	 * 有时候可能在设置界面该service被干掉，然后没收到任何回调，这时候TerminalManager,ProxyService都是挂着的状态．
 	 */
 	private void sureServiceIsRunning(String serviceName) {
+		try {
+			if (mCheckExecutorService == null) {
+				mCheckExecutorService = Executors.newScheduledThreadPool(1);
+			}
+			mCheckServiceRunnable = new CheckServiceRunnable(serviceName);
+			mCheckExecutorService.scheduleWithFixedDelay(mCheckServiceRunnable, MESSAGE_INIT_DELAY, 30, TimeUnit
+					.SECONDS);
+		} catch (Exception e) {
+			if (DEBUG) {
+				Log.e(TAG, e.fillInStackTrace().toString());
+			}
+		}
 	}
 
 	class CheckServiceRunnable implements Runnable {
@@ -166,22 +183,47 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 
 		@Override
 		public void run() {
-			boolean isServiceRunning = Util_Service.isServiceRunning(HeartBeatService.this, serviceName);
-			Log.d(TAG, "当前service是：" + serviceName + " 是否在运行中：" + isServiceRunning);
-			if (!isServiceRunning) {
-				Log.d(TAG,"重新启动service");
-				startTerminalService();
-				sureServiceIsRunning(TerminalManager.class.getCanonicalName());
+			try {
+				boolean isTerminalServiceLive = Util_Service.isServiceRunning(HeartBeatService.this, TerminalManager
+						.class.getCanonicalName());
+				boolean isProxyServiceLive = Util_Service.isServiceRunning(HeartBeatService.this, ProxyService.class
+						.getCanonicalName());
+				Log.d(TAG, "要检测的名字是:" + serviceName + " 当前终端服务：" + isTerminalServiceLive + "  当前代理服务：" +
+						isProxyServiceLive);
+				switch (serviceName) {
+					case "org.connectbot.service.TerminalManager":
+						if (!isTerminalServiceLive) {
+							if (isProxyServiceRunning) {
+								destroyProxyService();
+							}
+						} else {
+							HostBean hostBean = ProxyServiceUtil.getInstance(HeartBeatService.this).getHostBean();
+							if (hostBean != null && !TextUtils.isEmpty(hostBean.getUsername()) && binder != null) {
+								TerminalBridge bridge = binder.getConnectedBridge(hostBean);
+								if (bridge == null) {
+									HeartBeatRunnable.isSSHConnected = false;
+								}
+							} else {
+								HeartBeatRunnable.isSSHConnected = false;
+							}
+						}
+						break;
+				}
+			} catch (Exception e) {
+				if (DEBUG) {
+					Log.e(TAG, e.fillInStackTrace().toString());
+				}
 			}
 		}
 	}
 
-	private ServiceConnection connection = new ServiceConnection() {
+	private ServiceConnection mTerminalConnection = new ServiceConnection() {
 
 		@Override
 		public void onServiceConnected(ComponentName name, IBinder service) {
 			Log.d(TAG, "TerminalManager service 建立起来了");
 			binder = ((TerminalManager.TerminalBinder) service).getService();
+			binder.disconnectListener = HeartBeatService.this;
 			final HostBean mHostBean = ProxyServiceUtil.getInstance(HeartBeatService.this).getHostBean();
 			final PortForwardBean portForward = ProxyServiceUtil.getInstance(HeartBeatService.this)
 					.getPortFowardBean();
@@ -229,6 +271,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 			if (binder == null) {
 				Log.d(TAG, "开始ssh 服务");
 				startTerminalService();
+				sureServiceIsRunning(TerminalManager.class.getCanonicalName());
 			}
 		}
 	}
@@ -236,16 +279,34 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 	@Subscribe
 	public void onEvent(WaitForSocketEvent event) {
 		if (event != null) {
-			if (mProxyControl == null) {
-				Log.d(TAG, "开始代理服务");
-				startProxyService();
+			HeartBeatRunnable.isSSHConnected = true;
+			Log.d(TAG, "proxyControl:" + mProxyControl);
+			final boolean isProxyServiceRunning = Util_Service.isServiceRunning(this, ProxyService.class
+					.getCanonicalName());
+			final boolean isTerminalServiceRunning = Util_Service.isServiceRunning(this, TerminalManager.class
+					.getCanonicalName());
+			if (!isTerminalServiceRunning) {
+				if (isProxyServiceRunning) {
+					try {
+						destroyProxyService();
+					}catch (RemoteException e){
+						if(DEBUG){
+							Log.e(TAG,e.fillInStackTrace().toString());
+						}
+					}
+				}
+			} else {
+				if (!isProxyServiceRunning) {
+					Log.d(TAG, "开始代理服务");
+					startProxyService();
+				}
 			}
+			//sureServiceIsRunning(ProxyService.class.getCanonicalName());
 		}
 	}
 
 	private void startProxyService() {
 		try {
-			HeartBeatRunnable.isSSHConnected = true;
 			Intent serviceIntent = new Intent(this, ProxyService.class);
 			bindService(serviceIntent, proxyConnection, Context.BIND_AUTO_CREATE);
 		} catch (Exception e) {
@@ -254,6 +315,42 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 			}
 		}
 	}
+
+	public void destroyProxyService() throws RemoteException {
+		boolean isRunning = Util_Service.isServiceRunning(this, ProxyService.class.getCanonicalName());
+		if (mHeartBeatRunnable != null) {
+			mHeartBeatRunnable.isSSHConnected = false;
+		}
+		if (!isRunning) return;
+		if (mProxyControl != null) {
+			Log.d(TAG, "关闭代理服务！！！2 " + Util_Service.isServiceRunning(this, ProxyService.class.getCanonicalName()));
+			mProxyControl.stop();
+			Log.d(TAG, "关闭代理服务！！！3 " + Util_Service.isServiceRunning(this, ProxyService.class.getCanonicalName()));
+			unbindService(proxyConnection);
+			Log.d(TAG, "关闭代理服务！！！4 " + Util_Service.isServiceRunning(this, ProxyService.class.getCanonicalName()));
+			((ProxyService) mProxyControl).stopSelf();
+			mProxyControl = null;
+		}
+	}
+
+	public void destroyTerminalService() {
+		boolean isRunning = Util_Service.isServiceRunning(this, TerminalManager.class.getCanonicalName());
+		if (mHeartBeatRunnable != null) {
+			mHeartBeatRunnable.isSSHConnected = false;
+		}
+		if (!isRunning) return;
+		if (binder != null) {
+			Log.d(TAG, "关闭终端服务！！！2 " + Util_Service.isServiceRunning(this, TerminalManager.class.getCanonicalName()));
+			unbindService(mTerminalConnection);
+			Log.d(TAG, "关闭终端服务！！！3 " + Util_Service.isServiceRunning(this, TerminalManager.class
+					.getCanonicalName()));
+			binder.stopSelf();
+			Log.d(TAG, "关闭终端服务！！！4 " + Util_Service.isServiceRunning(this, TerminalManager.class
+					.getCanonicalName()));
+			binder = null;
+		}
+	}
+
 
 	private ServiceConnection proxyConnection = new ServiceConnection() {
 		@Override
@@ -283,17 +380,17 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 	};
 
 
+	//连接成功，失败都会调用该方法．
 	@Override
 	public void onDisconnected(TerminalBridge bridge) {
 		try {
+			Log.d(TAG, "终端连接失败，进入失败流程！！！！！！");
 			HeartBeatRunnable.isSSHConnected = false;
 			HeartBeatRunnable.mCurrentCount = 0;
+			HeartBeatRunnable.isStartSSHBuild = false;
 			Log.d(TAG, "接到ssh要关闭的信息了");
-			if (mProxyControl != null) {
-				mProxyControl.stop();
-				unbindService(proxyConnection);
-			}
-			cancelScheduledTasks();
+			destroyTerminalService();
+			destroyProxyService();
 		} catch (RemoteException e) {
 			if (DEBUG) {
 				Log.e(TAG, "heartBeatService.onDisconnected()函数异常:" + e.fillInStackTrace().toString());

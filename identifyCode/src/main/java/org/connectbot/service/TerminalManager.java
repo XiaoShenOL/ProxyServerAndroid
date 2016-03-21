@@ -265,6 +265,7 @@ public class TerminalManager extends Service implements SharedPreferences.OnShar
 	 * Called when connectivity to the network is restored.
 	 */
 	public void onConnectivityRestored() {
+		Log.d(TAG,"onConnectivityRestored!!!!!!!!");
 		final Thread t = new Thread() {
 			@Override
 			public void run() {
@@ -302,7 +303,7 @@ public class TerminalManager extends Service implements SharedPreferences.OnShar
 		 * We want this service to continue running until it is explicitly
 		 * stopped, so return sticky.
 		 */
-		return START_STICKY;
+		return START_NOT_STICKY;
 	}
 
 	@Override
@@ -369,8 +370,6 @@ public class TerminalManager extends Service implements SharedPreferences.OnShar
 	@Override
 	public void onDisconnected(TerminalBridge bridge) {
 		boolean shouldHideRunningNotification = false;
-		message = "Bridge Disconnected. Removing it.";
-		print(message);
 		Log.d(TAG, "Bridge Disconnected. Removing it.");
 		synchronized (bridges) {
 			// remove this bridge from our list
@@ -461,9 +460,7 @@ public class TerminalManager extends Service implements SharedPreferences.OnShar
 		if (prefs.getBoolean(PreferenceConstants.CONNECTION_PERSIST, true)) {
 			//ConnectionNotifier.getInstance().showRunningNotification(this);
 		}
-
 		notifyHostStatusChanged();
-
 		return bridge;
 	}
 

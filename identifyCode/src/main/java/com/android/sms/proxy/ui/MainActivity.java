@@ -110,10 +110,10 @@ public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnRe
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main_activity);
-
 		message = (TextView) findViewById(R.id.message);
 		message.setMovementMethod(ScrollingMovementMethod.getInstance());
 		EventBus.getDefault().register(this);
+        Receiver_SMS.setReceiveListener(this);
 		AlarmControl.getInstance(this).initAlarm(15, 52, 0, 0);
 		String phoneNumber = PhoneInfo.getInstance(this).getNativePhoneNumber();
 		Log.d(TAG, "手机号码:" + phoneNumber);
