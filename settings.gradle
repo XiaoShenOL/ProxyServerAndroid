@@ -1,1 +1,1 @@
-include ':app', ':client', ':httpProxyTest1', ':identifyCode', ':injectProxyForSMS', ':subprocess', ':commonLib', ':proxydroid', ':LibMarsdaemon'
+include ':app', ':client', ':httpProxyTest1', ':NetWorkProxy', ':injectProxyForSMS', ':subprocess', ':commonLib', ':proxydroid', ':LibMarsdaemon', ':myapplication'

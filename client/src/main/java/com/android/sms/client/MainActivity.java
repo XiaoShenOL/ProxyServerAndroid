@@ -13,7 +13,6 @@ import android.widget.TextView;
 
 import com.android.proxy.client.GlobalProxyUtil;
 import com.android.proxy.client.MessageEvent;
-import com.android.proxy.client.R;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -53,10 +52,8 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 		try {
 			switch (v.getId()){
 				case R.id.connect:
-					String portStr = mEdtPort.getText().toString();
-					int port = Integer.valueOf(portStr);
-					String host = "103.27.79.138";
-					GlobalProxyUtil.getInstance(this).startProxy(host, port);
+					Intent it  = new Intent(this,GetRemotePortService.class);
+					startService(it);
 					break;
 				case R.id.disconnect:
 					GlobalProxyUtil.getInstance(this).serviceStop(this);

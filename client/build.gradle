@@ -10,6 +10,7 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -24,4 +25,5 @@ dependencies {
     compile 'org.greenrobot:eventbus:3.0.0'
     compile project(':commonLib')
     compile project(':proxydroid')
+    compile files('libs/gson-2.3.1.jar')
 }
