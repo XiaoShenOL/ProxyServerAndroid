@@ -13,6 +13,8 @@ import android.util.Log;
  * @author zyq 16-3-5
  */
 public class ConnectivityReceiver extends BroadcastReceiver {
+
+	private static final boolean DEBUG = true;
 	private static final String TAG = "CB.ConnectivityManager";
 
 	private boolean mIsConnected = false;
@@ -56,13 +58,16 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 		final String action = intent.getAction();
 
 		if (!action.equals(ConnectivityManager.CONNECTIVITY_ACTION)) {
-			Log.w(TAG, "onReceived() called: " + intent);
+			if (DEBUG) {
+				Log.w(TAG, "onReceived() called: " + intent);
+			}
 			return;
 		}
 
 		boolean noConnectivity = intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
 		boolean isFailover = intent.getBooleanExtra(ConnectivityManager.EXTRA_IS_FAILOVER, false);
 
+		if(DEBUG)
 		Log.d(TAG, "onReceived() called; noConnectivity? " + noConnectivity + "; isFailover? " + isFailover);
 
 		if (noConnectivity && !isFailover && mIsConnected) {
@@ -94,7 +99,7 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 	 */
 	public void incRef() {
 		synchronized (mLock) {
-			mNetworkRef  += 1;
+			mNetworkRef += 1;
 			acquireWifiLockIfNecessaryLocked();
 		}
 	}
@@ -144,4 +149,6 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 	public boolean isConnected() {
 		return mIsConnected;
 	}
+
+
 }

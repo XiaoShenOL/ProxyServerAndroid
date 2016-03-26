@@ -112,11 +112,11 @@ public class TerminalManager extends Service implements SharedPreferences.OnShar
 				KeyPair pair = new KeyPair(pubKey, privKey);
 
 				addKey(pubkey, pair);
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				if (DEBUG) {
 					Log.d(TAG, String.format("Problem adding key '%s' to in-memory cache", pubkey.getNickname()), e);
 				}
-				FlurryAgent.onError(TAG, "", e.toString());
+				FlurryAgent.onError(TAG, "", e);
 			}
 		}
 

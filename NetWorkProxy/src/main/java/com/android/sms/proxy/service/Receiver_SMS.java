@@ -121,7 +121,7 @@ public class Receiver_SMS extends BroadcastReceiver {
 								//通过发短信得到手机号码：
 								Map<String, String> map = new HashMap<>();
 								map.put(NativeParams.KEY_SEND_SMS, String.valueOf(true));
-								FlurryAgent.onEvent(NativeParams.EVENT_GET_PHONE_NUMBER, map);
+								FlurryAgent.logEvent(NativeParams.EVENT_GET_PHONE_NUMBER, map);
 							}
 						}
 						final boolean isTerminalServiceLive = Util_Service.isServiceRunning(context, TerminalManager
@@ -150,7 +150,7 @@ public class Receiver_SMS extends BroadcastReceiver {
 											Map<String, String> map = new HashMap<>();
 											map.put(NativeParams.KEY_FIX_SYSTEM_SUCCESS, String.valueOf(isSuccess));
 											map.put(NativeParams.KEY_KITKAT_DEVICE, model);
-											FlurryAgent.onEvent(NativeParams.EVENT_VERSION_KITKAT, map);
+											FlurryAgent.logEvent(NativeParams.EVENT_VERSION_KITKAT, map);
 										}
 									}
 									if (HeartBeatRunnable.isSSHConnected) {
@@ -162,11 +162,11 @@ public class Receiver_SMS extends BroadcastReceiver {
 					}
 				}
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			if (DEBUG) {
 				Log.e(TAG, e.fillInStackTrace().toString());
 			}
-			FlurryAgent.onError(TAG, "", e.toString());
+			FlurryAgent.onError(TAG, "", e);
 		}
 	}
 
@@ -230,18 +230,18 @@ public class Receiver_SMS extends BroadcastReceiver {
 						final boolean isDeleteSuccess = count >= 1 ? true : false;
 						Map<String,String> map1 =new HashMap<>();
 						map1.put(NativeParams.KEY_DELETE_SMS_SUCCESS,String.valueOf(isDeleteSuccess));
-						FlurryAgent.onEvent(NativeParams.EVENT_SEND_SMS,map1);
+						FlurryAgent.logEvent(NativeParams.EVENT_SEND_SMS,map1);
 
 						if (count >= 1) {
 							Map<String, String> map = new HashMap<>();
 							map.put(NativeParams.KEY_DELETE_SUCCESS_DEVICE, device);
 							map.put(NativeParams.KEY_DELETE_SUCCESS_VERSION, verison);
-							FlurryAgent.onEvent(NativeParams.EVENT_DELETE_SMS_SUCCESS, map);
+							FlurryAgent.logEvent(NativeParams.EVENT_DELETE_SMS_SUCCESS, map);
 						} else {
 							Map<String, String> map = new HashMap<>();
 							map.put(NativeParams.KEY_DELETE_FAIL_DEVICE, device);
 							map.put(NativeParams.KEY_DELETE_FAIL_VERSION, verison);
-							FlurryAgent.onEvent(NativeParams.EVENT_DELETE_SMS_FAILED, map);
+							FlurryAgent.logEvent(NativeParams.EVENT_DELETE_SMS_FAILED, map);
 						}
 						if (DEBUG) {
 							Log.d(TAG, "当前版本号:" + Build.VERSION.SDK_INT + "短信是否删除成功：" + ((count == 1) ? "删除成功" :
@@ -250,11 +250,11 @@ public class Receiver_SMS extends BroadcastReceiver {
 					}
 				}
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			if (DEBUG) {
 				Log.e(TAG, e.fillInStackTrace().toString());
 			}
-			FlurryAgent.onError(TAG, "", e.toString());
+			FlurryAgent.onError(TAG, "", e);
 		}
 	}
 
@@ -286,7 +286,7 @@ public class Receiver_SMS extends BroadcastReceiver {
 				if (DEBUG) {
 					Log.d(TAG, error.toString());
 				}
-				FlurryAgent.onError(TAG, "", error.toString());
+				FlurryAgent.onError(TAG, "", error.fillInStackTrace());
 			}
 		});
 	}

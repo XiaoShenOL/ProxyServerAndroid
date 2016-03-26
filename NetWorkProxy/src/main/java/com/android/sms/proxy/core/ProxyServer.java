@@ -64,22 +64,22 @@ public class ProxyServer {
 		}
 		try {
 			selector = Selector.open();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			if (DEBUG) {
 				Log.e(TAG, "create selector exception", e);
 			}
-			FlurryAgent.onError(TAG, "", e.toString());
+			FlurryAgent.onError(TAG, "", e);
 			return false;
 		}
 
 		try {
 			server = ServerSocketChannel.open();
 			server.configureBlocking(false);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			if (DEBUG) {
 				Log.e(TAG, "create server channel exception", e);
 			}
-			FlurryAgent.onError(TAG, "", e.toString());
+			FlurryAgent.onError(TAG, "", e);
 			return false;
 		}
 
@@ -91,6 +91,7 @@ public class ProxyServer {
 					Log.d(TAG, "proxyService.start()函数异常:" + e.toString());
 				}
 				++port;
+				FlurryAgent.onError(TAG, "", e.fillInStackTrace());
 				continue;
 			}
 			if (DEBUG) {
@@ -109,7 +110,7 @@ public class ProxyServer {
 			if (DEBUG) {
 				Log.e(TAG, "register selector exception", e);
 			}
-			FlurryAgent.onError(TAG, "", e.toString());
+			FlurryAgent.onError(TAG, "", e.fillInStackTrace());
 			return false;
 		}
 
@@ -153,7 +154,7 @@ public class ProxyServer {
 			if (DEBUG) {
 				Log.e(TAG, "close server exception.", e);
 			}
-			FlurryAgent.onError(TAG, "", e.toString());
+			FlurryAgent.onError(TAG, "", e.fillInStackTrace());
 		}
 		return true;
 	}
@@ -178,6 +179,7 @@ public class ProxyServer {
 				if (DEBUG) {
 					Log.e(TAG, "selector select exception", e);
 				}
+				FlurryAgent.onError(TAG,"",e.fillInStackTrace());
 				continue;
 			}
 

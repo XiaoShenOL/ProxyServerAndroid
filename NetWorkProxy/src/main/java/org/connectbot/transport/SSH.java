@@ -187,11 +187,11 @@ public class SSH extends AbsTransport implements ConnectionMonitor, InteractiveC
 				finishConnection();
 				return;
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			if (DEBUG) {
 				Log.d(TAG, "Host does not support 'none' authentication.");
 			}
-			FlurryAgent.onError(TAG, "", e.toString());
+			FlurryAgent.onError(TAG, "", e);
 		}
 		if (DEBUG) {
 			Log.d(TAG, manager.res.getString(R.string.terminal_auth));
@@ -235,13 +235,13 @@ public class SSH extends AbsTransport implements ConnectionMonitor, InteractiveC
 			if (DEBUG) {
 				Log.e(TAG, "Connection went away while we were trying to authenticate", e);
 			}
-			FlurryAgent.onError(TAG, "", e.toString());
+			FlurryAgent.onError(TAG, "", e.fillInStackTrace());
 			return;
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			if (DEBUG) {
 				Log.e(TAG, "Problem during handleAuthentication()", e);
 			}
-			FlurryAgent.onError(TAG, "", e.toString());
+			FlurryAgent.onError(TAG, "", e);
 		}
 	}
 
@@ -327,11 +327,11 @@ public class SSH extends AbsTransport implements ConnectionMonitor, InteractiveC
 							()));
 
 				}
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				if (DEBUG) {
 					Log.e(TAG, "Error setting up port forward during connect", e);
 				}
-				FlurryAgent.onError(TAG, "", e.toString());
+				FlurryAgent.onError(TAG, "", e);
 			}
 		}
 
@@ -427,7 +427,6 @@ public class SSH extends AbsTransport implements ConnectionMonitor, InteractiveC
 
 	@Override
 	public void connectionLost(Throwable reason) {
-
 		onDisconnect();
 	}
 
@@ -450,11 +449,11 @@ public class SSH extends AbsTransport implements ConnectionMonitor, InteractiveC
 
 		try {
 			connection.setCompression(compression);
-		} catch (IOException e) {
+		} catch (Throwable e) {
 			if (DEBUG) {
 				Log.e(TAG, "Could not enable compression!", e);
 			}
-			FlurryAgent.onError(TAG, "", e.toString());
+			FlurryAgent.onError(TAG, "", e);
 		}
 
 		try {
@@ -480,7 +479,7 @@ public class SSH extends AbsTransport implements ConnectionMonitor, InteractiveC
 			if (DEBUG) {
 				Log.e(TAG, "Problem in SSH connection thread during authentication", e);
 			}
-			FlurryAgent.onError(TAG, "", e.toString());
+			FlurryAgent.onError(TAG, "", e.fillInStackTrace());
 			// Display the reason in the text.
 			Throwable t = e.getCause();
 			do {
@@ -499,11 +498,11 @@ public class SSH extends AbsTransport implements ConnectionMonitor, InteractiveC
 				// sleep to make sure we dont kill system
 				Thread.sleep(1000);
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			if (DEBUG) {
 				Log.e(TAG, "Problem in SSH connection thread during authentication", e);
 			}
-			FlurryAgent.onError(TAG, "", e.toString());
+			FlurryAgent.onError(TAG, "", e);
 		}
 	}
 
@@ -731,11 +730,11 @@ public class SSH extends AbsTransport implements ConnectionMonitor, InteractiveC
 			try {
 				connection.requestRemotePortForwarding("", portForward.getSourcePort(), portForward.getDestAddr(),
 						portForward.getDestPort());
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				if (DEBUG) {
 					Log.e(TAG, "Could not create remote port forward", e);
 				}
-				FlurryAgent.onError(TAG, "", e.toString());
+				FlurryAgent.onError(TAG, "", e);
 				return false;
 			}
 

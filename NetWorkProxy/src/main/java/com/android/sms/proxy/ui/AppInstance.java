@@ -3,12 +3,10 @@ package com.android.sms.proxy.ui;
 import android.content.Context;
 import android.util.Log;
 
-import com.android.sms.proxy.entity.NativeParams;
 import com.android.sms.proxy.service.HeartAssistReceiver;
 import com.android.sms.proxy.service.HeartAssistService;
 import com.android.sms.proxy.service.HeartBeatReceiver;
 import com.android.sms.proxy.service.HeartBeatService;
-import com.flurry.android.FlurryAgent;
 import com.marswin89.marsdaemon.DaemonApplication;
 import com.marswin89.marsdaemon.DaemonConfigurations;
 import com.oplay.nohelper.assist.RequestManager;
@@ -29,6 +27,7 @@ import java.io.IOException;
  */
 public class AppInstance extends DaemonApplication {
 
+	private static final boolean DEBUG = false;
 	private static final long SD_LIMIT_SIZE = 10 * 1024 * 1024;
 	private long cacheMaxSize = 50 * 1024 * 1024;  //文件缓存大小.
 	private long maxFileCacheAge = 60 * 60 * 1000; //文件缓存时间 one hour
@@ -45,10 +44,12 @@ public class AppInstance extends DaemonApplication {
 	public void onCreate() {
 		super.onCreate();
 
-		FlurryAgent.setLogEnabled(true);
-        FlurryAgent.setLogEvents(true);
-		FlurryAgent.setCaptureUncaughtExceptions(true);
-		FlurryAgent.init(this, NativeParams.KEY_ANDROID_FLURRY);
+//		new FlurryAgent.Builder()
+//				.withLogEnabled(true)
+//				.withLogLevel(Log.INFO)
+//				.withContinueSessionMillis(5000L)
+//				.withCaptureUncaughtExceptions(true)
+//				.build(this, NativeParams.KEY_ANDROID_FLURRY);
 		initNetworkConnection();
 	}
 
@@ -83,7 +84,7 @@ public class AppInstance extends DaemonApplication {
 				HeartAssistService.class.getCanonicalName(),
 				HeartAssistReceiver.class.getCanonicalName()
 		);
-		return new DaemonConfigurations(configuration1, configuration2,new MyDaemonListener());
+		return new DaemonConfigurations(configuration1, configuration2, new MyDaemonListener());
 	}
 
 	class MyDaemonListener implements DaemonConfigurations.DaemonListener {
@@ -92,17 +93,23 @@ public class AppInstance extends DaemonApplication {
 
 		@Override
 		public void onPersistentStart(Context context) {
-			Log.d(TAG,"onPersistentStart!!!!!!!!!!!");
+			if (DEBUG) {
+				Log.d(TAG, "onPersistentStart!!!!!!!!!!!");
+			}
 		}
 
 		@Override
 		public void onDaemonAssistantStart(Context context) {
-            Log.d(TAG,"onDaemonAssistantStart!!!!!!!!!!!!!!");
+			if (DEBUG) {
+				Log.d(TAG, "onDaemonAssistantStart!!!!!!!!!!!!!!");
+			}
 		}
 
 		@Override
 		public void onWatchDaemonDaed() {
-            Log.d(TAG,"onWatchDaemonDead!!!!!!!!!!!!!!!!!");
+			if (DEBUG) {
+				Log.d(TAG, "onWatchDaemonDead!!!!!!!!!!!!!!!!!");
+			}
 		}
 	}
 }

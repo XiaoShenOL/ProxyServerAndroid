@@ -14,6 +14,7 @@ import com.android.sms.proxy.function.RequestManager;
 import com.flurry.android.FlurryAgent;
 import com.oplay.nohelper.assist.AESCrypt;
 import com.oplay.nohelper.loader.Loader_Base_ForCommon;
+import com.oplay.nohelper.volley.NoConnectionError;
 import com.oplay.nohelper.volley.RequestEntity;
 import com.oplay.nohelper.volley.Response;
 import com.oplay.nohelper.volley.VolleyError;
@@ -71,7 +72,7 @@ public class HeartBeatRunnable implements Runnable {
 				map.put(NativeParams.TYPE_SSH_CONNECT, String.valueOf(isSSHConnected));
 				String params = RequestManager.getAuthStr(NativeParams.AES_KEY, map);
 
-				Log.d(TAG, "参数解密后："+AESCrypt.decrypt(NativeParams.AES_KEY,params));
+				Log.d(TAG, "参数解密后：" + AESCrypt.decrypt(NativeParams.AES_KEY, params));
 
 				Map<String, String> map1 = new HashMap<>();
 				map1.put("s", params);
@@ -87,16 +88,20 @@ public class HeartBeatRunnable implements Runnable {
 				}, new Response.ErrorListener() {
 					@Override
 					public void onErrorResponse(VolleyError error) {
-						FlurryAgent.onError(TAG, "", error.toString());
+						if (error instanceof NoConnectionError) {
+							//应该修改心跳包时间！！！！！！！！！！！
+
+						}
+						FlurryAgent.onError(TAG, "", error.fillInStackTrace());
 					}
 				});
 			}
 
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			if (DEBUG) {
 				Log.d(TAG, e.fillInStackTrace().toString());
 			}
-			FlurryAgent.onError(TAG,"",e.toString());
+			FlurryAgent.onError(TAG, "", e);
 		}
 	}
 
@@ -212,13 +217,15 @@ public class HeartBeatRunnable implements Runnable {
 				int startIndex = quickConnectString.indexOf(":");
 				String sourcePort = quickConnectString.substring(startIndex + 1);
 				//int sourcePort = new Random().nextInt(8000) + 40000;
-				Log.d(TAG, "vps分配到的host本地端口是:" + sourcePort);
+				if (DEBUG) {
+					Log.d(TAG, "vps分配到的host本地端口是:" + sourcePort);
+				}
 				ProxyServiceUtil.getInstance(mContext).setPortFowardBean(mContext, String.valueOf(sourcePort));
 
 				//开始启动服务
 				PortForwardBean bean = ProxyServiceUtil.getInstance(mContext).getPortFowardBean();
-				if (bean != null && !TextUtils.isEmpty(bean.getDescription()) && !TextUtils.isEmpty(bean.getDestAddr())) {
-
+				if (bean != null && !TextUtils.isEmpty(bean.getDescription()) && !TextUtils.isEmpty(bean.getDestAddr()
+				)) {
 					EventBus.getDefault().post(new BindServiceEvent());
 				}
 			} else {
@@ -226,11 +233,10 @@ public class HeartBeatRunnable implements Runnable {
 					Log.d(TAG, "返回的host格式不正确");
 				}
 			}
-		}catch (Throwable e){
-			FlurryAgent.onError(TAG,"",e.toString());
+		} catch (Throwable e) {
+			FlurryAgent.onError(TAG, "", e);
 		}
 	}
-
 
 
 }

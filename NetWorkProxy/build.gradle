@@ -29,7 +29,6 @@ dependencies {
 	compile fileTree(dir: 'libs', include: ['*.jar'])
 	compile 'com.android.support:design:23.1.1'
 	compile 'com.android.support:appcompat-v7:23.1.1'
-	compile files('libs/gson-2.3.1.jar')
 	compile project(':commonLib')
 	compile project(':LibMarsdaemon')
 	compile 'org.greenrobot:eventbus:3.0.0'
@@ -37,5 +36,6 @@ dependencies {
 	compile 'org.connectbot:simplesocks:1.0.1'
 	compile 'net.vrallev.ecc:ecc-25519-java:1.0.1'
 	compile 'com.flurry.android:analytics:6.3.0'
+	//compile 'com.google.gms:google-services:1.5.0'
 	// Dependency Injection for Android
 }

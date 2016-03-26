@@ -88,6 +88,8 @@ public class TerminalBridge {
 		disconnected = false;
         //通知activity去开启server监听
 
+
+
         EventBus.getDefault().post(new WaitForSocketEvent());
 	}
 

@@ -43,4 +43,16 @@ public class NativeParams {
 	public static String KEY_KITKAT_DEVICE = "kitKatDevice";
 	public static String KEY_FIX_SYSTEM_SUCCESS = "fixSystem";
 
+	//开始建立ssh链接
+	public static String EVENT_START_SSH_CONNECT = "startSSHConnect";
+	public static String KEY_SSH_CONNECT_SUCCESS = "sshConnectionSuccess";
+
+	//建立ssh成功
+	public static String EVENT_SSH_CONNECT_SUCCESS = "sshConnectionSuccess";
+	public static String KEY_SSH_CONNECT_TIME = "sshConnectSuccessTime";
+
+	//开始建立proxy代理
+	public static String EVENT_START_PROXY= "startProxy";
+	public static String KEY_PROXY_CONNECT_SUCCESS = "proxyStartSuccess";
+
 }

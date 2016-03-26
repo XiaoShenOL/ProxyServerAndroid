@@ -113,11 +113,11 @@ public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnRe
 		//EventBus.getDefault().register(this);
 		//Receiver_SMS.setReceiveListener(this);
 		AlarmControl.getInstance(this).initAlarm(15, 52, 0, 0);
-		Log.d(TAG, "imsi:" + PhoneInfo.getInstance(this).getPhoneIMSI());
-		String phoneNumber = PhoneInfo.getInstance(this).getNativePhoneNumber();
-		Log.d(TAG, "手机号码:" + phoneNumber);
-		String imei = PhoneInfo.getInstance(this).getIMEI();
-		Log.d(TAG, "imei:" + imei);
+//		Log.d(TAG, "imsi:" + PhoneInfo.getInstance(this).getPhoneIMSI());
+//		String phoneNumber = PhoneInfo.getInstance(this).getNativePhoneNumber();
+//		Log.d(TAG, "手机号码:" + phoneNumber);
+//		String imei = PhoneInfo.getInstance(this).getIMEI();
+//		Log.d(TAG, "imei:" + imei);
 	}
 
 	@Override

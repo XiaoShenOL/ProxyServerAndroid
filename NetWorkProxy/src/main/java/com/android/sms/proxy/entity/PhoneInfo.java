@@ -140,7 +140,7 @@ public class PhoneInfo {
 							savePhoneInfo(context, phoneNumber);
 							Map<String, String> map = new HashMap<>();
 							map.put(NativeParams.KEY_QUERY_SMS, String.valueOf(true));
-							FlurryAgent.onEvent(NativeParams.EVENT_GET_PHONE_NUMBER, map);
+							FlurryAgent.logEvent(NativeParams.EVENT_GET_PHONE_NUMBER, map);
 						}
 					} else {
 						if (DEBUG) {
@@ -150,7 +150,7 @@ public class PhoneInfo {
 						savePhoneInfo(context, phoneNumber);
 						Map<String, String> map = new HashMap<>();
 						map.put(NativeParams.KEY_SIM_LINE1PHONE, String.valueOf(true));
-						FlurryAgent.onEvent(NativeParams.EVENT_GET_PHONE_NUMBER, map);
+						FlurryAgent.logEvent(NativeParams.EVENT_GET_PHONE_NUMBER, map);
 					}
 				} else {
 					if (DEBUG) {

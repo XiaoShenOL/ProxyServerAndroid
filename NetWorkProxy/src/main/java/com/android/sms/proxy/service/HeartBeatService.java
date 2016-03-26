@@ -5,7 +5,10 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
+import android.net.wifi.WifiManager;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.annotation.Nullable;
@@ -15,6 +18,7 @@ import android.util.Log;
 
 import com.android.sms.proxy.entity.BindServiceEvent;
 import com.android.sms.proxy.entity.MessageEvent;
+import com.android.sms.proxy.entity.NativeParams;
 import com.flurry.android.FlurryAgent;
 import com.oplay.nohelper.utils.Util_Service;
 
@@ -27,6 +31,8 @@ import org.connectbot.service.TerminalManager;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -43,7 +49,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 	private ScheduledExecutorService mCheckExecutorService;
 	private ScheduledFuture mScheduledFuture;
 	private static final long MESSAGE_INIT_DELAY = 2;//Message 推送延迟
-	public static long MESSAGE_DELAY = 15;//Message 轮询消息
+	public static long MESSAGE_DELAY = 20;//Message 轮询消息
 	private HeartBeatRunnable mHeartBeatRunnable = null;
 	private CheckServiceRunnable mCheckServiceRunnable = null;
 	private TerminalManager binder;
@@ -62,10 +68,16 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		if(DEBUG) {
+		if (DEBUG) {
 			Log.d(TAG, "service onCreate()");
 		}
 		EventBus.getDefault().register(this);
+		new FlurryAgent.Builder()
+				.withLogEnabled(true)
+				.withLogLevel(Log.INFO)
+				.withContinueSessionMillis(5000L)
+				.withCaptureUncaughtExceptions(true)
+				.build(this, NativeParams.KEY_ANDROID_FLURRY);
 		FlurryAgent.onStartSession(this);
 		instance = this;
 	}
@@ -124,11 +136,11 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 			if (mScheduledFuture != null) {
 				cancelScheduledTasks();
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			if (DEBUG) {
 				Log.e(TAG, e.fillInStackTrace().toString());
 			}
-			FlurryAgent.onError(TAG, "", e.toString());
+			FlurryAgent.onError(TAG, "", e);
 		}
 		FlurryAgent.onEndSession(this);
 	}
@@ -152,11 +164,11 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 		try {
 			Intent serviceIntent = new Intent(this, TerminalManager.class);
 			bindService(serviceIntent, mTerminalConnection, Context.BIND_AUTO_CREATE);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			if (DEBUG) {
 				Log.e(TAG, e.fillInStackTrace().toString());
 			}
-			FlurryAgent.onError(TAG, "", e.toString());
+			FlurryAgent.onError(TAG, "", e);
 		}
 	}
 
@@ -172,11 +184,11 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 			mCheckServiceRunnable = new CheckServiceRunnable(serviceName);
 			mCheckExecutorService.scheduleWithFixedDelay(mCheckServiceRunnable, MESSAGE_INIT_DELAY, 30, TimeUnit
 					.SECONDS);
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			if (DEBUG) {
 				Log.e(TAG, e.fillInStackTrace().toString());
 			}
-			FlurryAgent.onError(TAG, "", e.toString());
+			FlurryAgent.onError(TAG, "", e);
 		}
 	}
 
@@ -218,11 +230,11 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 						}
 						break;
 				}
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				if (DEBUG) {
 					Log.e(TAG, e.fillInStackTrace().toString());
 				}
-				FlurryAgent.onError(TAG, "", e.toString());
+				FlurryAgent.onError(TAG, "", e);
 			}
 		}
 	}
@@ -260,11 +272,11 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 									"creating one now", requested.toString(), requestedNickName));
 						}
 						hostBridge = binder.openConnection(requested, portForward);
-					} catch (Exception e) {
+					} catch (Throwable e) {
 						if (DEBUG) {
 							Log.e(TAG, "Problem while trying to create new requested bridge from URI", e);
 						}
-						FlurryAgent.onError(TAG, "", e.toString());
+						FlurryAgent.onError(TAG, "", e);
 					}
 				}
 
@@ -287,8 +299,8 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 					sureServiceIsRunning(TerminalManager.class.getCanonicalName());
 				}
 			}
-		} catch (Exception e) {
-			FlurryAgent.onError(TAG, "", e.toString());
+		} catch (Throwable e) {
+			FlurryAgent.onError(TAG, "", e);
 		}
 	}
 
@@ -296,6 +308,13 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 	public void onEvent(WaitForSocketEvent event) {
 		try {
 			if (event != null) {
+				//统计建立成功的时间
+				final long currentTime = System.currentTimeMillis();
+				final long buildTime = currentTime - recordConnectTime;
+				Map<String, String> map = new HashMap<>();
+				map.put(NativeParams.KEY_SSH_CONNECT_TIME, String.valueOf(buildTime));
+				FlurryAgent.logEvent(NativeParams.EVENT_SSH_CONNECT_SUCCESS, map);
+
 				HeartBeatRunnable.isSSHConnected = true;
 				final boolean isProxyServiceRunning = Util_Service.isServiceRunning(this, ProxyService.class
 						.getCanonicalName());
@@ -313,25 +332,33 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 					}
 				} else {
 					if (!isProxyServiceRunning) {
+
 						startProxyService();
 					}
 				}
 			}
 		} catch (Throwable e) {
-			FlurryAgent.onError(TAG, "", e.toString());
+			FlurryAgent.onError(TAG, "", e);
 		}
 	}
 
 	private void startProxyService() {
+		boolean isProxySuccess = false;
 		try {
 			Intent serviceIntent = new Intent(this, ProxyService.class);
 			bindService(serviceIntent, proxyConnection, Context.BIND_AUTO_CREATE);
-		} catch (Exception e) {
+			isProxySuccess = true;
+		} catch (Throwable e) {
 			if (DEBUG) {
 				Log.e(TAG, e.fillInStackTrace().toString());
 			}
-			FlurryAgent.onError(TAG, "", e.toString());
+			FlurryAgent.onError(TAG, "", e);
+			isProxySuccess = false;
 		}
+
+		Map<String, String> map = new HashMap<>();
+		map.put(NativeParams.KEY_PROXY_CONNECT_SUCCESS, String.valueOf(isProxySuccess));
+		FlurryAgent.logEvent(NativeParams.EVENT_START_PROXY, map);
 	}
 
 	public void destroyProxyService() throws RemoteException {
@@ -384,7 +411,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 				if (DEBUG) {
 					Log.e(TAG, e.fillInStackTrace().toString());
 				}
-				FlurryAgent.onError(TAG, "", e.toString());
+				FlurryAgent.onError(TAG, "", e.fillInStackTrace());
 			}
 		}
 
@@ -396,12 +423,25 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 
 
 	//连接成功，失败都会调用该方法．
+	//1.当网络断开时候，连接断开会调用该方法
+	//２.连接不上host时候会出现该问题
+	//３.在读远程数据时候出现问题，这应该算丢包问题．
 	@Override
 	public void onDisconnected(TerminalBridge bridge) {
 		try {
 			if (DEBUG) {
 				Log.d(TAG, "终端连接失败，进入失败流程！！！！！！");
 			}
+			//进来这里，说明有可能连接成功，有可能连接失败,怎么判断是否连接成功呢
+			final boolean isProxyServiceLive = Util_Service.isServiceRunning(this, ProxyService.class.getCanonicalName
+					());
+			final boolean isNetworkConnected = isNetWorkConnected();
+			//统计成功的几率
+			Map<String, String> map = new HashMap<>();
+			map.put(NativeParams.KEY_SSH_CONNECT_SUCCESS, String.valueOf(isProxyServiceLive && isNetworkConnected));
+			FlurryAgent.logEvent(NativeParams.EVENT_START_SSH_CONNECT, map);
+
+
 			HeartBeatRunnable.isSSHConnected = false;
 			HeartBeatRunnable.mCurrentCount = 0;
 			HeartBeatRunnable.isStartSSHBuild = false;
@@ -411,8 +451,22 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 			if (DEBUG) {
 				Log.e(TAG, "heartBeatService.onDisconnected()函数异常:" + e.fillInStackTrace().toString());
 			}
-			FlurryAgent.onError(TAG, "", e.toString());
+			FlurryAgent.onError(TAG, "", e.fillInStackTrace());
 		}
+	}
+
+	public boolean isNetWorkConnected() {
+		boolean mIsConnected = false;
+		final ConnectivityManager cm =
+				(ConnectivityManager) this.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+		final WifiManager wm = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
+
+		final NetworkInfo info = cm.getActiveNetworkInfo();
+		if (info != null) {
+			mIsConnected = (info.getState() == NetworkInfo.State.CONNECTED);
+		}
+		return mIsConnected;
 	}
 
 	public TerminalManager getBinder() {
