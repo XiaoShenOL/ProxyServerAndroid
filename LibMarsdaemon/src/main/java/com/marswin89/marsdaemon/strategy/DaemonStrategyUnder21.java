@@ -1,10 +1,5 @@
 package com.marswin89.marsdaemon.strategy;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.ComponentName;
@@ -18,6 +13,11 @@ import android.text.TextUtils;
 import com.marswin89.marsdaemon.DaemonConfigurations;
 import com.marswin89.marsdaemon.IDaemonStrategy;
 import com.marswin89.marsdaemon.nativ.NativeDaemonAPI20;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * the strategy in android API below 21.

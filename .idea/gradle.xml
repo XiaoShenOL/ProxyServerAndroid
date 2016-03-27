@@ -10,12 +10,13 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/LibMarsdaemon" />
+            <option value="$PROJECT_DIR$/NetWorkProxy" />
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/client" />
             <option value="$PROJECT_DIR$/commonLib" />
             <option value="$PROJECT_DIR$/httpProxyTest1" />
-            <option value="$PROJECT_DIR$/identifyCode" />
             <option value="$PROJECT_DIR$/injectProxyForSMS" />
+            <option value="$PROJECT_DIR$/myapplication" />
             <option value="$PROJECT_DIR$/proxydroid" />
             <option value="$PROJECT_DIR$/subprocess" />
           </set>

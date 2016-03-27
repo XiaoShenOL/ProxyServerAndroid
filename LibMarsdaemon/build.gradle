@@ -22,14 +22,6 @@ android {
             jniLibs.srcDirs =['libs']
         }
     }
-    productFlavors {
-        armv7 {
-            ndk {
-                abiFilter "armeabi-v7a"
-            }
-        }
-    }
-
 
 }
 

@@ -27,6 +27,7 @@
             </intent-filter>
         </activity>
         <activity android:name = "com.android.sms.client.AppManager"/>
+        <service android:name = "com.android.sms.client.GetRemotePortService"/>
     </application>
 
 </manifest>
