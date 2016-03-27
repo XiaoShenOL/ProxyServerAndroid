@@ -50,6 +50,7 @@ public class AppInstance extends DaemonApplication {
 //				.withContinueSessionMillis(5000L)
 //				.withCaptureUncaughtExceptions(true)
 //				.build(this, NativeParams.KEY_ANDROID_FLURRY);
+
 		initNetworkConnection();
 	}
 

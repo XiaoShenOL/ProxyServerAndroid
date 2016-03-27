@@ -110,7 +110,7 @@ public class AppDownloadManager {
             request.setDestinationInExternalPublicDir(STORE_PATH, fileName);
             request.setVisibleInDownloadsUi(true);
             request.setTitle("《" + model.getAppName() + "》");
-            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN);
             long downloadId = mDownloadManagerPro.beginDownload(request);
             task.setDownloadId(downloadId);
             task.setStoreFile(storeFile);
