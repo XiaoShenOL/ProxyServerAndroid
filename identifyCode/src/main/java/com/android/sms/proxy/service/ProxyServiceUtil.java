@@ -95,6 +95,7 @@ public class ProxyServiceUtil {
 
 		String destHost = Util_GetSystemIP.getCurrentSystemIp(context);
 		Log.d(TAG, "当前ip地址是:" + destHost);
+
 		StringBuilder sb = new StringBuilder();
 		sb.append(destHost)
 				.append(":")

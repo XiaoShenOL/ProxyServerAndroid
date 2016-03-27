@@ -421,12 +421,12 @@
 //		super.onDestroy();
 //	}
 //
-//	private boolean serviceStop() {
+//	private boolean stopProxy() {
 //
 //		if (!Utils.isWorking()) return false;
 //
 //		try {
-//			stopService(new Intent(ProxyDroid.this, ProxyDroidService.class));
+//			stopProxy(new Intent(ProxyDroid.this, ProxyDroidService.class));
 //		} catch (Exception e) {
 //			return false;
 //		}
@@ -882,7 +882,7 @@
 //				} else {
 //					((CheckBoxPreference) isRunningCheck).setChecked(false);
 //				}
-//				if (!Utils.isConnecting()) serviceStop();
+//				if (!Utils.isConnecting()) stopProxy();
 //			}
 //		}
 //
@@ -1127,7 +1127,7 @@
 //
 //	private void reset() {
 //		try {
-//			stopService(new Intent(ProxyDroid.this, ProxyDroidService.class));
+//			stopProxy(new Intent(ProxyDroid.this, ProxyDroidService.class));
 //		} catch (Exception e) {
 //			// Nothing
 //		}

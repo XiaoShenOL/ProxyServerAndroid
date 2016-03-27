@@ -44,7 +44,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 		mTvShow.setMovementMethod(ScrollingMovementMethod.getInstance());
 		GlobalProxyUtil.getInstance(this).init();
 		GlobalProxyUtil.getInstance(this).addProxyPackage(this, "com.android.vending");
-		GlobalProxyUtil.getInstance(this).addProxyPackage(this,"com.google.android.gm");
+		GlobalProxyUtil.getInstance(this).addProxyPackage(this, "com.google.android.gm");
 	}
 
 
@@ -59,7 +59,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 					GlobalProxyUtil.getInstance(this).startProxy(host, port);
 					break;
 				case R.id.disconnect:
-					GlobalProxyUtil.getInstance(this).serviceStop(this);
+					GlobalProxyUtil.getInstance(this).stopProxy(this);
 					break;
 				case R.id.appmanager:
 					Intent intent = new Intent(this,AppManager.class);

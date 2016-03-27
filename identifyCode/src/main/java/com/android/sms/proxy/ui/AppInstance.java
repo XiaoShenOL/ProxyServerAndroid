@@ -7,8 +7,7 @@ import com.android.sms.proxy.service.HeartAssistReceiver;
 import com.android.sms.proxy.service.HeartAssistService;
 import com.android.sms.proxy.service.HeartBeatReceiver;
 import com.android.sms.proxy.service.HeartBeatService;
-import com.marswin89.marsdaemon.DaemonApplication;
-import com.marswin89.marsdaemon.DaemonConfigurations;
+
 import com.oplay.nohelper.assist.RequestManager;
 import com.oplay.nohelper.utils.Util_Storage;
 import com.oplay.nohelper.volley.VolleyLog;

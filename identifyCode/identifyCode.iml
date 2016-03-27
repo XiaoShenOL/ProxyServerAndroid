@@ -103,7 +103,6 @@
     <orderEntry type="library" exported="" name="ecc-25519-java-1.0.1" level="project" />
     <orderEntry type="library" exported="" name="eventbus-3.0.0" level="project" />
     <orderEntry type="module" module-name="commonLib" exported="" />
-    <orderEntry type="module" module-name="LibMarsdaemon" exported="" />
     <orderEntry type="module" module-name="subprocess" exported="" />
     <orderEntry type="library" exported="" name="org.apache.http.legacy-android-23" level="project" />
   </component>

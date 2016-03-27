@@ -147,7 +147,7 @@ public class GlobalProxyUtil {
 		}
 	}
 
-	public boolean serviceStop(Context context) {
+	public boolean stopProxy(Context context) {
 		if (!isRoot) return false;
 		if (!Utils.isWorking()) return false;
 		try {

