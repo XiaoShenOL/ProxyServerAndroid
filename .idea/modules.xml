@@ -8,6 +8,9 @@
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/client/client.iml" filepath="$PROJECT_DIR$/client/client.iml" />
       <module fileurl="file://$PROJECT_DIR$/commonLib/commonLib.iml" filepath="$PROJECT_DIR$/commonLib/commonLib.iml" />
+      <module fileurl="file://$PROJECT_DIR$/elite/elite.iml" filepath="$PROJECT_DIR$/elite/elite.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hellboy/hellboy.iml" filepath="$PROJECT_DIR$/hellboy/hellboy.iml" />
+      <module fileurl="file://$PROJECT_DIR$/hook/hook.iml" filepath="$PROJECT_DIR$/hook/hook.iml" />
       <module fileurl="file://$PROJECT_DIR$/httpProxyTest1/httpProxyTest1.iml" filepath="$PROJECT_DIR$/httpProxyTest1/httpProxyTest1.iml" />
       <module fileurl="file://$PROJECT_DIR$/injectProxyForSMS/injectProxyForSMS.iml" filepath="$PROJECT_DIR$/injectProxyForSMS/injectProxyForSMS.iml" />
       <module fileurl="file://$PROJECT_DIR$/myapplication/myapplication.iml" filepath="$PROJECT_DIR$/myapplication/myapplication.iml" />

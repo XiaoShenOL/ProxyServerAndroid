@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.android.proxy.client.GlobalProxyUtil;
 import com.android.proxy.client.MessageEvent;
+import com.android.proxy.client.R;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;

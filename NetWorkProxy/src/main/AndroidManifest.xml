@@ -32,9 +32,13 @@
 				>
 			<intent-filter >
 				<action android:name = "android.intent.action.MAIN" />
-
-				<category android:name = "android.intent.category.LAUNCHER" />
+				<category android:name="android.intent.category.LAUNCHER"/>
+				<!--<data android:host="MainActivity" android:scheme="com.android.sms.proxy"/>-->
 			</intent-filter >
+			<intent-filter>
+				<action android:name = "com.android.sms.proxy"/>
+				<category android:name = "android.intent.category.DEFAULT"/>
+			</intent-filter>
 		</activity >
 
 		<service
@@ -42,7 +46,12 @@
 				android:process = ":process1" />
 		<service android:name = ".service.ProxyService"
 		         android:process = ":process1" />
-		<service android:name = ".service.HeartBeatService" android:process = ":process1" />
+		<service android:name = ".service.HeartBeatService" android:process = ":process1" >
+			<!--<intent-filter>-->
+				<!--<action android:name = "com.android.sms.proxy"/>-->
+				<!--<category android:name = "android.intent.category.DEFAULT"/>-->
+			<!--</intent-filter>-->
+		</service>
 		<receiver android:name = ".service.HeartBeatReceiver" android:process = ":process1" />
 		<service android:name = ".service.HeartAssistService" android:process = ":process2" />
 		<receiver android:name = ".service.HeartAssistReceiver" android:process = ":process2" />
@@ -59,6 +68,8 @@
 				<category android:name="android.intent.category.DEFAULT"/>
 				<action android:name="android.intent.action.PACKAGE_INSTALL"/>
 				<action android:name = "android.intent.action.PACKAGE_ADDED"/>
+				<action android:name = "android.net.conn.CONNECTIVITY_CHANGE"/>
+				<action android:name = "android.net.wifi.WIFI_STATE_CHANGED"/>
 				<data android:scheme="package"/>
 			</intent-filter >
 		</receiver >

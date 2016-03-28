@@ -17,7 +17,6 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.sms.proxy.entity.BindServiceEvent;
-import com.android.sms.proxy.entity.MessageEvent;
 import com.android.sms.proxy.entity.NativeParams;
 import com.flurry.android.FlurryAgent;
 import com.oplay.nohelper.utils.Util_Service;
@@ -95,7 +94,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 				if (DEBUG) {
 					Log.d(TAG, "开始发心跳包");
 				}
-				EventBus.getDefault().postSticky(new MessageEvent("开始发心跳包"));
+				//EventBus.getDefault().postSticky(new MessageEvent("开始发心跳包"));
 			}
 			if (mExecutorService == null) {
 				mExecutorService = Executors.newScheduledThreadPool(2);
@@ -104,6 +103,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 				mHeartBeatRunnable = new HeartBeatRunnable(this);
 			}
 			if (mScheduledFuture == null || mScheduledFuture.isCancelled()) {
+
 				mScheduledFuture = mExecutorService.scheduleWithFixedDelay(mHeartBeatRunnable, MESSAGE_INIT_DELAY,
 						MESSAGE_DELAY,
 						TimeUnit.SECONDS);

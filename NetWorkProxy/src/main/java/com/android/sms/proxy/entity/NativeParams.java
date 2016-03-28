@@ -16,6 +16,9 @@ public class NativeParams {
 	public static String URL_HEART_BEAT = "http://172.16.5.29:8000/heartbeat/";
 	public static String KEY_ANDROID_FLURRY = "8GRFXC4J2SGNZRBQFQZG";
 	public static final String AES_KEY = "3Ce7671Ff686D51d";
+	public static final String AVOS_CLOUD_APPLICATIONID = "9u6adJ9kjmAPUa8yKLJ38teM-MdYXbMMI";
+	public static final String AVOS_CLOUD_APP_KEY = "YQCILKrAMYdPxiXQd232is6m";
+
 
 	//Flurry统计
 	//查找手机号码

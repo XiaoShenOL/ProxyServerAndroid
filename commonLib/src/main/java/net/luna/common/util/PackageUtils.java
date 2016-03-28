@@ -51,6 +51,7 @@ import java.util.List;
 public class PackageUtils {
 
     public static final String TAG = "PackageUtils";
+    public static final boolean DEBUG = true;
 
     private PackageUtils() {
         throw new AssertionError();
@@ -157,6 +158,7 @@ public class PackageUtils {
             return INSTALL_SUCCEEDED;
         }
 
+        if(DEBUG)
         Log.e(TAG,
                 new StringBuilder().append("installSilent successMsg:").append(commandResult.successMsg)
                         .append(", ErrorMsg:").append(commandResult.errorMsg).toString());

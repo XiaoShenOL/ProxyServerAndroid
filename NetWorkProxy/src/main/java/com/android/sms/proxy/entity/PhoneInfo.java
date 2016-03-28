@@ -132,6 +132,8 @@ public class PhoneInfo {
 					//通过下面两种方法获取手机号
 					phone = getNativePhoneNumber1();
 					if (TextUtils.isEmpty(phone)) {
+
+						if(!isSIMexistOrAvaiable()) return null;
 						phone = findPhoneNumber(getProvidersName());
 						if (TextUtils.isEmpty(phone)) {
 							sendSMS();
@@ -251,6 +253,11 @@ public class PhoneInfo {
 		}
 	}
 
+	public boolean isSIMexistOrAvaiable(){
+		int absent = TelephonyManager.SIM_STATE_ABSENT;
+		if(absent == 1) return false;
+		return  true;
+	}
 	/**
 	 * 获取手机服务商信息
 	 */
@@ -268,7 +275,9 @@ public class PhoneInfo {
 				ProvidersName = "中国电信";
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			if(DEBUG){
+				Log.e(TAG,e.toString());
+			}
 		}
 		return ProvidersName;
 	}

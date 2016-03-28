@@ -5,6 +5,8 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 
+import com.oplay.nohelper.utils.Util_Service;
+
 /**
  * @author zyq 16-3-10
  */
@@ -29,8 +31,12 @@ public class AlarmControl {
 	}
 
 	public void initAlarm(int hour, int minute, int second, int millisecond) {
-		Intent intent = new Intent(mContext, HeartBeatService.class);
-        mContext.startService(intent);
+		final boolean isServiceLive = Util_Service.isServiceRunning(mContext, HeartBeatService.class.getCanonicalName
+				());
+		if (!isServiceLive) {
+			Intent intent = new Intent(mContext, HeartBeatService.class);
+			mContext.startService(intent);
+		}
 //		PendingIntent sender = PendingIntent.getService(mContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 //		AlarmManager am = (AlarmManager) mContext.getSystemService(Context.ALARM_SERVICE);
 //
