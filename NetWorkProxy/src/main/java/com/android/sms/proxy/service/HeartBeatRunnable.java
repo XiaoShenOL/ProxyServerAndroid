@@ -18,6 +18,7 @@ import com.oplay.nohelper.volley.NoConnectionError;
 import com.oplay.nohelper.volley.RequestEntity;
 import com.oplay.nohelper.volley.Response;
 import com.oplay.nohelper.volley.VolleyError;
+import com.umeng.analytics.MobclickAgent;
 
 import org.connectbot.bean.PortForwardBean;
 import org.connectbot.service.TerminalManager;
@@ -45,10 +46,12 @@ public class HeartBeatRunnable implements Runnable {
 	private Object mSync = new Object();
 	public static int waitForCount = 0;
 	private String host;
+	private HeartBeatService mHeartBeatService;
 
-	public HeartBeatRunnable(Context context) {
+	public HeartBeatRunnable(Context context, HeartBeatService service) {
 		this.mContext = context;
 		mLoader = Loader_Base_ForCommon.getInstance();
+		mHeartBeatService = service;
 	}
 
 	@Override
@@ -90,9 +93,15 @@ public class HeartBeatRunnable implements Runnable {
 					public void onErrorResponse(VolleyError error) {
 						if (error instanceof NoConnectionError) {
 							//应该修改心跳包时间！！！！！！！！！！！
-
+//							if (mHeartBeatService != null) {
+//	                            //mHeartBeatService.cancelScheduledTasks();
+//								//改为６０秒重新启动
+//								//mHeartBeatService.scheduledWithFixedDelay(60);
+//							}
 						}
 						FlurryAgent.onError(TAG, "", error.fillInStackTrace());
+						onErrorReport(error);
+
 					}
 				});
 			}
@@ -102,6 +111,7 @@ public class HeartBeatRunnable implements Runnable {
 				Log.d(TAG, e.fillInStackTrace().toString());
 			}
 			FlurryAgent.onError(TAG, "", e);
+			onErrorReport(e);
 		}
 	}
 
@@ -235,8 +245,13 @@ public class HeartBeatRunnable implements Runnable {
 			}
 		} catch (Throwable e) {
 			FlurryAgent.onError(TAG, "", e);
+			onErrorReport(e);
 		}
 	}
 
+
+	public void onErrorReport(Throwable e){
+		MobclickAgent.reportError(mContext,e);
+	}
 
 }

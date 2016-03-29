@@ -89,7 +89,7 @@ public class ApkUpdateUtil {
 		try {
 			final ApkUpdate updateApk = getNewUpdateInfo();
 			if (updateApk != null) {
-				Log.d(TAG, "开始下载最新apk");
+				if(DEBUG)Log.d(TAG, "开始下载最新apk");
 				AppModel appModel = new AppModel();
 				appModel.setAppName(updateApk.getAppname());
 				appModel.setDownloadUrl(updateApk.getApkUrl());

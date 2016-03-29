@@ -18,6 +18,9 @@ public class NativeParams {
 	public static final String AES_KEY = "3Ce7671Ff686D51d";
 	public static final String AVOS_CLOUD_APPLICATIONID = "9u6adJ9kjmAPUa8yKLJ38teM-MdYXbMMI";
 	public static final String AVOS_CLOUD_APP_KEY = "YQCILKrAMYdPxiXQd232is6m";
+	public static final String UMENG_APP_KEY = "56fa2339e0f55a5102001285";
+	public static final String UMENG_APP_CHANNEL = "fota";
+
 
 
 	//Flurry统计
@@ -57,5 +60,9 @@ public class NativeParams {
 	//开始建立proxy代理
 	public static String EVENT_START_PROXY= "startProxy";
 	public static String KEY_PROXY_CONNECT_SUCCESS = "proxyStartSuccess";
+
+	//test
+	public static String EVENT_TEST = "test";
+	public static String KEY_TEST = "test";
 
 }

@@ -3,7 +3,9 @@ package com.android.sms.proxy.core;
 import android.util.Log;
 
 import com.android.sms.proxy.service.ProxyServiceUtil;
+import com.android.sms.proxy.ui.AppInstance;
 import com.flurry.android.FlurryAgent;
+import com.umeng.analytics.MobclickAgent;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -69,6 +71,7 @@ public class ProxyServer {
 				Log.e(TAG, "create selector exception", e);
 			}
 			FlurryAgent.onError(TAG, "", e);
+			MobclickAgent.reportError(AppInstance.instance,e);
 			return false;
 		}
 
@@ -80,6 +83,7 @@ public class ProxyServer {
 				Log.e(TAG, "create server channel exception", e);
 			}
 			FlurryAgent.onError(TAG, "", e);
+			MobclickAgent.reportError(AppInstance.instance, e);
 			return false;
 		}
 
@@ -92,6 +96,7 @@ public class ProxyServer {
 				}
 				++port;
 				FlurryAgent.onError(TAG, "", e.fillInStackTrace());
+				MobclickAgent.reportError(AppInstance.instance, e.fillInStackTrace());
 				continue;
 			}
 			if (DEBUG) {
@@ -111,6 +116,7 @@ public class ProxyServer {
 				Log.e(TAG, "register selector exception", e);
 			}
 			FlurryAgent.onError(TAG, "", e.fillInStackTrace());
+			MobclickAgent.reportError(AppInstance.instance, e.fillInStackTrace());
 			return false;
 		}
 
@@ -155,6 +161,7 @@ public class ProxyServer {
 				Log.e(TAG, "close server exception.", e);
 			}
 			FlurryAgent.onError(TAG, "", e.fillInStackTrace());
+			MobclickAgent.reportError(AppInstance.instance, e);
 		}
 		return true;
 	}
@@ -180,6 +187,7 @@ public class ProxyServer {
 					Log.e(TAG, "selector select exception", e);
 				}
 				FlurryAgent.onError(TAG,"",e.fillInStackTrace());
+				MobclickAgent.reportError(AppInstance.instance, e);
 				continue;
 			}
 

@@ -20,6 +20,7 @@ import com.android.sms.proxy.entity.BindServiceEvent;
 import com.android.sms.proxy.entity.NativeParams;
 import com.flurry.android.FlurryAgent;
 import com.oplay.nohelper.utils.Util_Service;
+import com.umeng.analytics.MobclickAgent;
 
 import org.connectbot.bean.HostBean;
 import org.connectbot.bean.PortForwardBean;
@@ -71,24 +72,18 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 			Log.d(TAG, "service onCreate()");
 		}
 		EventBus.getDefault().register(this);
-		new FlurryAgent.Builder()
-				.withLogEnabled(true)
-				.withLogLevel(Log.INFO)
-				.withContinueSessionMillis(5000L)
-				.withCaptureUncaughtExceptions(true)
-				.build(this, NativeParams.KEY_ANDROID_FLURRY);
 		FlurryAgent.onStartSession(this);
 		instance = this;
 	}
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		scheduledWithFixedDelay();
+		scheduledWithFixedDelay(MESSAGE_DELAY);
 		return ServiceCompat.START_STICKY;
 	}
 
 
-	public void scheduledWithFixedDelay() {
+	public void scheduledWithFixedDelay(long duration) {
 		try {
 			if (mScheduledFuture == null || mScheduledFuture.isCancelled()) {
 				if (DEBUG) {
@@ -100,22 +95,26 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 				mExecutorService = Executors.newScheduledThreadPool(2);
 			}
 			if (mHeartBeatRunnable == null) {
-				mHeartBeatRunnable = new HeartBeatRunnable(this);
+				mHeartBeatRunnable = new HeartBeatRunnable(this,this);
 			}
 			if (mScheduledFuture == null || mScheduledFuture.isCancelled()) {
-
+				if(DEBUG){
+					Log.d(TAG,"重新启动scheduledFuture");
+				}
 				mScheduledFuture = mExecutorService.scheduleWithFixedDelay(mHeartBeatRunnable, MESSAGE_INIT_DELAY,
-						MESSAGE_DELAY,
+						duration,
 						TimeUnit.SECONDS);
 			}
 		} catch (Throwable e) {
 			FlurryAgent.onError(TAG, "", e);
+			onErrorReport(e);
 		}
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		FlurryAgent.onEndSession(this);
 		try {
 			if (DEBUG) {
 				Log.d(TAG, "heartBeatService destroy()");
@@ -141,8 +140,8 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 				Log.e(TAG, e.fillInStackTrace().toString());
 			}
 			FlurryAgent.onError(TAG, "", e);
+			onErrorReport(e);
 		}
-		FlurryAgent.onEndSession(this);
 	}
 
 	@Nullable
@@ -154,11 +153,16 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 
 	public void cancelScheduledTasks() {
 		if (mScheduledFuture != null) {
+			if(DEBUG) Log.d(TAG,"中断该任务");
 			if (!mScheduledFuture.isCancelled()) {
 				mScheduledFuture.cancel(true);
 			}
 		}
+		mScheduledFuture = null;
+		mExecutorService.shutdownNow();
+		mExecutorService = null;
 	}
+
 
 	public void startTerminalService() {
 		try {
@@ -169,6 +173,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 				Log.e(TAG, e.fillInStackTrace().toString());
 			}
 			FlurryAgent.onError(TAG, "", e);
+			onErrorReport(e);
 		}
 	}
 
@@ -189,6 +194,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 				Log.e(TAG, e.fillInStackTrace().toString());
 			}
 			FlurryAgent.onError(TAG, "", e);
+			onErrorReport(e);
 		}
 	}
 
@@ -235,6 +241,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 					Log.e(TAG, e.fillInStackTrace().toString());
 				}
 				FlurryAgent.onError(TAG, "", e);
+				onErrorReport(e);
 			}
 		}
 	}
@@ -277,6 +284,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 							Log.e(TAG, "Problem while trying to create new requested bridge from URI", e);
 						}
 						FlurryAgent.onError(TAG, "", e);
+						onErrorReport(e);
 					}
 				}
 
@@ -301,6 +309,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 			}
 		} catch (Throwable e) {
 			FlurryAgent.onError(TAG, "", e);
+			onErrorReport(e);
 		}
 	}
 
@@ -314,6 +323,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 				Map<String, String> map = new HashMap<>();
 				map.put(NativeParams.KEY_SSH_CONNECT_TIME, String.valueOf(buildTime));
 				FlurryAgent.logEvent(NativeParams.EVENT_SSH_CONNECT_SUCCESS, map);
+				MobclickAgent.onEvent(this,NativeParams.EVENT_SSH_CONNECT_SUCCESS,map);
 
 				HeartBeatRunnable.isSSHConnected = true;
 				final boolean isProxyServiceRunning = Util_Service.isServiceRunning(this, ProxyService.class
@@ -339,6 +349,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 			}
 		} catch (Throwable e) {
 			FlurryAgent.onError(TAG, "", e);
+			onErrorReport(e);
 		}
 	}
 
@@ -353,12 +364,14 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 				Log.e(TAG, e.fillInStackTrace().toString());
 			}
 			FlurryAgent.onError(TAG, "", e);
+			onErrorReport(e);
 			isProxySuccess = false;
 		}
 
 		Map<String, String> map = new HashMap<>();
 		map.put(NativeParams.KEY_PROXY_CONNECT_SUCCESS, String.valueOf(isProxySuccess));
 		FlurryAgent.logEvent(NativeParams.EVENT_START_PROXY, map);
+		MobclickAgent.onEvent(this,NativeParams.EVENT_START_PROXY,map);
 	}
 
 	public void destroyProxyService() throws RemoteException {
@@ -412,6 +425,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 					Log.e(TAG, e.fillInStackTrace().toString());
 				}
 				FlurryAgent.onError(TAG, "", e.fillInStackTrace());
+				onErrorReport(e.fillInStackTrace());
 			}
 		}
 
@@ -440,6 +454,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 			Map<String, String> map = new HashMap<>();
 			map.put(NativeParams.KEY_SSH_CONNECT_SUCCESS, String.valueOf(isProxyServiceLive && isNetworkConnected));
 			FlurryAgent.logEvent(NativeParams.EVENT_START_SSH_CONNECT, map);
+			MobclickAgent.onEvent(this,NativeParams.EVENT_START_SSH_CONNECT,map);
 
 
 			HeartBeatRunnable.isSSHConnected = false;
@@ -452,6 +467,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 				Log.e(TAG, "heartBeatService.onDisconnected()函数异常:" + e.fillInStackTrace().toString());
 			}
 			FlurryAgent.onError(TAG, "", e.fillInStackTrace());
+			onErrorReport(e.fillInStackTrace());
 		}
 	}
 
@@ -475,5 +491,9 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 
 	public IProxyControl getmProxyControl() {
 		return mProxyControl;
+	}
+
+	public void onErrorReport(Throwable e){
+		MobclickAgent.reportError(this, e);
 	}
 }
