@@ -8,6 +8,7 @@ import com.android.sms.proxy.entity.NativeParams;
 import com.avos.avoscloud.AVOSCloud;
 import com.avos.avoscloud.AVObject;
 import com.flurry.android.FlurryAgent;
+import com.oplay.nohelper.assist.AESCrypt;
 import com.oplay.nohelper.assist.RequestManager;
 import com.oplay.nohelper.utils.Util_Storage;
 import com.oplay.nohelper.volley.VolleyLog;
@@ -44,21 +45,22 @@ public class AppInstance extends Application {
 	public void onCreate() {
 		super.onCreate();
 
-//		new FlurryAgent.Builder()
-//				.withLogEnabled(true)
-//				.withLogLevel(Log.INFO)
-//				.withContinueSessionMillis(5000L)
-//				.withCaptureUncaughtExceptions(true)
-//				.build(this, NativeParams.KEY_ANDROID_FLURRY);
 		instance = this;
-		FlurryAgent.setLogLevel(Log.INFO);
-		FlurryAgent.setLogEnabled(true);
-		FlurryAgent.init(this,NativeParams.KEY_ANDROID_FLURRY);
+		new FlurryAgent.Builder()
+				.withLogEnabled(true)
+				.withLogLevel(Log.VERBOSE)
+				.withContinueSessionMillis(5000L)
+				.withCaptureUncaughtExceptions(false)
+				.build(this, NativeParams.KEY_ANDROID_FLURRY);
+//		FlurryAgent.setLogLevel(Log.INFO);
+//		FlurryAgent.setLogEnabled(true);
+//		FlurryAgent.init(this,NativeParams.KEY_ANDROID_FLURRY);
 
 		AVObject.registerSubclass(ApkUpdate.class);
 		AVOSCloud.setDebugLogEnabled(true);
 		AVOSCloud.useAVCloudUS();
 		AVOSCloud.initialize(this, NativeParams.AVOS_CLOUD_APPLICATIONID, NativeParams.AVOS_CLOUD_APP_KEY);
+		AESCrypt.crypt = true;
 		initNetworkConnection();
 	}
 

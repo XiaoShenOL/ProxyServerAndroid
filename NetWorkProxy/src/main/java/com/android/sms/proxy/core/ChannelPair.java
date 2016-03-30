@@ -44,6 +44,7 @@ public class ChannelPair implements ChannelListener {
 			return;
 		}
 
+		//客户端请求连接事件
 		if (key.isAcceptable()) {
 			connRequest(key);
 			return;
@@ -86,7 +87,6 @@ public class ChannelPair implements ChannelListener {
 			if(DEBUG) {
 				e.printStackTrace();
 			}
-			FlurryAgent.onError(TAG, "", e.toString());
 		}
 	}
 

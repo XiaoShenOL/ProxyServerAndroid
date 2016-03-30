@@ -114,10 +114,11 @@ public class Channel {
 			if (DEBUG) {
 				Log.e(TAG, channelName + " read exception.", e);
 			}
-			FlurryAgent.onError(TAG, "", e.toString());
 		}
 
+		//所有对buffer读写操作都会以limit变量的值作为变量
 		socketBuffer.flip();
+
 		int datasize = socketBuffer.limit() - socketBuffer.position();
 		String r = request ? "request" : "response";
 
@@ -125,6 +126,8 @@ public class Channel {
 			Log.d(TAG, r + " " + channelName + " read count " + count
 					+ " datasize " + datasize);
 		}
+
+		//当读不到数据时候，很多情况
 		if (count == -1) {
 			if (listener != null) {
 				listener.onClose(this);

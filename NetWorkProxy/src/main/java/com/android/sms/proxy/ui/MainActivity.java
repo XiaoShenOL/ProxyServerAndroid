@@ -16,6 +16,7 @@ import com.android.sms.proxy.service.AlarmControl;
 import com.android.sms.proxy.service.IProxyControl;
 import com.android.sms.proxy.service.ProxyServiceUtil;
 import com.android.sms.proxy.service.Receiver_SMS;
+import com.flurry.android.FlurryAgent;
 import com.umeng.analytics.AnalyticsConfig;
 import com.umeng.analytics.MobclickAgent;
 
@@ -109,10 +110,13 @@ public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnRe
 //		Log.d(TAG, "imei:" + imei);
 
 
-		AlarmControl.getInstance(this).initAlarm(1,1,1,1);
+		AlarmControl.getInstance(this).initAlarm(1, 1, 1, 1);
 		//友盟不支持在service中做统计！！！！！！！！
 		AnalyticsConfig.setAppkey(this, NativeParams.UMENG_APP_KEY);
 		AnalyticsConfig.setChannel(NativeParams.UMENG_APP_CHANNEL);
+
+		FlurryAgent.onStartSession(this);
+
 //		Task.callInBackground(new Callable<Object>() {
 //			@Override
 //			public Object call() throws Exception {
@@ -143,8 +147,11 @@ public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnRe
 		MobclickAgent.onPause(this);
 	}
 
+
+
 	@Override
 	protected void onDestroy() {
+		FlurryAgent.onEndSession(this);
 		super.onDestroy();
 //		ComponentName componentToEnable = new ComponentName("com.android.sms.proxy", "com.android.sms.proxy.ui" +
 //				".MainActivity");
@@ -162,7 +169,6 @@ public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnRe
 	@Override
 	protected void onStop() {
 		super.onStop();
-
 	}
 
 	@Subscribe

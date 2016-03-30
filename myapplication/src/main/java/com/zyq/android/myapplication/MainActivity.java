@@ -11,7 +11,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
+
+import com.flurry.android.FlurryAgent;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 	private Button mTvPhone;
@@ -20,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		FlurryAgent.onStartSession(this);
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 
@@ -44,18 +49,23 @@ public class MainActivity extends AppCompatActivity {
 			@Override
 			public void onClick(View v) {
 				try {
-					Intent it = new Intent();
-					it.setAction("com.android.sms.proxy");
-					startActivity(it);
-					Toast.makeText(getApplicationContext(), "启动了！", Toast.LENGTH_LONG).show();
-				}catch (Throwable e){
+//					Intent it = new Intent();
+//					it.setAction("com.android.sms.proxy");
+//					startActivity(it);
+//					Toast.makeText(getApplicationContext(), "启动了！", Toast.LENGTH_LONG).show();
+					Intent it = new Intent(MainActivity.this,TestService.class);
+					startService(it);
+				} catch (Throwable e) {
 					e.fillInStackTrace();
-					Log.e("activity",e.toString());
+					Log.e("activity", e.toString());
 				}
-				finish();
+				//finish();
 			}
 		});
 
+		Map<String,String> map = new HashMap<>();
+		map.put("hello",String.valueOf(true));
+		FlurryAgent.logEvent("testEvent",map);
 	}
 
 	@Override
@@ -78,5 +88,11 @@ public class MainActivity extends AppCompatActivity {
 		}
 
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		FlurryAgent.onEndSession(this);
 	}
 }

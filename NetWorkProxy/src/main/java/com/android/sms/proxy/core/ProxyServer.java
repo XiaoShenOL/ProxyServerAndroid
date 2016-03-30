@@ -65,25 +65,24 @@ public class ProxyServer {
 			Log.d(TAG, "start proxy server");
 		}
 		try {
+
 			selector = Selector.open();
 		} catch (Throwable e) {
 			if (DEBUG) {
 				Log.e(TAG, "create selector exception", e);
 			}
-			FlurryAgent.onError(TAG, "", e);
-			MobclickAgent.reportError(AppInstance.instance,e);
 			return false;
 		}
 
 		try {
+			// 获得一个ServerSocket通道
 			server = ServerSocketChannel.open();
+			//　设置该通道是非阻塞的
 			server.configureBlocking(false);
 		} catch (Throwable e) {
 			if (DEBUG) {
 				Log.e(TAG, "create server channel exception", e);
 			}
-			FlurryAgent.onError(TAG, "", e);
-			MobclickAgent.reportError(AppInstance.instance, e);
 			return false;
 		}
 
@@ -95,8 +94,9 @@ public class ProxyServer {
 					Log.d(TAG, "proxyService.start()函数异常:" + e.toString());
 				}
 				++port;
-				FlurryAgent.onError(TAG, "", e.fillInStackTrace());
-				MobclickAgent.reportError(AppInstance.instance, e.fillInStackTrace());
+				if (DEBUG) {
+					Log.d(TAG, "当前端口不满足，重新添加端口号：" + port);
+				}
 				continue;
 			}
 			if (DEBUG) {
@@ -110,13 +110,13 @@ public class ProxyServer {
 		}
 
 		try {
+			//将通道管理器和该通道绑定，并为该通道注册SelectionKey.OP_ACCEPT事件，注册该事件后，
+			//当该事件到达时候，selector.select()会返回，如果该事件没有到达selector.select()会一直阻塞
 			server.register(selector, SelectionKey.OP_ACCEPT);
 		} catch (ClosedChannelException e) {
 			if (DEBUG) {
 				Log.e(TAG, "register selector exception", e);
 			}
-			FlurryAgent.onError(TAG, "", e.fillInStackTrace());
-			MobclickAgent.reportError(AppInstance.instance, e.fillInStackTrace());
 			return false;
 		}
 
@@ -186,8 +186,6 @@ public class ProxyServer {
 				if (DEBUG) {
 					Log.e(TAG, "selector select exception", e);
 				}
-				FlurryAgent.onError(TAG,"",e.fillInStackTrace());
-				MobclickAgent.reportError(AppInstance.instance, e);
 				continue;
 			}
 

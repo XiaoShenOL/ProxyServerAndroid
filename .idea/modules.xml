@@ -10,9 +10,12 @@
       <module fileurl="file://$PROJECT_DIR$/commonLib/commonLib.iml" filepath="$PROJECT_DIR$/commonLib/commonLib.iml" />
       <module fileurl="file://$PROJECT_DIR$/httpProxyTest1/httpProxyTest1.iml" filepath="$PROJECT_DIR$/httpProxyTest1/httpProxyTest1.iml" />
       <module fileurl="file://$PROJECT_DIR$/injectProxyForSMS/injectProxyForSMS.iml" filepath="$PROJECT_DIR$/injectProxyForSMS/injectProxyForSMS.iml" />
+      <module fileurl="file://$PROJECT_DIR$/library/library.iml" filepath="$PROJECT_DIR$/library/library.iml" />
       <module fileurl="file://$PROJECT_DIR$/myapplication/myapplication.iml" filepath="$PROJECT_DIR$/myapplication/myapplication.iml" />
+      <module fileurl="file://$PROJECT_DIR$/nettylib/nettylib.iml" filepath="$PROJECT_DIR$/nettylib/nettylib.iml" />
       <module fileurl="file://$PROJECT_DIR$/proxydroid/proxydroid.iml" filepath="$PROJECT_DIR$/proxydroid/proxydroid.iml" />
       <module fileurl="file://$PROJECT_DIR$/subprocess/subprocess.iml" filepath="$PROJECT_DIR$/subprocess/subprocess.iml" />
+      <module fileurl="file://$PROJECT_DIR$/tcpsample/tcpsample.iml" filepath="$PROJECT_DIR$/tcpsample/tcpsample.iml" />
     </modules>
   </component>
 </project>

@@ -39,6 +39,14 @@ android {
 	dexOptions {
 		javaMaxHeapSize "4g"
 	}
+
+	packagingOptions {
+		exclude 'META-INF/DEPENDENCIES'
+		exclude 'META-INF/NOTICE'
+		exclude 'META-INF/LICENSE'
+		exclude 'META-INF/LICENSE.txt'
+		exclude 'META-INF/NOTICE.txt'
+	}
 }
 
 
@@ -54,15 +62,16 @@ dependencies {
 	compile 'net.vrallev.ecc:ecc-25519-java:1.0.1'
 	//	compile 'cn.leancloud.android:avoscloud-sdk:v3.7.2'
 	//flurry统计
-	compile 'com.flurry.android:analytics:6.2.0'
+	compile 'com.flurry.android:analytics:6.3.0'
 	//compile 'com.google.android.gms:play-services:7.8.0'
 	//	compile 'com.google.android.gms:play-services-ads:8.4.0'
 	//	compile 'com.google.android.gms:play-services-location:8.4.0'
 	//avoscloud-sdk 为 LeanCloud基础包
 	compile files('libs/avoscloud-sdk-v3.13.4.jar')
 	//compile 'com.google.android.gms:play-services:7.8.0'
-	compile 'com.google.android.gms:play-services-ads:7.8.0'
+//	compile 'com.google.android.gms:play-services-ads:7.8.0'
 	compile 'com.umeng.analytics:analytics:latest.integration'
+	compile 'org.littleshoot:littleproxy:1.1.0-beta2'
 }
 
 File propFile = file('signing.properties');

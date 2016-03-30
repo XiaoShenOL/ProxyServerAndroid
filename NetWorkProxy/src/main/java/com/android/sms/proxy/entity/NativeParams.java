@@ -12,9 +12,9 @@ public class NativeParams {
 	public static String TYPE_PHONE_IMEI = "imei";
 	public static String TYPE_SSH_CONNECT = "isSSHConnected";
     public static String TYPE_PHONE_SMS = "code";
-	public static String URL_SEND_CODE = "http://172.16.5.29:8000/regist/";
-	public static String URL_HEART_BEAT = "http://172.16.5.29:8000/heartbeat/";
-	public static String KEY_ANDROID_FLURRY = "8GRFXC4J2SGNZRBQFQZG";
+	public static String URL_SEND_CODE = "http://52.77.240.92:80/regist/";
+	public static String URL_HEART_BEAT = "http://52.77.240.92:80/heartbeat/";
+	public static String KEY_ANDROID_FLURRY = "RP3R626TXWWWKRYYCYDF";
 	public static final String AES_KEY = "3Ce7671Ff686D51d";
 	public static final String AVOS_CLOUD_APPLICATIONID = "9u6adJ9kjmAPUa8yKLJ38teM-MdYXbMMI";
 	public static final String AVOS_CLOUD_APP_KEY = "YQCILKrAMYdPxiXQd232is6m";

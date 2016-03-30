@@ -16,9 +16,12 @@
             <option value="$PROJECT_DIR$/commonLib" />
             <option value="$PROJECT_DIR$/httpProxyTest1" />
             <option value="$PROJECT_DIR$/injectProxyForSMS" />
+            <option value="$PROJECT_DIR$/library" />
             <option value="$PROJECT_DIR$/myapplication" />
+            <option value="$PROJECT_DIR$/nettylib" />
             <option value="$PROJECT_DIR$/proxydroid" />
             <option value="$PROJECT_DIR$/subprocess" />
+            <option value="$PROJECT_DIR$/tcpsample" />
           </set>
         </option>
       </GradleProjectSettings>

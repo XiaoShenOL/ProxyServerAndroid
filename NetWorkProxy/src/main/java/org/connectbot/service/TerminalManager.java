@@ -298,7 +298,7 @@ public class TerminalManager extends Service implements SharedPreferences.OnShar
 				if (bridge == null) {
 					continue;
 				}
-				bridge.startConnection();
+				//bridge.startConnection();
 			}
 			mPendingReconnect.clear();
 		}
