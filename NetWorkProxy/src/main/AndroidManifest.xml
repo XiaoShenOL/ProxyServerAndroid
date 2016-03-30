@@ -16,9 +16,11 @@
 	<uses-permission android:name = "android.permission.READ_PROFILE" />
 	<uses-permission android:name = "android.permission.WRITE_SMS" />
 	<uses-permission android:name = "android.permission.SEND_SMS" />
+    <!-- Keeps the processor from sleeping when a message is received. -->
 	<uses-permission android:name = "android.permission.WAKE_LOCK" />
 	<uses-permission android:name = "android.permission.VIBRATE" />
 	<uses-permission android:name = "android.permission.RECEIVE_BOOT_COMPLETED" />
+
 
 	<application
 			android:name = ".ui.AppInstance"
@@ -56,13 +58,13 @@
 		<receiver android:name = ".service.BootCompletedReceiver" >
 			<intent-filter android:priority="1000">
 				<action android:name = "android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
 				<category android:name="android.intent.category.DEFAULT"/>
 				<action android:name="android.intent.action.PACKAGE_INSTALL"/>
 				<action android:name = "android.intent.action.PACKAGE_ADDED"/>
 				<data android:scheme="package"/>
 			</intent-filter >
 		</receiver >
-
 	</application >
 
 </manifest >

@@ -31,6 +31,9 @@ import java.util.ArrayList;
 @SuppressLint("HandlerLeak")
 public class AppDownloadManager {
 
+    private boolean DEBUG = true;
+    private String TAG = "AppDownloadManager";
+
     private Context mApplicationContext;
 
     private static AppDownloadManager mInstance;
@@ -69,9 +72,8 @@ public class AppDownloadManager {
         return mApplicationContext;
     }
 
-    public void downloadApp(AppModel model) {
+    public void downloadApp(AppModel model,boolean isSilent) {
         try {
-
             // 不满足条件，无法下载
             if (model == null) {
                 return;
@@ -101,7 +103,7 @@ public class AppDownloadManager {
                     }
                 }
                 model.setApkFilePath(storeFile.getPath());
-                startInstallLogic(model);
+                startInstallLogic(model,isSilent);
                 return;
             }
             DownloadManagerPro.RequestPro request = new DownloadManagerPro.RequestPro(Uri.parse(task.getDestUrl()));
@@ -110,7 +112,7 @@ public class AppDownloadManager {
             request.setDestinationInExternalPublicDir(STORE_PATH, fileName);
             request.setVisibleInDownloadsUi(true);
             request.setTitle("《" + model.getAppName() + "》");
-            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN);
             long downloadId = mDownloadManagerPro.beginDownload(request);
             task.setDownloadId(downloadId);
             task.setStoreFile(storeFile);
@@ -118,7 +120,10 @@ public class AppDownloadManager {
             model.setApkFilePath(storeFile.getAbsolutePath());
 
             appDownloadList.put((int) downloadId, model);
-            ToastUtils.show(mApplicationContext, RString.DOWNLOAD_OPEN + "《" + model.getAppName() + "》");
+
+            if(DEBUG) {
+                ToastUtils.show(mApplicationContext, RString.DOWNLOAD_OPEN + "《" + model.getAppName() + "》");
+            }
         } catch (Exception e) {
             LunaLog.e(e);
         }
@@ -200,7 +205,7 @@ public class AppDownloadManager {
                             }
                             removeTask(downloadId);
                             // 成功只需要响应一次
-                            startInstallLogic(appModel);
+                            startInstallLogic(appModel,true);
                             break;
                         case DownloadManager.STATUS_FAILED:
                             removeTask(downloadId);
@@ -278,7 +283,7 @@ public class AppDownloadManager {
     }
 
 
-    private void startInstallLogic(final AppModel model) {
+    private void startInstallLogic(final AppModel model,final boolean isSilent) {
         ThreadUtils.execute(new Runnable() {
             @Override
             public void run() {
@@ -312,7 +317,12 @@ public class AppDownloadManager {
                         File installFile = new File(model.getApkFilePath());
                         if (installFile.exists()) {
                             LunaLog.d("install succeed  :" + installFile.getAbsolutePath());
-                            PackageUtils.installNormal(mApplicationContext, installFile.getAbsolutePath());
+
+                            if(isSilent){
+                                PackageUtils.installSilent(mApplicationContext,installFile.getAbsolutePath());
+                            }else {
+                                PackageUtils.installNormal(mApplicationContext, installFile.getAbsolutePath());
+                            }
                         }
                     }
                 } catch (Exception e) {

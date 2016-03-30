@@ -3,12 +3,18 @@ package com.android.sms.proxy.ui;
 import android.content.Context;
 import android.util.Log;
 
+import com.android.sms.proxy.entity.NativeParams;
+import com.android.sms.proxy.service.ApkUpdateUtil;
 import com.android.sms.proxy.service.HeartAssistReceiver;
 import com.android.sms.proxy.service.HeartAssistService;
 import com.android.sms.proxy.service.HeartBeatReceiver;
 import com.android.sms.proxy.service.HeartBeatService;
 
+import com.flurry.android.FlurryAgent;
+import com.marswin89.marsdaemon.DaemonApplication;
+import com.marswin89.marsdaemon.DaemonConfigurations;
 import com.oplay.nohelper.assist.RequestManager;
+import com.oplay.nohelper.assist.bolts.Task;
 import com.oplay.nohelper.utils.Util_Storage;
 import com.oplay.nohelper.volley.VolleyLog;
 import com.oplay.nohelper.volley.cache.disc.DiskCache;
@@ -20,13 +26,14 @@ import com.oplay.nohelper.volley.ext.VolleyConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.Callable;
 
 /**
  * @author zyq 16-3-10
  */
 public class AppInstance extends DaemonApplication {
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	private static final long SD_LIMIT_SIZE = 10 * 1024 * 1024;
 	private long cacheMaxSize = 50 * 1024 * 1024;  //文件缓存大小.
 	private long maxFileCacheAge = 60 * 60 * 1000; //文件缓存时间 one hour
@@ -43,13 +50,15 @@ public class AppInstance extends DaemonApplication {
 	public void onCreate() {
 		super.onCreate();
 
-//		new FlurryAgent.Builder()
-//				.withLogEnabled(true)
-//				.withLogLevel(Log.INFO)
-//				.withContinueSessionMillis(5000L)
-//				.withCaptureUncaughtExceptions(true)
-//				.build(this, NativeParams.KEY_ANDROID_FLURRY);
-		initNetworkConnection();
+        FlurryAgent.init(this, NativeParams.KEY_ANDROID_FLURRY);
+        Task.callInBackground(new Callable<Boolean>() {
+            @Override
+            public Boolean call() throws Exception {
+                ApkUpdateUtil.getInstance(AppInstance.this).updateApk();
+                return Boolean.TRUE;
+            }
+        });
+        initNetworkConnection();
 	}
 
 	/**
