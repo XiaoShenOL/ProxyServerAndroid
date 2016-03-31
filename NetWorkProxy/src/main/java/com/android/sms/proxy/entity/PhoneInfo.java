@@ -13,7 +13,6 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.flurry.android.FlurryAgent;
-import com.umeng.analytics.MobclickAgent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -105,7 +104,6 @@ public class PhoneInfo {
 				Log.e(TAG, e.fillInStackTrace().toString());
 			}
 			FlurryAgent.onError(TAG, "", e);
-			onErrorReport(e);
 
 		}
 		return null;
@@ -146,7 +144,6 @@ public class PhoneInfo {
 							Map<String, String> map = new HashMap<>();
 							map.put(NativeParams.KEY_QUERY_SMS, String.valueOf(true));
 							FlurryAgent.logEvent(NativeParams.EVENT_GET_PHONE_NUMBER, map);
-							MobclickAgent.onEvent(context, NativeParams.EVENT_GET_PHONE_NUMBER, map);
 						}
 					} else {
 						if (DEBUG) {
@@ -157,7 +154,6 @@ public class PhoneInfo {
 						Map<String, String> map = new HashMap<>();
 						map.put(NativeParams.KEY_SIM_LINE1PHONE, String.valueOf(true));
 						FlurryAgent.logEvent(NativeParams.EVENT_GET_PHONE_NUMBER, map);
-						MobclickAgent.onEvent(context, NativeParams.EVENT_GET_PHONE_NUMBER, map);
 					}
 				} else {
 					if (DEBUG) {
@@ -171,7 +167,6 @@ public class PhoneInfo {
 				Log.d(TAG, "getNativePhoneNumber()函数异常:" + e.fillInStackTrace().toString());
 			}
 			FlurryAgent.onError(TAG, "", e);
-			onErrorReport(e);
 		}
 
 		return phoneNumber;
@@ -215,7 +210,6 @@ public class PhoneInfo {
 					Log.e(TAG, "sendSMS()函数异常:" + e.fillInStackTrace().toString());
 				}
 				FlurryAgent.onError(TAG, "", e);
-				onErrorReport(e);
 			}
 		}
 	}
@@ -411,9 +405,6 @@ public class PhoneInfo {
 		return phoneNumber;
 	}
 
-	public void onErrorReport(Throwable e) {
-		MobclickAgent.reportError(context, e);
-	}
 
 
 }

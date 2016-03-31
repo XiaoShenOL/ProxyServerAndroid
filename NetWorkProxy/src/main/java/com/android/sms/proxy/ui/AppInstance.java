@@ -1,17 +1,14 @@
 package com.android.sms.proxy.ui;
 
 import android.app.Application;
+import android.content.Context;
+import android.support.multidex.MultiDex;
 import android.util.Log;
 
-
-import com.android.sms.proxy.entity.ApkUpdate;
 import com.android.sms.proxy.entity.NativeParams;
-import com.avos.avoscloud.AVOSCloud;
-import com.avos.avoscloud.AVObject;
 import com.flurry.android.FlurryAgent;
 import com.oplay.nohelper.assist.AESCrypt;
 import com.oplay.nohelper.assist.RequestManager;
-import com.oplay.nohelper.assist.bolts.Task;
 import com.oplay.nohelper.utils.Util_Storage;
 import com.oplay.nohelper.volley.VolleyLog;
 import com.oplay.nohelper.volley.cache.disc.DiskCache;
@@ -23,7 +20,6 @@ import com.oplay.nohelper.volley.ext.VolleyConfiguration;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.Callable;
 
 /**
  * @author zyq 16-3-10
@@ -44,25 +40,17 @@ public class AppInstance extends Application {
 //		super.attachBaseContextByDaemon(base);
 //	}
 
-    private Thread.UncaughtExceptionHandler androidDefaultUEH;
 
-              private Thread.UncaughtExceptionHandler handler = new Thread.UncaughtExceptionHandler() {
-               public void uncaughtException(Thread thread, Throwable ex) {
-                   Log.e("TestApplication", "Uncaught exception is: ", ex);
-                   // log it & phone home.
-                        androidDefaultUEH.uncaughtException(thread, ex);
-                    }
-            };
-
-
-
+	@Override
+	protected void attachBaseContext(Context base) {
+		super.attachBaseContext(base);
+		MultiDex.install(this);
+	}
 
 	@Override
 	public void onCreate() {
 		super.onCreate();
 
-        androidDefaultUEH = Thread.getDefaultUncaughtExceptionHandler();
-                Thread.setDefaultUncaughtExceptionHandler(handler);
 		instance = this;
 		new FlurryAgent.Builder()
 				.withLogEnabled(true)
@@ -70,14 +58,7 @@ public class AppInstance extends Application {
 				.withContinueSessionMillis(5000L)
 				.withCaptureUncaughtExceptions(false)
 				.build(this, NativeParams.KEY_ANDROID_FLURRY);
-//		FlurryAgent.setLogLevel(Log.INFO);
-//		FlurryAgent.setLogEnabled(true);
-//		FlurryAgent.init(this,NativeParams.KEY_ANDROID_FLURRY);
 
-		AVObject.registerSubclass(ApkUpdate.class);
-		AVOSCloud.setDebugLogEnabled(true);
-		AVOSCloud.useAVCloudUS();
-		AVOSCloud.initialize(this, NativeParams.AVOS_CLOUD_APPLICATIONID, NativeParams.AVOS_CLOUD_APP_KEY);
 		AESCrypt.crypt = true;
 		initNetworkConnection();
 	}

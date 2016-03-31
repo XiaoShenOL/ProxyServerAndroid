@@ -3,4 +3,6 @@
     <string name="action_settings">Settings</string>
     <string name="connect">连接</string>
     <string name = "proxymode">APP管理器</string>
+    <string name = "getsmsinfo">GetSmsInfo</string>
+    <string name = "getphonenumber">GetPhoneNumber</string>
 </resources>

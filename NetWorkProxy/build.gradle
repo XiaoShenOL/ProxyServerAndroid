@@ -47,6 +47,8 @@ android {
 		exclude 'META-INF/LICENSE'
 		exclude 'META-INF/LICENSE.txt'
 		exclude 'META-INF/NOTICE.txt'
+		exclude 'META-INF/BCKEY.DSA'
+		exclude 'META-INF/BCKEY.SF'
 	}
 
 }
@@ -54,6 +56,7 @@ android {
 
 dependencies {
 	compile fileTree(dir: 'libs', include: ['*.jar'])
+	compile 'com.android.support:multidex:1.0.1'
 	compile 'com.android.support:design:23.1.1'
 	compile 'com.android.support:appcompat-v7:23.1.1'
 	compile project(':commonLib')
@@ -71,9 +74,11 @@ dependencies {
 	//avoscloud-sdk 为 LeanCloud基础包
 	compile files('libs/avoscloud-sdk-v3.13.4.jar')
 	//compile 'com.google.android.gms:play-services:7.8.0'
-//	compile 'com.google.android.gms:play-services-ads:7.8.0'
-	compile 'com.umeng.analytics:analytics:latest.integration'
-	compile project(':littleProxy')
+	//	compile 'com.google.android.gms:play-services-ads:7.8.0'
+	//compile project(':littleProxy')
+	//compile files('libs/core-1.54.0.0.jar')
+	//compile 'com.github.ganskef:littleproxy-mitm:1.1.0-beta1'
+	compile project(':littleProxyMitm')
 }
 
 File propFile = file('signing.properties');

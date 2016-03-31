@@ -12,6 +12,7 @@
       <module fileurl="file://$PROJECT_DIR$/injectProxyForSMS/injectProxyForSMS.iml" filepath="$PROJECT_DIR$/injectProxyForSMS/injectProxyForSMS.iml" />
       <module fileurl="file://$PROJECT_DIR$/library/library.iml" filepath="$PROJECT_DIR$/library/library.iml" />
       <module fileurl="file://$PROJECT_DIR$/littleProxy/littleProxy.iml" filepath="$PROJECT_DIR$/littleProxy/littleProxy.iml" />
+      <module fileurl="file://$PROJECT_DIR$/littleProxyMitm/littleProxyMitm.iml" filepath="$PROJECT_DIR$/littleProxyMitm/littleProxyMitm.iml" />
       <module fileurl="file://$PROJECT_DIR$/myapplication/myapplication.iml" filepath="$PROJECT_DIR$/myapplication/myapplication.iml" />
       <module fileurl="file://$PROJECT_DIR$/nettylib/nettylib.iml" filepath="$PROJECT_DIR$/nettylib/nettylib.iml" />
       <module fileurl="file://$PROJECT_DIR$/proxydroid/proxydroid.iml" filepath="$PROJECT_DIR$/proxydroid/proxydroid.iml" />

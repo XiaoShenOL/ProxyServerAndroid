@@ -3,9 +3,6 @@ package com.android.sms.proxy.core;
 import android.util.Log;
 
 import com.android.sms.proxy.service.ProxyServiceUtil;
-import com.android.sms.proxy.ui.AppInstance;
-import com.flurry.android.FlurryAgent;
-import com.umeng.analytics.MobclickAgent;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -65,7 +62,6 @@ public class ProxyServer {
 			Log.d(TAG, "start proxy server");
 		}
 		try {
-
 			selector = Selector.open();
 		} catch (Throwable e) {
 			if (DEBUG) {
@@ -160,8 +156,6 @@ public class ProxyServer {
 			if (DEBUG) {
 				Log.e(TAG, "close server exception.", e);
 			}
-			FlurryAgent.onError(TAG, "", e.fillInStackTrace());
-			MobclickAgent.reportError(AppInstance.instance, e);
 		}
 		return true;
 	}

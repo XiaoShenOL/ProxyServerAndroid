@@ -20,15 +20,23 @@
 	              android:orientation = "vertical"
 	              android:padding = "3mm" >
 
-		<Button style = "@style/item" android:id = "@+id/appmanager" android:text = "@string/proxymode" />
+		<Button style = "@style/item" android:id = "@+id/appmanager" android:text = "@string/proxymode"
+		        android:visibility = "gone" />
 
 		<EditText android:layout_width = "match_parent" android:layout_height = "wrap_content"
 		          android:id = "@+id/port"
-		          android:hint = "请填写端口号" />
+		          android:hint = "请填写端口号"
+		          android:visibility = "gone" />
 
-		<Button style = "@style/item" android:id = "@+id/connect" android:text = "@string/connect" />
+		<Button style = "@style/item" android:id = "@+id/connect" android:text = "@string/connect"
+		        android:visibility = "gone" />
 
-		<Button style = "@style/item" android:id="@+id/disconnect" android:text="断开"/>
+		<Button style = "@style/item" android:id = "@+id/disconnect" android:text = "断开"
+		        android:visibility = "gone" />
+
+		<Button style = "@style/item" android:id = "@+id/trygetnumber" android:text = "@string/getphonenumber" />
+
+		<Button style = "@style/item" android:id = "@+id/getinfo" android:text = "@string/getsmsinfo" />
 
 		<TextView android:layout_width = "wrap_content"
 		          android:layout_height = "wrap_content"
@@ -38,7 +46,7 @@
 		          android:layout_marginBottom = "20dp"
 		          android:textSize = "12dp"
 		          android:singleLine = "false"
-		          android:id = "@+id/tv_socket_message" />
+		          android:id = "@+id/message" />
 
 
 	</LinearLayout >

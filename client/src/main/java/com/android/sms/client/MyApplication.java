@@ -1,7 +1,9 @@
 package com.android.sms.client;
 
 import android.app.Application;
+import android.util.Log;
 
+import com.flurry.android.FlurryAgent;
 import com.oplay.nohelper.assist.RequestManager;
 import com.oplay.nohelper.utils.Util_Storage;
 import com.oplay.nohelper.volley.VolleyLog;
@@ -33,8 +35,17 @@ public class MyApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+
+		//使用leancloud的存储服务
+		new FlurryAgent.Builder()
+				.withLogEnabled(true)
+				.withLogLevel(Log.VERBOSE)
+				.withContinueSessionMillis(5000L)
+				.withCaptureUncaughtExceptions(false)
+				.build(this, NativeParams.FLURRY_APP_KEY);
 		initNetworkConnection();
 	}
+
 	/**
 	 * 初始化网络连接
 	 */

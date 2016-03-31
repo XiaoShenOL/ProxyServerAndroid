@@ -11,14 +11,11 @@ import android.util.Log;
 import android.widget.TextView;
 
 import com.android.sms.proxy.entity.MessageEvent;
-import com.android.sms.proxy.entity.NativeParams;
 import com.android.sms.proxy.service.AlarmControl;
 import com.android.sms.proxy.service.IProxyControl;
 import com.android.sms.proxy.service.ProxyServiceUtil;
 import com.android.sms.proxy.service.Receiver_SMS;
 import com.flurry.android.FlurryAgent;
-import com.umeng.analytics.AnalyticsConfig;
-import com.umeng.analytics.MobclickAgent;
 
 import org.connectbot.bean.HostBean;
 import org.connectbot.bean.PortForwardBean;
@@ -108,15 +105,10 @@ public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnRe
 //		Log.d(TAG, "手机号码:" + phoneNumber);
 //		String imei = PhoneInfo.getInstance(this).getIMEI();
 //		Log.d(TAG, "imei:" + imei);
-
-
 		AlarmControl.getInstance(this).initAlarm(1, 1, 1, 1);
 		//友盟不支持在service中做统计！！！！！！！！
-		AnalyticsConfig.setAppkey(this, NativeParams.UMENG_APP_KEY);
-		AnalyticsConfig.setChannel(NativeParams.UMENG_APP_CHANNEL);
 
 		FlurryAgent.onStartSession(this);
-
 //		Task.callInBackground(new Callable<Object>() {
 //			@Override
 //			public Object call() throws Exception {
@@ -124,7 +116,7 @@ public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnRe
 //				return null;
 //			}
 //		});
-		//finish();
+
 	}
 
 
@@ -138,13 +130,11 @@ public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnRe
 	@Override
 	protected void onResume() {
 		super.onResume();
-		MobclickAgent.onResume(this);
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
-		MobclickAgent.onPause(this);
 	}
 
 
@@ -173,7 +163,6 @@ public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnRe
 
 	@Subscribe
 	public void onEvent(final MessageEvent event) {
-
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
@@ -190,7 +179,6 @@ public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnRe
 				}
 			}
 		});
-
 	}
 
 	@Override

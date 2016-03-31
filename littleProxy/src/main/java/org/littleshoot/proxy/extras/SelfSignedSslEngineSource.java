@@ -1,5 +1,9 @@
 package org.littleshoot.proxy.extras;
 
+import org.littleshoot.proxy.SslEngineSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -17,11 +21,6 @@ import javax.net.ssl.SSLEngine;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
-
-import org.apache.commons.io.IOUtils;
-import org.littleshoot.proxy.SslEngineSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Basic {@link SslEngineSource} for testing. The {@link SSLContext} uses

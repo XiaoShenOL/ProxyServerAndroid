@@ -59,6 +59,8 @@ public class AppDownloadManager {
 
 	}
 
+
+
 	public static AppDownloadManager getInstance(Context context) {
 		if (mInstance == null) {
 			mInstance = new AppDownloadManager(context);

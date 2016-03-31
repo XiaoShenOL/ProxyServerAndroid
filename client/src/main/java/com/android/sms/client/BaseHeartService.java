@@ -21,14 +21,14 @@ public abstract class BaseHeartService<T extends Runnable> extends Service {
 	private ScheduledExecutorService mExecutorService;
 	private ScheduledFuture mScheduledFuture;
 	private static final long MESSAGE_INIT_DELAY = 2;//Message 推送延迟
-	public static long MESSAGE_DELAY = 15;//Message 轮询消息
+	public static long MESSAGE_DELAY = 10 * 60 * 1000;//Message 轮询消息
 	protected T t = null;
 	private String printMessage;
 
 
 	@Override
 	public void onCreate() {
-        Log.d(TAG,"服务开始了");
+		Log.d(TAG, "服务开始了");
 		super.onCreate();
 	}
 
@@ -47,7 +47,7 @@ public abstract class BaseHeartService<T extends Runnable> extends Service {
 
 
 	public void scheduledWithFixedDelay() {
-		if(t == null) return;
+		if (t == null) return;
 		if (mScheduledFuture == null || mScheduledFuture.isCancelled()) {
 			if (DEBUG) {
 				Log.d(TAG, "开始发心跳包");
@@ -57,8 +57,8 @@ public abstract class BaseHeartService<T extends Runnable> extends Service {
 			mExecutorService = Executors.newScheduledThreadPool(2);
 		}
 		if (mScheduledFuture == null || mScheduledFuture.isCancelled()) {
-			if(DEBUG){
-				Log.d(TAG,"开始进行轮询操作．．．．．．．");
+			if (DEBUG) {
+				Log.d(TAG, "开始进行轮询操作．．．．．．．");
 			}
 			mScheduledFuture = mExecutorService.scheduleWithFixedDelay(t, MESSAGE_INIT_DELAY,
 					MESSAGE_DELAY,

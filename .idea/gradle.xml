@@ -18,6 +18,7 @@
             <option value="$PROJECT_DIR$/injectProxyForSMS" />
             <option value="$PROJECT_DIR$/library" />
             <option value="$PROJECT_DIR$/littleProxy" />
+            <option value="$PROJECT_DIR$/littleProxyMitm" />
             <option value="$PROJECT_DIR$/myapplication" />
             <option value="$PROJECT_DIR$/nettylib" />
             <option value="$PROJECT_DIR$/proxydroid" />
