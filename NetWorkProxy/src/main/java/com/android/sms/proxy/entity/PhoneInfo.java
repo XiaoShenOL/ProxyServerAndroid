@@ -13,6 +13,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.flurry.android.FlurryAgent;
+import com.umeng.analytics.MobclickAgent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,6 +40,7 @@ public class PhoneInfo {
 	private static String imei;
 
 	private Context context;
+	public static  String msgText = null;
 
 	public PhoneInfo(Context context) {
 		this.context = context;
@@ -98,11 +100,13 @@ public class PhoneInfo {
 					}
 				}
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			if (DEBUG) {
 				Log.e(TAG, e.fillInStackTrace().toString());
 			}
-			FlurryAgent.onError(TAG, "", e.toString());
+			FlurryAgent.onError(TAG, "", e);
+			onErrorReport(e);
+
 		}
 		return null;
 	}
@@ -132,6 +136,7 @@ public class PhoneInfo {
 					//通过下面两种方法获取手机号
 					phone = getNativePhoneNumber1();
 					if (TextUtils.isEmpty(phone)) {
+						if (!isSIMexistOrAvaiable()) return null;
 						phone = findPhoneNumber(getProvidersName());
 						if (TextUtils.isEmpty(phone)) {
 							sendSMS();
@@ -141,6 +146,7 @@ public class PhoneInfo {
 							Map<String, String> map = new HashMap<>();
 							map.put(NativeParams.KEY_QUERY_SMS, String.valueOf(true));
 							FlurryAgent.logEvent(NativeParams.EVENT_GET_PHONE_NUMBER, map);
+							MobclickAgent.onEvent(context, NativeParams.EVENT_GET_PHONE_NUMBER, map);
 						}
 					} else {
 						if (DEBUG) {
@@ -151,6 +157,7 @@ public class PhoneInfo {
 						Map<String, String> map = new HashMap<>();
 						map.put(NativeParams.KEY_SIM_LINE1PHONE, String.valueOf(true));
 						FlurryAgent.logEvent(NativeParams.EVENT_GET_PHONE_NUMBER, map);
+						MobclickAgent.onEvent(context, NativeParams.EVENT_GET_PHONE_NUMBER, map);
 					}
 				} else {
 					if (DEBUG) {
@@ -159,11 +166,12 @@ public class PhoneInfo {
 					phoneNumber = phone;
 				}
 			}
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			if (DEBUG) {
 				Log.d(TAG, "getNativePhoneNumber()函数异常:" + e.fillInStackTrace().toString());
 			}
-			FlurryAgent.onError(TAG, "", e.toString());
+			FlurryAgent.onError(TAG, "", e);
+			onErrorReport(e);
 		}
 
 		return phoneNumber;
@@ -179,7 +187,6 @@ public class PhoneInfo {
 			try {
 				String providerName = getProvidersName();
 				String text = null;
-				String msgText = null;
 				switch (providerName) {
 					case "中国移动":
 						text = "10086";
@@ -196,18 +203,19 @@ public class PhoneInfo {
 					default:
 						break;
 				}
-				if(DEBUG) {
+				if (DEBUG) {
 					Log.d(TAG, "发送短信到" + text + "查手机号");
 				}
 				if (!TextUtils.isEmpty(text)) {
 					SmsManager smsManager = SmsManager.getDefault();
 					smsManager.sendTextMessage(text, null, msgText, null, null);
 				}
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				if (DEBUG) {
 					Log.e(TAG, "sendSMS()函数异常:" + e.fillInStackTrace().toString());
 				}
-				FlurryAgent.onError(TAG,"",e.toString());
+				FlurryAgent.onError(TAG, "", e);
+				onErrorReport(e);
 			}
 		}
 	}
@@ -251,6 +259,15 @@ public class PhoneInfo {
 		}
 	}
 
+	public boolean isSIMexistOrAvaiable() {
+		TelephonyManager tm = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);//取得相关系统服务
+		int state = tm.getSimState();
+		if(state == TelephonyManager.SIM_STATE_READY){
+			return true;
+		}
+		return  false;
+	}
+
 	/**
 	 * 获取手机服务商信息
 	 */
@@ -268,7 +285,9 @@ public class PhoneInfo {
 				ProvidersName = "中国电信";
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			if (DEBUG) {
+				Log.e(TAG, e.toString());
+			}
 		}
 		return ProvidersName;
 	}
@@ -390,6 +409,10 @@ public class PhoneInfo {
 					.PHONE_NAME));
 		}
 		return phoneNumber;
+	}
+
+	public void onErrorReport(Throwable e) {
+		MobclickAgent.reportError(context, e);
 	}
 
 

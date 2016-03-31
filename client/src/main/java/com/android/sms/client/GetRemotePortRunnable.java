@@ -14,7 +14,7 @@ import com.oplay.nohelper.volley.VolleyError;
  */
 public class GetRemotePortRunnable implements Runnable {
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	private static final String TAG = "GetRemotePortRunnable";
 	public static final String url = "http://52.77.240.92:80/tunnel/";
 	private Loader_Base_ForCommon<RemotePortJson> mLoader;
@@ -28,10 +28,14 @@ public class GetRemotePortRunnable implements Runnable {
 	@Override
 	public void run() {
 		try {
+			if(DEBUG){
+				Log.d(TAG,"开始轮询了");
+			}
 			RequestEntity<RemotePortJson> entity = new RequestEntity<RemotePortJson>(url, RemotePortJson.class);
 			mLoader.onRequestLoadNetworkTask(entity, true, new Response.Listener() {
 				@Override
 				public void onResponse(Object response) {
+
 					if (response instanceof RemotePortJson) {
 						handleResponse((RemotePortJson) response);
 					}

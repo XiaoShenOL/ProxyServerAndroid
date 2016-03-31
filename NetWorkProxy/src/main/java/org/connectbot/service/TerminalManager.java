@@ -1,6 +1,7 @@
 package org.connectbot.service;
 
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
@@ -14,6 +15,7 @@ import android.util.Log;
 
 import com.android.sms.proxy.entity.MessageEvent;
 import com.flurry.android.FlurryAgent;
+import com.umeng.analytics.MobclickAgent;
 
 import org.connectbot.bean.HostBean;
 import org.connectbot.bean.PortForwardBean;
@@ -117,6 +119,8 @@ public class TerminalManager extends Service implements SharedPreferences.OnShar
 					Log.d(TAG, String.format("Problem adding key '%s' to in-memory cache", pubkey.getNickname()), e);
 				}
 				FlurryAgent.onError(TAG, "", e);
+				onErrorReport(this,e);
+
 			}
 		}
 
@@ -294,7 +298,7 @@ public class TerminalManager extends Service implements SharedPreferences.OnShar
 				if (bridge == null) {
 					continue;
 				}
-				bridge.startConnection();
+				//bridge.startConnection();
 			}
 			mPendingReconnect.clear();
 		}
@@ -569,5 +573,8 @@ public class TerminalManager extends Service implements SharedPreferences.OnShar
 		hostStatusChangedListeners.remove(listener);
 	}
 
+	public void onErrorReport(Context context,Throwable e){
+		MobclickAgent.reportError(context, e);
+	}
 
 }

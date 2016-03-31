@@ -427,10 +427,14 @@ public class SSH extends AbsTransport implements ConnectionMonitor, InteractiveC
 
 	@Override
 	public void connectionLost(Throwable reason) {
+		if(DEBUG){
+			Log.d(TAG,"ssh connectionLost !!!!!!!!!");
+		}
 		onDisconnect();
 	}
 
 	private void onDisconnect() {
+
 		bridge.dispatchDisconnect(false);
 	}
 
@@ -527,6 +531,9 @@ public class SSH extends AbsTransport implements ConnectionMonitor, InteractiveC
 		}
 
 		if ((newConditions & ChannelCondition.EOF) != 0) {
+			if(DEBUG){
+				Log.d(TAG,"ssh read error!!!!!!!!!!!!");
+			}
 			close();
 			onDisconnect();
 			throw new IOException("Remote end closed connection");

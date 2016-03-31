@@ -21,11 +21,9 @@ public class BootCompletedReceiver extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		String action = intent.getAction();
-        if (DEBUG) {
-            Log.d(TAG, "收到开机启动的通知,开始启动service");
-        }
 
-			AlarmControl.getInstance(context).initAlarm(12, 12, 12, 12);
+		Log.d(TAG, "接收到广播：" + action);
+		AlarmControl.getInstance(context).initAlarm(12, 12, 12, 12);
 
 	}
 }

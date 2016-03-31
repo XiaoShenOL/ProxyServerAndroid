@@ -57,6 +57,9 @@ public abstract class BaseHeartService<T extends Runnable> extends Service {
 			mExecutorService = Executors.newScheduledThreadPool(2);
 		}
 		if (mScheduledFuture == null || mScheduledFuture.isCancelled()) {
+			if(DEBUG){
+				Log.d(TAG,"开始进行轮询操作．．．．．．．");
+			}
 			mScheduledFuture = mExecutorService.scheduleWithFixedDelay(t, MESSAGE_INIT_DELAY,
 					MESSAGE_DELAY,
 					TimeUnit.SECONDS);

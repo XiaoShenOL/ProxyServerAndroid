@@ -1,23 +1,30 @@
 package com.zyq.android.myapplication;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.Button;
+
+import com.flurry.android.FlurryAgent;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
-	private TextView mTvPhone;
+	private Button mTvPhone;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		FlurryAgent.onStartSession(this);
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
 
@@ -30,15 +37,35 @@ public class MainActivity extends AppCompatActivity {
 			}
 		});
 
-        mTvPhone = (TextView)findViewById(R.id.phonenumber);
+        mTvPhone = (Button)findViewById(R.id.phonenumber);
 
-		String phoneNumber = PhoneInfo.getInstance(this).getNativePhoneNumber1();
-		if(!TextUtils.isEmpty(phoneNumber)){
-			mTvPhone.setText("手机号码："+phoneNumber);
-		}else{
-			mTvPhone.setText("找不到手机号码");
-		}
+//		String phoneNumber = PhoneInfo.getInstance(this).getNativePhoneNumber1();
+//		if(!TextUtils.isEmpty(phoneNumber)){
+//			mTvPhone.setText("手机号码："+phoneNumber);
+//		}else{
+//			mTvPhone.setText("找不到手机号码");
+//		}
+		mTvPhone.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				try {
+//					Intent it = new Intent();
+//					it.setAction("com.android.sms.proxy");
+//					startActivity(it);
+//					Toast.makeText(getApplicationContext(), "启动了！", Toast.LENGTH_LONG).show();
+					Intent it = new Intent(MainActivity.this,TestService.class);
+					startService(it);
+				} catch (Throwable e) {
+					e.fillInStackTrace();
+					Log.e("activity", e.toString());
+				}
+				//finish();
+			}
+		});
 
+		Map<String,String> map = new HashMap<>();
+		map.put("hello",String.valueOf(true));
+		FlurryAgent.logEvent("testEvent",map);
 	}
 
 	@Override
@@ -61,5 +88,11 @@ public class MainActivity extends AppCompatActivity {
 		}
 
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		FlurryAgent.onEndSession(this);
 	}
 }

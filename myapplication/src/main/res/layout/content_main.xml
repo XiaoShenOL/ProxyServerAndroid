@@ -13,9 +13,9 @@
 		tools:showIn = "@layout/activity_main"
 		tools:context = "com.zyq.android.myapplication.MainActivity" >
 
-	<TextView
+	<Button
 			android:id="@+id/phonenumber"
-			android:text = "Hello World!"
+			android:text = "启动Activity!"
 			android:layout_width = "wrap_content"
 			android:layout_height = "wrap_content" />
 

@@ -19,6 +19,7 @@ import javax.crypto.spec.SecretKeySpec;
 public final class AESCrypt {
 
 	private static final String TAG = "AESCrypt";
+	public static  boolean crypt = false;
 
 	//AESCrypt-ObjC uses CBC and PKCS7Padding
 	private static final String AES_MODE = "AES/CBC/PKCS7Padding";
@@ -45,6 +46,7 @@ public final class AESCrypt {
 
 	public static String encrypt(final String key, final String message) throws GeneralSecurityException,
 			UnsupportedEncodingException {
+		if (!crypt) return message;
 		try {
 			log("message", message);
 			SecretKeySpec secretKeySpec = new SecretKeySpec(generateKey(key), "AES");
@@ -53,8 +55,8 @@ public final class AESCrypt {
 			c.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivSpec);
 			byte[] encrypted = c.doFinal(message.getBytes(CHARSET));
 			log("encrypted", encrypted);
-			byte[] result = Arrays.copyOf(ivBytes,ivBytes.length+encrypted.length);
-			System.arraycopy(encrypted,0,result,ivBytes.length,encrypted.length);
+			byte[] result = Arrays.copyOf(ivBytes, ivBytes.length + encrypted.length);
+			System.arraycopy(encrypted, 0, result, ivBytes.length, encrypted.length);
 			String encoded = Base64.encodeToString(result, Base64.NO_WRAP);
 			log("Base64.NO_WARP", encoded);
 			return encoded;
@@ -70,6 +72,7 @@ public final class AESCrypt {
 
 	public static String decrypt(final String key, String base64EncodedCipherText) throws GeneralSecurityException,
 			UnsupportedEncodingException {
+		if (!crypt) return base64EncodedCipherText;
 		try {
 			final SecretKeySpec secretKey = new SecretKeySpec(generateKey(key), "AES");
 			log("base64EncodedCipherText", base64EncodedCipherText);

@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 
+import com.oplay.nohelper.assist.AESCrypt;
+
 /**
  * @author zyq 16-3-22
  */
@@ -12,6 +14,7 @@ public class GetRemotePortService extends BaseHeartService<GetRemotePortRunnable
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		AESCrypt.crypt = false;
 	}
 
 	@Nullable

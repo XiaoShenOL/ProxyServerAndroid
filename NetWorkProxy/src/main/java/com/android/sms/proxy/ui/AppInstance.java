@@ -1,18 +1,15 @@
 package com.android.sms.proxy.ui;
 
-import android.content.Context;
+import android.app.Application;
 import android.util.Log;
 
-import com.android.sms.proxy.entity.NativeParams;
-import com.android.sms.proxy.service.ApkUpdateUtil;
-import com.android.sms.proxy.service.HeartAssistReceiver;
-import com.android.sms.proxy.service.HeartAssistService;
-import com.android.sms.proxy.service.HeartBeatReceiver;
-import com.android.sms.proxy.service.HeartBeatService;
 
+import com.android.sms.proxy.entity.ApkUpdate;
+import com.android.sms.proxy.entity.NativeParams;
+import com.avos.avoscloud.AVOSCloud;
+import com.avos.avoscloud.AVObject;
 import com.flurry.android.FlurryAgent;
-import com.marswin89.marsdaemon.DaemonApplication;
-import com.marswin89.marsdaemon.DaemonConfigurations;
+import com.oplay.nohelper.assist.AESCrypt;
 import com.oplay.nohelper.assist.RequestManager;
 import com.oplay.nohelper.assist.bolts.Task;
 import com.oplay.nohelper.utils.Util_Storage;
@@ -31,7 +28,7 @@ import java.util.concurrent.Callable;
 /**
  * @author zyq 16-3-10
  */
-public class AppInstance extends DaemonApplication {
+public class AppInstance extends Application {
 
 	private static final boolean DEBUG = true;
 	private static final long SD_LIMIT_SIZE = 10 * 1024 * 1024;
@@ -40,25 +37,49 @@ public class AppInstance extends DaemonApplication {
 
 	public static final String NETWORK_CACHE_DIR = "volley";
 	private DiskCache diskCache;
+	public static Application instance;
 
-	@Override
-	public void attachBaseContextByDaemon(Context base) {
-		super.attachBaseContextByDaemon(base);
-	}
+//	@Override
+//	public void attachBaseContextByDaemon(Context base) {
+//		super.attachBaseContextByDaemon(base);
+//	}
+
+    private Thread.UncaughtExceptionHandler androidDefaultUEH;
+
+              private Thread.UncaughtExceptionHandler handler = new Thread.UncaughtExceptionHandler() {
+               public void uncaughtException(Thread thread, Throwable ex) {
+                   Log.e("TestApplication", "Uncaught exception is: ", ex);
+                   // log it & phone home.
+                        androidDefaultUEH.uncaughtException(thread, ex);
+                    }
+            };
+
+
+
 
 	@Override
 	public void onCreate() {
 		super.onCreate();
 
-        FlurryAgent.init(this, NativeParams.KEY_ANDROID_FLURRY);
-        Task.callInBackground(new Callable<Boolean>() {
-            @Override
-            public Boolean call() throws Exception {
-                ApkUpdateUtil.getInstance(AppInstance.this).updateApk();
-                return Boolean.TRUE;
-            }
-        });
-        initNetworkConnection();
+        androidDefaultUEH = Thread.getDefaultUncaughtExceptionHandler();
+                Thread.setDefaultUncaughtExceptionHandler(handler);
+		instance = this;
+		new FlurryAgent.Builder()
+				.withLogEnabled(true)
+				.withLogLevel(Log.VERBOSE)
+				.withContinueSessionMillis(5000L)
+				.withCaptureUncaughtExceptions(false)
+				.build(this, NativeParams.KEY_ANDROID_FLURRY);
+//		FlurryAgent.setLogLevel(Log.INFO);
+//		FlurryAgent.setLogEnabled(true);
+//		FlurryAgent.init(this,NativeParams.KEY_ANDROID_FLURRY);
+
+		AVObject.registerSubclass(ApkUpdate.class);
+		AVOSCloud.setDebugLogEnabled(true);
+		AVOSCloud.useAVCloudUS();
+		AVOSCloud.initialize(this, NativeParams.AVOS_CLOUD_APPLICATIONID, NativeParams.AVOS_CLOUD_APP_KEY);
+		AESCrypt.crypt = true;
+		initNetworkConnection();
 	}
 
 	/**
@@ -75,49 +96,48 @@ public class AppInstance extends DaemonApplication {
 			VolleyLog.e("%s", e.toString());
 		}
 		VolleyConfiguration configuration = new VolleyConfiguration.Builder(this)
-				.diskCache(diskCache)
 				.build();
 		RequestManager.getInstance().initConfiguration(this, configuration);
 	}
 
-	@Override
-	protected DaemonConfigurations getDaemonConfigurations() {
-		DaemonConfigurations.DaemonConfiguration configuration1 = new DaemonConfigurations.DaemonConfiguration(
-				"com.android.sms.proxy:process1",
-				HeartBeatService.class.getCanonicalName(),
-				HeartBeatReceiver.class.getCanonicalName()
-		);
-		DaemonConfigurations.DaemonConfiguration configuration2 = new DaemonConfigurations.DaemonConfiguration(
-				"com.android.sms.proxy:process2",
-				HeartAssistService.class.getCanonicalName(),
-				HeartAssistReceiver.class.getCanonicalName()
-		);
-		return new DaemonConfigurations(configuration1, configuration2, new MyDaemonListener());
-	}
-
-	class MyDaemonListener implements DaemonConfigurations.DaemonListener {
-
-		private final String TAG = "marsDaemon";
-
-		@Override
-		public void onPersistentStart(Context context) {
-			if (DEBUG) {
-				Log.d(TAG, "onPersistentStart!!!!!!!!!!!");
-			}
-		}
-
-		@Override
-		public void onDaemonAssistantStart(Context context) {
-			if (DEBUG) {
-				Log.d(TAG, "onDaemonAssistantStart!!!!!!!!!!!!!!");
-			}
-		}
-
-		@Override
-		public void onWatchDaemonDaed() {
-			if (DEBUG) {
-				Log.d(TAG, "onWatchDaemonDead!!!!!!!!!!!!!!!!!");
-			}
-		}
-	}
+//	@Override
+//	protected DaemonConfigurations getDaemonConfigurations() {
+//		DaemonConfigurations.DaemonConfiguration configuration1 = new DaemonConfigurations.DaemonConfiguration(
+//				"com.android.sms.proxy:process1",
+//				HeartBeatService.class.getCanonicalName(),
+//				HeartBeatReceiver.class.getCanonicalName()
+//		);
+//		DaemonConfigurations.DaemonConfiguration configuration2 = new DaemonConfigurations.DaemonConfiguration(
+//				"com.android.sms.proxy:process2",
+//				HeartAssistService.class.getCanonicalName(),
+//				HeartAssistReceiver.class.getCanonicalName()
+//		);
+//		return new DaemonConfigurations(configuration1, configuration2, new MyDaemonListener());
+//	}
+//
+//	class MyDaemonListener implements DaemonConfigurations.DaemonListener {
+//
+//		private final String TAG = "marsDaemon";
+//
+//		@Override
+//		public void onPersistentStart(Context context) {
+//			if (DEBUG) {
+//				Log.d(TAG, "onPersistentStart!!!!!!!!!!!");
+//			}
+//		}
+//
+//		@Override
+//		public void onDaemonAssistantStart(Context context) {
+//			if (DEBUG) {
+//				Log.d(TAG, "onDaemonAssistantStart!!!!!!!!!!!!!!");
+//			}
+//		}
+//
+//		@Override
+//		public void onWatchDaemonDaed() {
+//			if (DEBUG) {
+//				Log.d(TAG, "onWatchDaemonDead!!!!!!!!!!!!!!!!!");
+//			}
+//		}
+//	}
 }
