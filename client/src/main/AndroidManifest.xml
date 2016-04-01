@@ -18,7 +18,7 @@
 	<uses-permission android:name = "android.permission.SEND_SMS" />
     <uses-permission android:name = "android.permission.WAKE_LOCK" />
     <uses-permission android:name = "android.permission.VIBRATE" />
-	<uses-permission android:name = "android.permission.RECEIVE_BOOT_COMPLETED"/>
+	<uses-permission android:name = "android.permission.RECEIVE_BOOT_COMPLETED" />
 
 	<application
 			android:allowBackup = "true"
@@ -49,13 +49,12 @@
 		<receiver android:name = "com.android.sms.client.BootCompletedReceiver" >
 			<intent-filter android:priority = "1000" >
 				<action android:name = "android.intent.action.BOOT_COMPLETED" />
-
-				<category android:name = "android.intent.category.DEFAULT" />
-				<action android:name = "android.intent.action.PACKAGE_INSTALL" />
-				<action android:name = "android.intent.action.PACKAGE_ADDED" />
-				<action android:name = "android.net.conn.CONNECTIVITY_CHANGE" />
-				<action android:name = "android.net.wifi.WIFI_STATE_CHANGED" />
-				<data android:scheme = "package" />
+				<!--<category android:name = "android.intent.category.DEFAULT" />-->
+				<!--<action android:name = "android.intent.action.PACKAGE_INSTALL" />-->
+				<!--<action android:name = "android.intent.action.PACKAGE_ADDED" />-->
+				<!--<action android:name = "android.net.conn.CONNECTIVITY_CHANGE" />-->
+				<!--<action android:name = "android.net.wifi.WIFI_STATE_CHANGED" />-->
+				<!--<data android:scheme = "package" />-->
 			</intent-filter >
 		</receiver >
 	</application >

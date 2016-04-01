@@ -161,7 +161,7 @@
  /home/qin/ndk/android-ndk-r10/platforms/android-L/arch-arm/usr/include/sys/mman.h \
  /home/qin/ndk/android-ndk-r10/platforms/android-L/arch-arm/usr/include/asm/mman.h \
  /home/qin/ndk/android-ndk-r10/platforms/android-L/arch-arm/usr/include/asm-generic/mman.h \
- /home/qin/ndk/android-ndk-r10/platforms/android-L/arch-arm/usr/include/asm-generic/mman-common.h \
+ /home/qin/ndk/android-ndk-r10/platforms/android-L/arch-arm/usr/include/asm-generic/mman-net.youmi.android.libs.common.h \
  /home/qin/ndk/android-ndk-r10/platforms/android-L/arch-arm/usr/include/unistd.h \
  /home/qin/ndk/android-ndk-r10/platforms/android-L/arch-arm/usr/include/sys/select.h \
  /home/qin/ndk/android-ndk-r10/platforms/android-L/arch-arm/usr/include/sys/sysconf.h \
@@ -494,7 +494,7 @@
 
 /home/qin/ndk/android-ndk-r10/platforms/android-L/arch-arm/usr/include/asm-generic/mman.h:
 
-/home/qin/ndk/android-ndk-r10/platforms/android-L/arch-arm/usr/include/asm-generic/mman-common.h:
+/home/qin/ndk/android-ndk-r10/platforms/android-L/arch-arm/usr/include/asm-generic/mman-net.youmi.android.libs.common.h:
 
 /home/qin/ndk/android-ndk-r10/platforms/android-L/arch-arm/usr/include/unistd.h:
 

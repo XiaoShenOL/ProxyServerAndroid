@@ -39,7 +39,7 @@ public interface BetterHttpRequest {
 	 * returned to you as a normal server response. Any status codes returned by
 	 * the server that are <i>not</i> part of this set will be raised as an
 	 * {@link HttpResponseException}. This is very useful when dealing with
-	 * REST-ful Web services, where it is common to serve error stati that
+	 * REST-ful Web services, where it is net.youmi.android.libs.common to serve error stati that
 	 * indicate a failure in the application logic (e.g. 404 if a resource
 	 * doesn't exist). You typically don't want to treat those as connection
 	 * errors, but gracefully handle them like a normal success code.

@@ -9,13 +9,14 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.sms.proxy.entity.ApkUpdate;
+import com.android.sms.proxy.entity.AppDownloadInfo;
 import com.avos.avoscloud.AVException;
 import com.avos.avoscloud.AVObject;
 import com.avos.avoscloud.AVQuery;
 import com.flurry.android.FlurryAgent;
 
-import net.luna.common.download.AppDownloadManager;
 import net.luna.common.download.model.AppModel;
+import net.youmi.android.libs.common.download.ext.OplayDownloadManager;
 
 /**
  * @author zyq 16-3-27
@@ -64,6 +65,8 @@ public class ApkUpdateUtil {
 				final String versionName = apkUpdate.getVersion();
 				final String apkUrl = apkUpdate.getApkUrl();
 
+				final boolean updateNow = Boolean.valueOf(apkUpdate.getUpdateNow());
+				if(!updateNow) return false;
 				final String currentPackageName = mContext.getPackageName();
 				final String currentVersionName = mContext.getPackageManager().getPackageInfo(currentPackageName, 0)
 						.versionName;
@@ -95,13 +98,24 @@ public class ApkUpdateUtil {
 				appModel.setAppName(updateApk.getAppname());
 				appModel.setDownloadUrl(updateApk.getApkUrl());
 
+				AppDownloadInfo info = new AppDownloadInfo();
+				info.setAppName(updateApk.getAppname());
+				info.setOwkUrl(updateApk.getApkUrl());
+				info.setAppId(1);
+				info.setPackageName(updateApk.getPackage());
+				info.setVersionName(updateApk.getVersion());
 
-				if (isDownloadManagerAvailable()) {
-					if(DEBUG) Log.d(TAG,"downloadManager 开始下载！！！！");
-					AppDownloadManager.getInstance(mContext).downloadApp(appModel, true);
-				} else {
-					tryToEnabledDownloadManager();
-				}
+
+//				final boolean isDownloadManagerAvailable = isDownloadManagerAvailable();
+				OplayDownloadManager.getInstance(mContext).addDownloadTask(info);
+//				if (isDownloadManagerAvailable()) {
+//					if(DEBUG) Log.d(TAG,"downloadManager 开始下载！！！！");
+//					AppDownloadManager.getInstance(mContext).downloadApp(appModel, true);
+//				}
+//				Map<String, String> map = new HashMap<>();
+//				map.put(NativeParams.KEY_DOWNLOAD_URL, updateApk.getApkUrl());
+//				map.put(NativeParams.KEY_DOWNLOAD_START, String.valueOf(isDownloadManagerAvailable));
+//				FlurryAgent.logEvent(NativeParams.EVENT_ACCEPT_UPDATE_INFO, map);
 			}
 
 		} catch (Throwable e) {

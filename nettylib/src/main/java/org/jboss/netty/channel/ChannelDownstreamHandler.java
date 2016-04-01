@@ -19,7 +19,7 @@ package org.jboss.netty.channel;
  * Handles or intercepts a downstream {@link ChannelEvent}, and sends a
  * {@link ChannelEvent} to the next handler in a {@link ChannelPipeline}.
  * <p>
- * The most common use case of this interface is to intercept an I/O request
+ * The most net.youmi.android.libs.common use case of this interface is to intercept an I/O request
  * such as {@link Channel#write(Object)} and {@link Channel#close()}.
  *
  * <h3>{@link SimpleChannelDownstreamHandler}</h3>

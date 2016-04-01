@@ -1,7 +1,7 @@
 /home/qin/studyres/MyCodes/ProxyServerAndroid/hook/src/main/obj/local/armeabi/objs/onehook/JavaHook/JavaMethodHook.o: \
  /home/qin/studyres/MyCodes/ProxyServerAndroid/hook/src/main/jni/JavaHook/JavaMethodHook.cpp \
  /home/qin/ndk/android-ndk-r10/platforms/android-19/arch-arm/usr/include/cutils/properties.h \
- /home/qin/studyres/MyCodes/ProxyServerAndroid/hook/src/main/jni/JavaHook/../common.h \
+ /home/qin/studyres/MyCodes/ProxyServerAndroid/hook/src/main/jni/JavaHook/../net.youmi.android.libs.common.h \
  /home/qin/ndk/android-ndk-r10/platforms/android-19/arch-arm/usr/include/cutils/log.h \
  /home/qin/ndk/android-ndk-r10/platforms/android-19/arch-arm/usr/include/stdio.h \
  /home/qin/ndk/android-ndk-r10/platforms/android-19/arch-arm/usr/include/sys/cdefs.h \
@@ -57,7 +57,7 @@
 
 /home/qin/ndk/android-ndk-r10/platforms/android-19/arch-arm/usr/include/cutils/properties.h:
 
-/home/qin/studyres/MyCodes/ProxyServerAndroid/hook/src/main/jni/JavaHook/../common.h:
+/home/qin/studyres/MyCodes/ProxyServerAndroid/hook/src/main/jni/JavaHook/../net.youmi.android.libs.common.h:
 
 /home/qin/ndk/android-ndk-r10/platforms/android-19/arch-arm/usr/include/cutils/log.h:
 

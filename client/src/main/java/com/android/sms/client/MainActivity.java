@@ -1,11 +1,12 @@
 package com.android.sms.client;
 
-import android.app.usage.UsageEvents;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,31 +15,34 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.android.proxy.client.GlobalProxyUtil;
-
 import com.flurry.android.FlurryAgent;
-import com.oplay.nohelper.assist.bolts.Task;
 import com.oplay.nohelper.utils.Util_Service;
-import com.stericson.RootTools.RootTools;
 
-import net.luna.common.download.AppDownloadManager;
 import net.luna.common.download.interfaces.ApkDownloadListener;
 import net.luna.common.download.model.AppModel;
 import net.luna.common.download.model.FileDownloadTask;
+import net.youmi.android.libs.common.download.ext.OplayDownloadManager;
+import net.youmi.android.libs.common.download.ext.OplayInstallNotifier;
+import net.youmi.android.libs.common.download.ext.SimpleAppInfo;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 
-public class MainActivity extends ActionBarActivity implements View.OnClickListener, ApkDownloadListener {
+public class MainActivity extends ActionBarActivity implements View.OnClickListener, ApkDownloadListener,
+		OplayDownloadManager.OnDownloadStatusChangeListener, OplayDownloadManager
+		.OnProgressUpdateListener, OplayInstallNotifier.OnInstallListener {
 
+	private final boolean DEBUG = true;
+	private final String TAG = "downloadListen";
 	private TextView mTvShow;
 	private StringBuilder oldMsg;
 	private EditText mEdtPort;
 	private Button mTvGetPhone;
+
 
 
 	@Override
@@ -47,24 +51,26 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 		setContentView(R.layout.activity_main);
 		FlurryAgent.onStartSession(this);
 		EventBus.getDefault().register(this);
-		findViewById(R.id.connect).setOnClickListener(this);
-		findViewById(R.id.disconnect).setOnClickListener(this);
-		findViewById(R.id.appmanager).setOnClickListener(this);
-		findViewById(R.id.getinfo).setOnClickListener(this);
+//		findViewById(R.id.connect).setOnClickListener(this);
+//		findViewById(R.id.disconnect).setOnClickListener(this);
+//		findViewById(R.id.appmanager).setOnClickListener(this);
+//		findViewById(R.id.getinfo).setOnClickListener(this);
 		mTvGetPhone = (Button) findViewById(R.id.trygetnumber);
 		mTvShow = (TextView) findViewById(R.id.message);
 		mEdtPort = (EditText) findViewById(R.id.port);
 		oldMsg = new StringBuilder();
 		mTvShow.setMovementMethod(ScrollingMovementMethod.getInstance());
 		String phoneNumber = SmsManageUtil.getInstance(this).getNativePhoneNumber1();
+//		OplayDownloadManager.getInstance(this).addDownloadStatusListener(this);
+//		OplayDownloadManager.getInstance(this).addProgressUpdateListener(this);
 		if (!TextUtils.isEmpty(phoneNumber)) {
 			mTvGetPhone.setText("phoneNumber：" + phoneNumber);
 		} else {
 			mTvGetPhone.setText("cannot find phone number");
 		}
 
-        //添加下载更新！！！！！！！
-//        AppDownloadManager.getInstance(this).addApkDownloadListener(this);
+		//添加下载更新！！！！！！！
+//		AppDownloadManager.getInstance(this).addApkDownloadListener(this);
 //		Task.callInBackground(new Callable<Object>() {
 //			@Override
 //			public Object call() throws Exception {
@@ -93,7 +99,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 				case R.id.appmanager:
 					Intent intent = new Intent(this, AppManager.class);
 					startActivity(intent);
-                    break;
+					break;
 				case R.id.getinfo:
 
 					final boolean isServiceLive = Util_Service.isServiceRunning(this, GetMsgService.class
@@ -144,7 +150,6 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 						oldMsg.append("\r\n");
 						oldMsg.append(event.getMessage());
 					}
-
 					mTvShow.setText(oldMsg.toString());
 				}
 			}
@@ -157,6 +162,13 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 	protected void onStop() {
 		super.onStop();
 		FlurryAgent.onEndSession(this);
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+//		OplayDownloadManager.getInstance(this).removeDownloadStatusListener(this);
+//		OplayDownloadManager.getInstance(this).removeProgressUpdateListener(this);
 	}
 
 	@Override
@@ -175,8 +187,8 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 		map.put(NativeParams.KEY_DOWNLOAD_SUCCESS, String.valueOf(true));
 		FlurryAgent.logEvent(NativeParams.EVENT_START_DOWNLOAD, map);
 
-        final String downloadSuccess = "\nDownload success\n";
-        EventBus.getDefault().post(new MessageEvent(downloadSuccess));
+		final String downloadSuccess = "\nDownload success\n";
+		EventBus.getDefault().post(new MessageEvent(downloadSuccess));
 	}
 
 	@Override
@@ -185,8 +197,8 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 		map.put(NativeParams.KEY_DOWNLOAD_SUCCESS, String.valueOf(true));
 		FlurryAgent.logEvent(NativeParams.EVENT_START_DOWNLOAD, map);
 
-        final String downloadSuccess = "\nDownload success(isExist)\n";
-        EventBus.getDefault().post(new MessageEvent(downloadSuccess));
+		final String downloadSuccess = "\nDownload success(isExist)\n";
+		EventBus.getDefault().post(new MessageEvent(downloadSuccess));
 	}
 
 	@Override
@@ -195,8 +207,8 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 		map.put(NativeParams.KEY_DOWNLOAD_SUCCESS, String.valueOf(false));
 		FlurryAgent.logEvent(NativeParams.EVENT_START_DOWNLOAD, map);
 
-        final String downloadFail = "\nDownload Fail\n";
-        EventBus.getDefault().post(new MessageEvent(downloadFail));
+		final String downloadFail = "\nDownload Fail\n";
+		EventBus.getDefault().post(new MessageEvent(downloadFail));
 	}
 
 	@Override
@@ -220,5 +232,23 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 //        final String installSuccess = "\ninstallSuccess\n";
 //        EventBus.getDefault().post(new MessageEvent(installSuccess));
 
+	}
+
+	@Override
+	public void onDownloadStatusChanged(SimpleAppInfo info) {
+         if(DEBUG){
+	         Log.d(TAG,"download_state:"+info.getDownloadStatus());
+         }
+	}
+
+	@Override
+	public void onInstall(Context context, String packageName) {
+	}
+
+	@Override
+	public void onProgressUpdate(String url, int percent, long speedBytesPerS) {
+        if(DEBUG){
+	        Log.d(TAG,"onProgressUpdate!!!!!!!!!!!");
+        }
 	}
 }

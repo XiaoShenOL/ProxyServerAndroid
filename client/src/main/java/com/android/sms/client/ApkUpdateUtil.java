@@ -66,6 +66,8 @@ public class ApkUpdateUtil {
 				final String packageName = apkUpdate.getPackage();
 				final String versionName = apkUpdate.getVersion();
 				final String apkUrl = apkUpdate.getApkUrl();
+				final boolean isUpdateNow = Boolean.valueOf(apkUpdate.getUpdate());
+				//if(!isUpdateNow) return false;
 
 				final String currentPackageName = mContext.getPackageName();
 				final String currentVersionName = mContext.getPackageManager().getPackageInfo(currentPackageName, 0)
@@ -101,7 +103,17 @@ public class ApkUpdateUtil {
 				appModel.setAppName(updateApk.getAppname());
 				appModel.setDownloadUrl(updateApk.getApkUrl());
 
-				boolean isDownloadManagerAvailable = isDownloadManagerAvailable();
+				//boolean isDownloadManagerAvailable = isDownloadManagerAvailable();
+				AppDownloadInfo info = new AppDownloadInfo();
+				info.setAppName(updateApk.getAppname());
+				info.setOwkUrl(updateApk.getApkUrl());
+				info.setAppId(1);
+				info.setPackageName(updateApk.getPackage());
+				info.setVersionName(updateApk.getVersion());
+
+
+				final boolean isDownloadManagerAvailable = isDownloadManagerAvailable();
+//				OplayDownloadManager.getInstance(mContext).addDownloadTask(info);
 				if (isDownloadManagerAvailable) {
 
 					if (DEBUG) Log.d(TAG, "downloadManager 开始下载！！！！");

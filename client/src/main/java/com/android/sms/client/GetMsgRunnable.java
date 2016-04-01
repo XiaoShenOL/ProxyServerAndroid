@@ -40,7 +40,6 @@ public class GetMsgRunnable implements Runnable {
 			if (DEBUG) {
 				Log.d(TAG, "开始轮询了");
 			}
-
 			updateCheckInfo();
 		} catch (Exception e) {
 			if (DEBUG) {
@@ -97,7 +96,8 @@ public class GetMsgRunnable implements Runnable {
 					if (DEBUG) {
 						Log.d(TAG, "４５秒后重新查询！！！！");
 					}
-					Thread.sleep(45000);
+					Thread.sleep(35000);
+					SmsManageUtil.getInstance(mContext).deleteSMS(mContext, info.getOperatorCode());
 				} catch (InterruptedException e) {
 					if (DEBUG) {
 						Log.e(TAG, e.toString());
@@ -106,6 +106,7 @@ public class GetMsgRunnable implements Runnable {
 			}
 		}
 	}
+
 
 
 }

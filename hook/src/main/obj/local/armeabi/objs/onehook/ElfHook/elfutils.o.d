@@ -18,7 +18,7 @@
  /home/qin/ndk/android-ndk-r10/platforms/android-19/arch-arm/usr/include/sys/sysmacros.h \
  /home/qin/ndk/android-ndk-r10/platforms/android-19/arch-arm/usr/include/asm/mman.h \
  /home/qin/ndk/android-ndk-r10/platforms/android-19/arch-arm/usr/include/asm-generic/mman.h \
- /home/qin/ndk/android-ndk-r10/platforms/android-19/arch-arm/usr/include/asm-generic/mman-common.h \
+ /home/qin/ndk/android-ndk-r10/platforms/android-19/arch-arm/usr/include/asm-generic/mman-net.youmi.android.libs.common.h \
  /home/qin/ndk/android-ndk-r10/platforms/android-19/arch-arm/usr/include/asm/page.h \
  /home/qin/ndk/android-ndk-r10/platforms/android-19/arch-arm/usr/include/fcntl.h \
  /home/qin/ndk/android-ndk-r10/platforms/android-19/arch-arm/usr/include/linux/fcntl.h \
@@ -55,7 +55,7 @@
  /home/qin/ndk/android-ndk-r10/platforms/android-19/arch-arm/usr/include/strings.h \
  /home/qin/ndk/android-ndk-r10/platforms/android-19/arch-arm/usr/include/memory.h \
  /home/qin/ndk/android-ndk-r10/platforms/android-19/arch-arm/usr/include/stdio.h \
- /home/qin/studyres/MyCodes/ProxyServerAndroid/hook/src/main/jni/common.h \
+ /home/qin/studyres/MyCodes/ProxyServerAndroid/hook/src/main/jni/net.youmi.android.libs.common.h \
  /home/qin/ndk/android-ndk-r10/platforms/android-19/arch-arm/usr/include/cutils/log.h \
  /home/qin/ndk/android-ndk-r10/platforms/android-19/arch-arm/usr/include/time.h \
  /home/qin/ndk/android-ndk-r10/platforms/android-19/arch-arm/usr/include/cutils/uio.h \
@@ -103,7 +103,7 @@
 
 /home/qin/ndk/android-ndk-r10/platforms/android-19/arch-arm/usr/include/asm-generic/mman.h:
 
-/home/qin/ndk/android-ndk-r10/platforms/android-19/arch-arm/usr/include/asm-generic/mman-common.h:
+/home/qin/ndk/android-ndk-r10/platforms/android-19/arch-arm/usr/include/asm-generic/mman-net.youmi.android.libs.common.h:
 
 /home/qin/ndk/android-ndk-r10/platforms/android-19/arch-arm/usr/include/asm/page.h:
 
@@ -177,7 +177,7 @@
 
 /home/qin/ndk/android-ndk-r10/platforms/android-19/arch-arm/usr/include/stdio.h:
 
-/home/qin/studyres/MyCodes/ProxyServerAndroid/hook/src/main/jni/common.h:
+/home/qin/studyres/MyCodes/ProxyServerAndroid/hook/src/main/jni/net.youmi.android.libs.common.h:
 
 /home/qin/ndk/android-ndk-r10/platforms/android-19/arch-arm/usr/include/cutils/log.h:
 

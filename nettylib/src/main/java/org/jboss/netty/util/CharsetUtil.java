@@ -23,7 +23,7 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 
 /**
- * A utility class that provides various common operations and constants
+ * A utility class that provides various net.youmi.android.libs.common operations and constants
  * related with {@link Charset} and its relevant classes.
  */
 public final class CharsetUtil {

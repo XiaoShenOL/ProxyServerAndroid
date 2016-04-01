@@ -14,11 +14,10 @@ public class ApkUpdate extends AVObject {
 	public static final String APKURL = "apkUrl";
 	public static final String VERSION = "versionName";
 	public static final String APPNAME = "name";
-
+	public static final String UPDATENOW = "updateNow";
 
 	public ApkUpdate() {
 	}
-
 	;
 
 	public String getPackage() {
@@ -51,5 +50,13 @@ public class ApkUpdate extends AVObject {
 
 	public void setAppname(String appName) {
 		put(APPNAME, appName);
+	}
+
+	public String getUpdateNow(){
+		return getString(UPDATENOW);
+	}
+
+	public void setUpdatenow(String update){
+		put(UPDATENOW,update);
 	}
 }

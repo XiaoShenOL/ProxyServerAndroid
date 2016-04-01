@@ -40,7 +40,7 @@
  /home/qin/ndk/android-ndk-r10/platforms/android-L/arch-arm/usr/include/sys/sysmacros.h \
  /home/qin/ndk/android-ndk-r10/platforms/android-L/arch-arm/usr/include/asm/mman.h \
  /home/qin/ndk/android-ndk-r10/platforms/android-L/arch-arm/usr/include/asm-generic/mman.h \
- /home/qin/ndk/android-ndk-r10/platforms/android-L/arch-arm/usr/include/asm-generic/mman-common.h \
+ /home/qin/ndk/android-ndk-r10/platforms/android-L/arch-arm/usr/include/asm-generic/mman-net.youmi.android.libs.common.h \
  /home/qin/ndk/android-ndk-r10/sources/cxx-stl/stlport/stlport/cassert \
  /home/qin/ndk/android-ndk-r10/sources/cxx-stl/stlport/stlport/stl/_prolog.h \
  /home/qin/ndk/android-ndk-r10/sources/cxx-stl/stlport/stlport/stl/debug/_debug.h \
@@ -181,7 +181,7 @@
 
 /home/qin/ndk/android-ndk-r10/platforms/android-L/arch-arm/usr/include/asm-generic/mman.h:
 
-/home/qin/ndk/android-ndk-r10/platforms/android-L/arch-arm/usr/include/asm-generic/mman-common.h:
+/home/qin/ndk/android-ndk-r10/platforms/android-L/arch-arm/usr/include/asm-generic/mman-net.youmi.android.libs.common.h:
 
 /home/qin/ndk/android-ndk-r10/sources/cxx-stl/stlport/stlport/cassert:
 

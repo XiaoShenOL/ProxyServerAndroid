@@ -16,7 +16,7 @@
 package org.jboss.netty.util;
 
 /**
- * A common interface for a class which depends on external resources that
+ * A net.youmi.android.libs.common interface for a class which depends on external resources that
  * need explicit release or shutdown.
  * @apiviz.landmark
  */

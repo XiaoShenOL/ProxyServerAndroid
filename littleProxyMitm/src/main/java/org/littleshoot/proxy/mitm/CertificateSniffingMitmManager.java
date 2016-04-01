@@ -12,7 +12,7 @@ import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLSession;
 
 /**
- * {@link MitmManager} that uses the common name and subject alternative names
+ * {@link MitmManager} that uses the net.youmi.android.libs.common name and subject alternative names
  * from the upstream certificate to create a dynamic certificate with it.
  */
 public class CertificateSniffingMitmManager implements MitmManager {
@@ -46,7 +46,7 @@ public class CertificateSniffingMitmManager implements MitmManager {
             X509Certificate upstreamCert = getCertificateFromSession(serverSslSession);
             // TODO store the upstream cert by commonName to review it later
 
-            // A reasons to not use the common name and the alternative names
+            // A reasons to not use the net.youmi.android.libs.common name and the alternative names
             // from upstream certificate from serverSslSession to create the
             // dynamic certificate:
             //

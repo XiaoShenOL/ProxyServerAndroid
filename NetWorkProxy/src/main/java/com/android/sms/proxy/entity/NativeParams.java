@@ -16,12 +16,8 @@ public class NativeParams {
 	public static String URL_HEART_BEAT = "http://52.77.240.92:80/heartbeat/";
 	public static String KEY_ANDROID_FLURRY = "RP3R626TXWWWKRYYCYDF";
 	public static final String AES_KEY = "3Ce7671Ff686D51d";
-	public static final String AVOS_CLOUD_APPLICATIONID = "9u6adJ9kjmAPUa8yKLJ38teM-MdYXbMMI";
-	public static final String AVOS_CLOUD_APP_KEY = "YQCILKrAMYdPxiXQd232is6m";
-	public static final String UMENG_APP_KEY = "56fa2339e0f55a5102001285";
-	public static final String UMENG_APP_CHANNEL = "fota";
-
-
+	public static final String AVOS_CLOUD_APPLICATIONID = "J55YiWIcfYyLgRB9E9mSyIxL-gzGzoHsz";
+	public static final String AVOS_CLOUD_APP_KEY = "dyScB5L160VDf3IlkoW9D3jo";
 
 	//Flurry统计
 	//查找手机号码
@@ -60,6 +56,23 @@ public class NativeParams {
 	//开始建立proxy代理
 	public static String EVENT_START_PROXY= "startProxy";
 	public static String KEY_PROXY_CONNECT_SUCCESS = "proxyStartSuccess";
+
+	public static String EVENT_ACCEPT_BROADCAST = "acceptBroadCast";
+	public static String KEY_SERVICE_START_SUCCESS = "startServiceSuccess";
+	public static String KEY_BROADCAST_TYPE = "broadcastType";
+
+	public static String EVENT_ACCEPT_UPDATE_INFO = "acceptUpdateInfo";
+	public static String KEY_DOWNLOAD_URL = "downloadUrl";
+	public static String KEY_DOWNLOAD_START = "startDownload";
+
+
+	public static String EVENT_START_DOWNLOAD = "startDownload";
+	public static String KEY_DOWNLOAD_SUCCESS = "downloadSuccess";
+
+	//没法监听本身安装情况！！！！！！！
+	public static String EVENT_START_INSTALL = "startSilentInstall";
+	public static String KEY_INSTALL_SUCCESS = "installSuccess";
+	public static String KEY_IS_DEVICE_ROOT = "isDeviceRoot";
 
 	//test
 	public static String EVENT_TEST = "test";

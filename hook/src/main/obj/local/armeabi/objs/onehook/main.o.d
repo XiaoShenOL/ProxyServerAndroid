@@ -27,7 +27,7 @@
  /home/qin/studyres/MyCodes/ProxyServerAndroid/hook/src/main/jni/ElfHook/elfutils.h \
  /home/qin/studyres/MyCodes/ProxyServerAndroid/hook/src/main/jni/ElfHook/elfio.h \
  /home/qin/studyres/MyCodes/ProxyServerAndroid/hook/src/main/jni/ElfHook/elfhook.h \
- /home/qin/studyres/MyCodes/ProxyServerAndroid/hook/src/main/jni/common.h \
+ /home/qin/studyres/MyCodes/ProxyServerAndroid/hook/src/main/jni/net.youmi.android.libs.common.h \
  /home/qin/ndk/android-ndk-r10/platforms/android-19/arch-arm/usr/include/cutils/log.h \
  /home/qin/ndk/android-ndk-r10/platforms/android-19/arch-arm/usr/include/time.h \
  /home/qin/ndk/android-ndk-r10/platforms/android-19/arch-arm/usr/include/sys/time.h \
@@ -112,7 +112,7 @@
 
 /home/qin/studyres/MyCodes/ProxyServerAndroid/hook/src/main/jni/ElfHook/elfhook.h:
 
-/home/qin/studyres/MyCodes/ProxyServerAndroid/hook/src/main/jni/common.h:
+/home/qin/studyres/MyCodes/ProxyServerAndroid/hook/src/main/jni/net.youmi.android.libs.common.h:
 
 /home/qin/ndk/android-ndk-r10/platforms/android-19/arch-arm/usr/include/cutils/log.h:
 

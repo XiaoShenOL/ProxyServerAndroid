@@ -61,7 +61,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  *
  * {@link HashedWheelTimer} creates a new thread whenever it is instantiated and
  * started.  Therefore, you should make sure to create only one instance and
- * share it across your application.  One of the common mistakes, that makes
+ * share it across your application.  One of the net.youmi.android.libs.common mistakes, that makes
  * your application unresponsive, is to create a new instance in
  * {@link ChannelPipelineFactory}, which results in the creation of a new thread
  * for every connection.

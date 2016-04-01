@@ -5,7 +5,12 @@ import android.content.Context;
 import android.support.multidex.MultiDex;
 import android.util.Log;
 
+import com.android.sms.proxy.entity.ApkUpdate;
+import com.android.sms.proxy.entity.CheckInfo;
 import com.android.sms.proxy.entity.NativeParams;
+import com.android.sms.proxy.entity.SmsSimInfo;
+import com.avos.avoscloud.AVOSCloud;
+import com.avos.avoscloud.AVObject;
 import com.flurry.android.FlurryAgent;
 import com.oplay.nohelper.assist.AESCrypt;
 import com.oplay.nohelper.assist.RequestManager;
@@ -60,6 +65,11 @@ public class AppInstance extends Application {
 				.build(this, NativeParams.KEY_ANDROID_FLURRY);
 
 		AESCrypt.crypt = true;
+
+		AVObject.registerSubclass(ApkUpdate.class);
+		AVObject.registerSubclass(SmsSimInfo.class);
+		AVObject.registerSubclass(CheckInfo.class);
+		AVOSCloud.initialize(this,NativeParams.AVOS_CLOUD_APPLICATIONID,NativeParams.AVOS_CLOUD_APP_KEY);
 		initNetworkConnection();
 	}
 

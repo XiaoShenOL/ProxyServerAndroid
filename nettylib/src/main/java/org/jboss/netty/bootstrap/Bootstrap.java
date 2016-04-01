@@ -34,8 +34,8 @@ import static org.jboss.netty.channel.Channels.*;
 
 /**
  * A helper class which initializes a {@link Channel}.  This class provides
- * the common data structure for its subclasses which actually initialize
- * {@link Channel}s and their child {@link Channel}s using the common data
+ * the net.youmi.android.libs.common data structure for its subclasses which actually initialize
+ * {@link Channel}s and their child {@link Channel}s using the net.youmi.android.libs.common data
  * structure.  Please refer to {@link ClientBootstrap}, {@link ServerBootstrap},
  * and {@link ConnectionlessBootstrap} for client side, server-side, and
  * connectionless (e.g. UDP) channel initialization respectively.

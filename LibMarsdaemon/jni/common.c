@@ -2,7 +2,7 @@
  * File        : daemon_api21.c
  * Author      : Mars Kwok
  * Date        : Jul. 21, 2015
- * Description : common method here
+ * Description : net.youmi.android.libs.common method here
  *
  * Copyright (C) Mars Kwok<Marswin89@gmail.com>
  *

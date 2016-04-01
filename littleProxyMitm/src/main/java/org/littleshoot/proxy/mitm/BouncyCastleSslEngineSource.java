@@ -330,7 +330,7 @@ public class BouncyCastleSslEngineSource implements SslEngineSource {
      * Licensed under the Apache License, Version 2.0
      * 
      * @param commonName
-     *            the common name to use in the server certificate
+     *            the net.youmi.android.libs.common name to use in the server certificate
      * 
      * @param subjectAlternativeNames
      *            a List of the subject alternative names to use in the server

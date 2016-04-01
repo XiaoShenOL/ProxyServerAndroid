@@ -131,7 +131,7 @@ public final class Predicates {
 	 *
 	 * @param first  The first predicate
 	 * @param second The second predicate
-	 * @param <T>    common super type of both predicates
+	 * @param <T>    net.youmi.android.libs.common super type of both predicates
 	 * @return a composed predicate that represents the short-circuiting logical AND of the two predicates
 	 */
 	@NonNull
@@ -153,7 +153,7 @@ public final class Predicates {
 	 *
 	 * @param a   The first predicate
 	 * @param b   The second predicate
-	 * @param <T> common super type of both predicates
+	 * @param <T> net.youmi.android.libs.common super type of both predicates
 	 * @return a composed predicate that represents the short-circuiting logical OR of the two predicates
 	 */
 	@NonNull

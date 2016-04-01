@@ -708,7 +708,7 @@ public final class ConcurrentHashMap<K, V> extends AbstractMap<K, V>
             }
         }
         // If mcsum happens to be zero, then we know we got a snapshot before
-        // any modifications at all were made.  This is probably common enough
+        // any modifications at all were made.  This is probably net.youmi.android.libs.common enough
         // to bother tracking.
         if (mcsum != 0) {
             for (int i = 0; i < segments.length; ++ i) {

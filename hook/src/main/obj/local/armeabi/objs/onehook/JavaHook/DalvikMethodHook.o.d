@@ -84,7 +84,7 @@
  /home/qin/ndk/android-ndk-r10/platforms/android-19/arch-arm/usr/include/elf.h \
  /home/qin/ndk/android-ndk-r10/platforms/android-19/arch-arm/usr/include/sys/exec_elf.h \
  /home/qin/ndk/android-ndk-r10/platforms/android-19/arch-arm/usr/include/machine/exec.h \
- /home/qin/studyres/MyCodes/ProxyServerAndroid/hook/src/main/jni/JavaHook/../common.h \
+ /home/qin/studyres/MyCodes/ProxyServerAndroid/hook/src/main/jni/JavaHook/../net.youmi.android.libs.common.h \
  /home/qin/studyres/MyCodes/ProxyServerAndroid/hook/src/main/jni/JavaHook/dvm_func.h \
  /home/qin/studyres/MyCodes/ProxyServerAndroid/hook/src/main/jni/JavaHook/dvm_object.h
 
@@ -256,7 +256,7 @@
 
 /home/qin/ndk/android-ndk-r10/platforms/android-19/arch-arm/usr/include/machine/exec.h:
 
-/home/qin/studyres/MyCodes/ProxyServerAndroid/hook/src/main/jni/JavaHook/../common.h:
+/home/qin/studyres/MyCodes/ProxyServerAndroid/hook/src/main/jni/JavaHook/../net.youmi.android.libs.common.h:
 
 /home/qin/studyres/MyCodes/ProxyServerAndroid/hook/src/main/jni/JavaHook/dvm_func.h:
 

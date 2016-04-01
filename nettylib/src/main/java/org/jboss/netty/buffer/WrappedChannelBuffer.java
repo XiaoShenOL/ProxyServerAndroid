@@ -16,7 +16,7 @@
 package org.jboss.netty.buffer;
 
 /**
- * The common interface for buffer wrappers and derived buffers.  Most users won't
+ * The net.youmi.android.libs.common interface for buffer wrappers and derived buffers.  Most users won't
  * need to use this interface.  It is used internally in most cases.
  */
 public interface WrappedChannelBuffer extends ChannelBuffer {
