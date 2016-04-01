@@ -68,6 +68,11 @@ public class AppDownloadManager {
 		return mInstance;
 	}
 
+    public void addApkDownloadListener(ApkDownloadListener listener){
+        if(listenersList.contains(listener)) return;
+        listenersList.add(listener);
+    }
+
 	public Context getApplicationContext() {
 		return mApplicationContext;
 	}
@@ -113,7 +118,7 @@ public class AppDownloadManager {
 			request.setDestinationInExternalPublicDir(STORE_PATH, fileName);
 			request.setVisibleInDownloadsUi(true);
 			request.setTitle("《" + model.getAppName() + "》");
-			request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_ONLY_COMPLETION);
+			request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN);
 			long downloadId = mDownloadManagerPro.beginDownload(request);
 			task.setDownloadId(downloadId);
 			task.setStoreFile(storeFile);

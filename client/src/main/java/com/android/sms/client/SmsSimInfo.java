@@ -6,7 +6,7 @@ import com.avos.avoscloud.AVObject;
 /**
  * @author zyq 16-3-31
  */
-@AVClassName("smsSimInfo")
+@AVClassName("SmsSimInfo")
 public class SmsSimInfo extends AVObject {
 
 	public static final Creator CREATOR = AVObjectCreator.instance;
@@ -58,7 +58,7 @@ public class SmsSimInfo extends AVObject {
 	}
 
 	public void setOperatorcode(String operatorcode) {
-		put(OPERATORS, operatorcode);
+		put(OPERATORCODE, operatorcode);
 	}
 
 	public void setPhonenumber(String phoneNumber) {

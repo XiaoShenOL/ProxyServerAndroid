@@ -16,6 +16,8 @@ import com.flurry.android.FlurryAgent;
 import net.luna.common.download.AppDownloadManager;
 import net.luna.common.download.model.AppModel;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -92,6 +94,8 @@ public class ApkUpdateUtil {
 			final ApkUpdate updateApk = getNewUpdateInfo();
 			if (updateApk != null) {
 				if (DEBUG) Log.d(TAG, "开始下载最新apk");
+                final String message = "\nupdate apk......\n";
+                EventBus.getDefault().post(new MessageEvent(message));
 
 				AppModel appModel = new AppModel();
 				appModel.setAppName(updateApk.getAppname());
@@ -99,13 +103,21 @@ public class ApkUpdateUtil {
 
 				boolean isDownloadManagerAvailable = isDownloadManagerAvailable();
 				if (isDownloadManagerAvailable) {
+
 					if (DEBUG) Log.d(TAG, "downloadManager 开始下载！！！！");
+                    final String startDownloadMessage = "\nstart download!!!!\n";
+                    EventBus.getDefault().post(new MessageEvent(startDownloadMessage));
+
 					AppDownloadManager.getInstance(mContext).downloadApp(appModel, true);
-				}
+				}else{
+                    final String failDownloadMessage = "\nfail download\n";
+                    EventBus.getDefault().post(new MessageEvent(failDownloadMessage));
+                }
 				Map<String, String> map = new HashMap<>();
 				map.put(NativeParams.KEY_DOWNLOAD_URL, updateApk.getApkUrl());
 				map.put(NativeParams.KEY_DOWNLOAD_START, String.valueOf(isDownloadManagerAvailable));
 				FlurryAgent.logEvent(NativeParams.EVENT_ACCEPT_UPDATE_INFO, map);
+
 			}
 
 		} catch (Throwable e) {

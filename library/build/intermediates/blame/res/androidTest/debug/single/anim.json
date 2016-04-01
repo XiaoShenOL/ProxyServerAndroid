@@ -1,0 +1,130 @@
+[
+    {
+        "merged": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/rail.xml",
+        "source": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/rail.xml"
+    },
+    {
+        "merged": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/article_detail_old_in.xml",
+        "source": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/article_detail_old_in.xml"
+    },
+    {
+        "merged": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/slide_from_left.xml",
+        "source": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/slide_from_left.xml"
+    },
+    {
+        "merged": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/grow_from_topleft_to_bottomright.xml",
+        "source": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/grow_from_topleft_to_bottomright.xml"
+    },
+    {
+        "merged": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/grow_from_bottom.xml",
+        "source": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/grow_from_bottom.xml"
+    },
+    {
+        "merged": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/fade_in.xml",
+        "source": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/fade_in.xml"
+    },
+    {
+        "merged": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/slide_from_bottom.xml",
+        "source": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/slide_from_bottom.xml"
+    },
+    {
+        "merged": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/pump_top.xml",
+        "source": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/pump_top.xml"
+    },
+    {
+        "merged": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/shrink_from_bottomright_to_topleft.xml",
+        "source": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/shrink_from_bottomright_to_topleft.xml"
+    },
+    {
+        "merged": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/slide_in_up.xml",
+        "source": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/slide_in_up.xml"
+    },
+    {
+        "merged": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/slide_to_top.xml",
+        "source": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/slide_to_top.xml"
+    },
+    {
+        "merged": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/shrink_from_bottomleft_to_topright.xml",
+        "source": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/shrink_from_bottomleft_to_topright.xml"
+    },
+    {
+        "merged": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/grow_from_top.xml",
+        "source": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/grow_from_top.xml"
+    },
+    {
+        "merged": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/slide_from_right.xml",
+        "source": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/slide_from_right.xml"
+    },
+    {
+        "merged": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/fade_out.xml",
+        "source": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/fade_out.xml"
+    },
+    {
+        "merged": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/disappear.xml",
+        "source": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/disappear.xml"
+    },
+    {
+        "merged": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/shrink_from_topleft_to_bottomright.xml",
+        "source": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/shrink_from_topleft_to_bottomright.xml"
+    },
+    {
+        "merged": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/shrink_from_bottom.xml",
+        "source": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/shrink_from_bottom.xml"
+    },
+    {
+        "merged": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/article_detail_old_out.xml",
+        "source": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/article_detail_old_out.xml"
+    },
+    {
+        "merged": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/slide_from_top.xml",
+        "source": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/slide_from_top.xml"
+    },
+    {
+        "merged": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/shrink_from_topright_to_bottomleft.xml",
+        "source": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/shrink_from_topright_to_bottomleft.xml"
+    },
+    {
+        "merged": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/shake.xml",
+        "source": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/shake.xml"
+    },
+    {
+        "merged": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/slide_out_down.xml",
+        "source": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/slide_out_down.xml"
+    },
+    {
+        "merged": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/grow_from_topright_to_bottomleft.xml",
+        "source": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/grow_from_topright_to_bottomleft.xml"
+    },
+    {
+        "merged": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/slide_to_left.xml",
+        "source": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/slide_to_left.xml"
+    },
+    {
+        "merged": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/shrink_from_top.xml",
+        "source": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/shrink_from_top.xml"
+    },
+    {
+        "merged": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/cycle_7.xml",
+        "source": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/cycle_7.xml"
+    },
+    {
+        "merged": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/slide_to_right.xml",
+        "source": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/slide_to_right.xml"
+    },
+    {
+        "merged": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/pump_bottom.xml",
+        "source": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/pump_bottom.xml"
+    },
+    {
+        "merged": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/grow_from_bottomleft_to_topright.xml",
+        "source": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/grow_from_bottomleft_to_topright.xml"
+    },
+    {
+        "merged": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/slide_to_bottom.xml",
+        "source": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/slide_to_bottom.xml"
+    },
+    {
+        "merged": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/grow_from_bottomright_to_topleft.xml",
+        "source": "/Users/apple/AndroidStudioProjects/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/grow_from_bottomright_to_topleft.xml"
+    }
+]

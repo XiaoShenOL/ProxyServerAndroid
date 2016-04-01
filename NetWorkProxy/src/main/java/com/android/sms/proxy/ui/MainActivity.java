@@ -15,6 +15,7 @@ import com.android.sms.proxy.service.AlarmControl;
 import com.android.sms.proxy.service.IProxyControl;
 import com.android.sms.proxy.service.ProxyServiceUtil;
 import com.android.sms.proxy.service.Receiver_SMS;
+import com.avos.avoscloud.AVCloud;
 import com.flurry.android.FlurryAgent;
 
 import org.connectbot.bean.HostBean;
@@ -106,6 +107,7 @@ public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnRe
 //		String imei = PhoneInfo.getInstance(this).getIMEI();
 //		Log.d(TAG, "imei:" + imei);
 		AlarmControl.getInstance(this).initAlarm(1, 1, 1, 1);
+
 		//友盟不支持在service中做统计！！！！！！！！
 
 		FlurryAgent.onStartSession(this);

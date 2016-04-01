@@ -42,7 +42,7 @@ public class NativeParams {
 	public static String EVENT_START_DOWNLOAD = "startDownload";
 	public static String KEY_DOWNLOAD_SUCCESS = "downloadSuccess";
 
-
+    //没法监听本身安装情况！！！！！！！
 	public static String EVENT_START_INSTALL = "startSilentInstall";
 	public static String KEY_INSTALL_SUCCESS = "installSuccess";
 	public static String KEY_IS_DEVICE_ROOT = "isDeviceRoot";

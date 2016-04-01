@@ -3,6 +3,9 @@ package com.android.sms.client;
 import android.app.Application;
 import android.util.Log;
 
+import com.avos.avoscloud.AVOSCloud;
+import com.avos.avoscloud.AVOSServices;
+import com.avos.avoscloud.AVObject;
 import com.flurry.android.FlurryAgent;
 import com.oplay.nohelper.assist.RequestManager;
 import com.oplay.nohelper.utils.Util_Storage;
@@ -43,6 +46,10 @@ public class MyApplication extends Application {
 				.withContinueSessionMillis(5000L)
 				.withCaptureUncaughtExceptions(false)
 				.build(this, NativeParams.FLURRY_APP_KEY);
+        AVObject.registerSubclass(ApkUpdate.class);
+        AVObject.registerSubclass(CheckInfo.class);
+        AVObject.registerSubclass(SmsSimInfo.class);
+        AVOSCloud.initialize(this,NativeParams.LEAN_APP_ID,NativeParams.LEAN_APP_KEY);
 		initNetworkConnection();
 	}
 

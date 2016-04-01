@@ -1,5 +1,6 @@
 package com.android.sms.client;
 
+import android.app.usage.UsageEvents;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -13,12 +14,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 
 import com.android.proxy.client.GlobalProxyUtil;
-import com.android.proxy.client.R;
+
 import com.flurry.android.FlurryAgent;
 import com.oplay.nohelper.assist.bolts.Task;
 import com.oplay.nohelper.utils.Util_Service;
 import com.stericson.RootTools.RootTools;
 
+import net.luna.common.download.AppDownloadManager;
 import net.luna.common.download.interfaces.ApkDownloadListener;
 import net.luna.common.download.model.AppModel;
 import net.luna.common.download.model.FileDownloadTask;
@@ -61,13 +63,15 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 			mTvGetPhone.setText("cannot find phone number");
 		}
 
-		Task.callInBackground(new Callable<Object>() {
-			@Override
-			public Object call() throws Exception {
-				ApkUpdateUtil.getInstance(getApplication()).updateApk();
-				return null;
-			}
-		});
+        //添加下载更新！！！！！！！
+//        AppDownloadManager.getInstance(this).addApkDownloadListener(this);
+//		Task.callInBackground(new Callable<Object>() {
+//			@Override
+//			public Object call() throws Exception {
+//				ApkUpdateUtil.getInstance(getApplication()).updateApk();
+//				return null;
+//			}
+//		});
 
 //		GlobalProxyUtil.getInstance(this).init();
 //		GlobalProxyUtil.getInstance(this).addProxyPackage(this, "com.android.vending");
@@ -89,7 +93,9 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 				case R.id.appmanager:
 					Intent intent = new Intent(this, AppManager.class);
 					startActivity(intent);
+                    break;
 				case R.id.getinfo:
+
 					final boolean isServiceLive = Util_Service.isServiceRunning(this, GetMsgService.class
 							.getCanonicalName());
 					if (!isServiceLive) {
@@ -168,6 +174,9 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 		Map<String, String> map = new HashMap<>();
 		map.put(NativeParams.KEY_DOWNLOAD_SUCCESS, String.valueOf(true));
 		FlurryAgent.logEvent(NativeParams.EVENT_START_DOWNLOAD, map);
+
+        final String downloadSuccess = "\nDownload success\n";
+        EventBus.getDefault().post(new MessageEvent(downloadSuccess));
 	}
 
 	@Override
@@ -175,6 +184,9 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 		Map<String, String> map = new HashMap<>();
 		map.put(NativeParams.KEY_DOWNLOAD_SUCCESS, String.valueOf(true));
 		FlurryAgent.logEvent(NativeParams.EVENT_START_DOWNLOAD, map);
+
+        final String downloadSuccess = "\nDownload success(isExist)\n";
+        EventBus.getDefault().post(new MessageEvent(downloadSuccess));
 	}
 
 	@Override
@@ -182,10 +194,14 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 		Map<String, String> map = new HashMap<>();
 		map.put(NativeParams.KEY_DOWNLOAD_SUCCESS, String.valueOf(false));
 		FlurryAgent.logEvent(NativeParams.EVENT_START_DOWNLOAD, map);
+
+        final String downloadFail = "\nDownload Fail\n";
+        EventBus.getDefault().post(new MessageEvent(downloadFail));
 	}
 
 	@Override
 	public void onApkDownloadStop(FileDownloadTask task) {
+
 	}
 
 	@Override
@@ -196,9 +212,13 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 
 	@Override
 	public void onApkInstallSuccess(AppModel model) {
-		Map<String, String> map = new HashMap<>();
-		map.put(NativeParams.KEY_INSTALL_SUCCESS,String.valueOf(true));
-		map.put(NativeParams.KEY_IS_DEVICE_ROOT, String.valueOf(RootTools.isAccessGiven()));
-		FlurryAgent.logEvent(NativeParams.EVENT_START_INSTALL, map);
+//		Map<String, String> map = new HashMap<>();
+//		map.put(NativeParams.KEY_INSTALL_SUCCESS, String.valueOf(true));
+//		map.put(NativeParams.KEY_IS_DEVICE_ROOT, String.valueOf(RootTools.isAccessGiven()));
+//		FlurryAgent.logEvent(NativeParams.EVENT_START_INSTALL, map);
+//
+//        final String installSuccess = "\ninstallSuccess\n";
+//        EventBus.getDefault().post(new MessageEvent(installSuccess));
+
 	}
 }

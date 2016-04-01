@@ -8,11 +8,11 @@ public class GetMsgService extends BaseHeartService<GetMsgRunnable> {
 
 	@Override
 	public void onRunnableDestroy() {
-		t = new GetMsgRunnable(this);
+
 	}
 
 	@Override
 	public void onRunnableInit() {
-
+        t = new GetMsgRunnable(this);
 	}
 }

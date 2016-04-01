@@ -32,7 +32,6 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.android.proxy.client.R;
 
 import org.proxydroid.ProxyedApp;
 import org.proxydroid.utils.ImageLoader;
