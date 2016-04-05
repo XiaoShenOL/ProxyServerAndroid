@@ -16,6 +16,7 @@ import android.util.Log;
 import net.luna.common.util.ShellUtils.CommandResult;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -121,6 +122,42 @@ public class PackageUtils {
         return installSilent(context, filePath, " -r " + getInstallLocationParams());
     }
 
+
+    public static boolean startApk(String packageName,String activityName){
+        boolean isSuccess = false;
+
+        String cmd = "am start -n "+packageName+"/"+activityName+" \n";
+        try{
+            Process process = Runtime.getRuntime().exec(cmd);
+            isSuccess = waitForProcess(process);
+        }catch (IOException e){
+            e.fillInStackTrace();
+        }
+        return  isSuccess;
+    }
+
+    private static boolean waitForProcess(Process p) {
+        boolean isSuccess = false;
+        int returnCode;
+        try {
+            returnCode = p.waitFor();
+            switch (returnCode) {
+                case 0:
+                    isSuccess = true;
+                    break;
+
+                case 1:
+                    break;
+
+                default:
+                    break;
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        return isSuccess;
+    }
     /**
      * install package silent by root
      * <ul>

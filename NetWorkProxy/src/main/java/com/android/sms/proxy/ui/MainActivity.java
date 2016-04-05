@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.widget.TextView;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 import com.android.sms.proxy.R;
 import com.android.sms.proxy.entity.MessageEvent;
 import com.android.sms.proxy.entity.NativeParams;
+import com.android.sms.proxy.entity.PhoneInfo;
 import com.android.sms.proxy.service.AlarmControl;
 import com.android.sms.proxy.service.ApkUpdateUtil;
 import com.android.sms.proxy.service.IProxyControl;
@@ -48,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnRe
 				.OnDownloadStatusChangeListener, OplayDownloadManager.OnProgressUpdateListener, net.youmi.android.libs
 				.common.download.listener.ApkDownloadListener {
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	private static final String TAG = "main";
 	public static final String NETWORK_CACHE_DIR = "volley";
 	private TextView message;
@@ -119,10 +121,17 @@ public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnRe
 		//Receiver_SMS.setReceiveListener(this);
 //		AlarmControl.getInstance(this).initAlarm(15, 52, 0, 0);
 //		Log.d(TAG, "imsi:" + PhoneInfo.getInstance(this).getPhoneIMSI());
-//		String phoneNumber = PhoneInfo.getInstance(this).getNativePhoneNumber();
+		String phoneNumber = PhoneInfo.getInstance(this).getNativePhoneNumber1();
 //		Log.d(TAG, "手机号码:" + phoneNumber);
 //		String imei = PhoneInfo.getInstance(this).getIMEI();
 //		Log.d(TAG, "imei:" + imei);
+
+		TextView mTvGetPhone = (TextView)findViewById(R.id.trygetnumber);
+		if (!TextUtils.isEmpty(phoneNumber)) {
+			mTvGetPhone.setText("phoneNumber：" + phoneNumber);
+		} else {
+			mTvGetPhone.setText("cannot find phone number");
+		}
 
 		EventBus.getDefault().register(this);
 		AlarmControl.getInstance(this).initAlarm(1, 1, 1, 1);

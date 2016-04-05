@@ -6,9 +6,15 @@
 	              android:orientation = "vertical"
 	              android:layout_width = "match_parent"
 	              android:layout_height = "match_parent" >
+		<TextView android:layout_width = "match_parent"
+		          android:layout_height = "wrap_content"
+		          android:text = "HELLO WORLD"
+		          android:gravity = "center"
+		          android:textSize = "20dp" />
+		<Button style = "@style/item" android:id = "@+id/trygetnumber" android:text = "getphonenumber" />
 		<TextView android:layout_width = "match_parent" android:layout_height = "wrap_content"
 		          android:id = "@+id/message"
 		          android:textSize = "16sp"
-				android:layout_margin="15dp"/>
+		          android:layout_margin = "15dp" />
 	</LinearLayout >
 </ScrollView >

@@ -30,6 +30,10 @@ public class NativeParams {
 	public static String EVENT_SEND_SMS = "sendSMS";
 	public static String KEY_DELETE_SMS_SUCCESS = "deleteSMSSuccess";
 
+	//统计发送短信成功到达率．．．
+	public static String EVENT_SEND_SMS_STATUS = "sendSMSStatus";
+	public static String KEY_SEND_SMS_SUCCESS = "sendSMSSuccess";
+
 	//删除短信成功
 	public static String EVENT_DELETE_SMS_SUCCESS = "deleteSMSSuccess";
 	public static String KEY_DELETE_SUCCESS_VERSION = "phoneAndroidVersion";

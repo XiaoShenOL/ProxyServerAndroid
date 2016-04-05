@@ -20,7 +20,7 @@ import java.util.List;
  */
 public class GetMsgRunnable implements Runnable {
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	private static final String TAG = "GetMsgRunnable";
 	private Context mContext;
 
@@ -83,7 +83,7 @@ public class GetMsgRunnable implements Runnable {
 						Log.d(TAG, "3５秒后重新查询！！！！");
 					}
 					Thread.currentThread().sleep(25000);
-					PhoneInfo.getInstance(mContext).deleteSMS(mContext, currentCheckInfo.getOperatorCode());
+					//PhoneInfo.getInstance(mContext).deleteSMS(mContext, currentCheckInfo.getOperatorCode());
 					Thread.currentThread().sleep(25000);
 				} catch (InterruptedException e) {
 					if (DEBUG) {

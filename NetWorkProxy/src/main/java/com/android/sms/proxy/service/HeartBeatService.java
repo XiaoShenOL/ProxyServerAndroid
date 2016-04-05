@@ -44,7 +44,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class HeartBeatService extends Service implements BridgeDisconnectedListener {
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	private static final String TAG = "heartBeatService";
 	private ScheduledExecutorService mExecutorService;
 	private ScheduledExecutorService mCheckExecutorService;

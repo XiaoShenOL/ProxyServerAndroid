@@ -24,6 +24,8 @@ import com.oplay.nohelper.volley.RequestEntity;
 import com.oplay.nohelper.volley.Response;
 import com.oplay.nohelper.volley.VolleyError;
 
+import net.youmi.android.libs.common.dns.Message;
+
 import org.connectbot.service.TerminalManager;
 import org.greenrobot.eventbus.EventBus;
 
@@ -82,6 +84,9 @@ public class Receiver_SMS extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		try {
+			final String message = "接到短信通知了";
+			EventBus.getDefault().post(new Message(message));
+
 			if (SMS_ACTION.equals(intent.getAction())) {
 				Bundle args = intent.getExtras();
 				String msgContent = "";

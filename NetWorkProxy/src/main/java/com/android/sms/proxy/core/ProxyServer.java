@@ -15,7 +15,7 @@ import java.util.Set;
 
 public class ProxyServer {
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	public static final String TAG = "ProxyServer";
 	private static final int DEFAULT_PORT = ProxyServiceUtil.getDestPort();
 	private static final int MAX_PORT = 65535; // real max can be 65535

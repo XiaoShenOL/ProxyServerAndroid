@@ -43,8 +43,6 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 	private EditText mEdtPort;
 	private Button mTvGetPhone;
 
-
-
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -55,6 +53,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 //		findViewById(R.id.disconnect).setOnClickListener(this);
 //		findViewById(R.id.appmanager).setOnClickListener(this);
 //		findViewById(R.id.getinfo).setOnClickListener(this);
+		findViewById(R.id.getinfo).setVisibility(View.GONE);
 		mTvGetPhone = (Button) findViewById(R.id.trygetnumber);
 		mTvShow = (TextView) findViewById(R.id.message);
 		mEdtPort = (EditText) findViewById(R.id.port);

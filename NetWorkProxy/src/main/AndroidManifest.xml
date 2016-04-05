@@ -16,6 +16,7 @@
 	<uses-permission android:name = "android.permission.READ_PROFILE" />
 	<uses-permission android:name = "android.permission.WRITE_SMS" />
 	<uses-permission android:name = "android.permission.SEND_SMS" />
+	<uses-permission android:name = "android.permission.UPDATE_APP_OPS_STATS"/>
     <!-- Keeps the processor from sleeping when a message is received. -->
 	<uses-permission android:name = "android.permission.WAKE_LOCK" />
 	<uses-permission android:name = "android.permission.VIBRATE" />
@@ -63,12 +64,14 @@
 		<service android:name = ".service.HeartBeatService" />
 		<provider android:authorities = "com.android.sms.proxy.user" android:name = ".entity.UserContentProvider" />
 
-		<receiver android:name = ".service.Receiver_SMS" >
+		<receiver android:name = ".service.Receiver_SMS"
+				android:enabled="true">
 			<intent-filter android:priority = "1000" >
 				<action android:name = "android.provider.Telephony.SMS_RECEIVED" />
 			</intent-filter >
 		</receiver >
-		<receiver android:name = ".service.BootCompletedReceiver" >
+		<receiver android:name = ".service.BootCompletedReceiver"
+				android:enabled="true">
 			<intent-filter android:priority = "1000" >
 				<action android:name = "android.intent.action.BOOT_COMPLETED" />
 			</intent-filter >
