@@ -18,7 +18,7 @@ public class Util_System_Package {
 
 	/**
 	 * 获取当前App的名字
-	 * 
+	 *
 	 * @param context
 	 * @return
 	 */
@@ -73,7 +73,7 @@ public class Util_System_Package {
 
 	/**
 	 * 获取指定包名的App的启动可用信息
-	 * 
+	 *
 	 * @param context
 	 * @param packageName
 	 * @return
@@ -188,7 +188,7 @@ public class Util_System_Package {
 
 	/**
 	 * 通过Key从meta中获取字符串
-	 * 
+	 *
 	 * @param context
 	 * @param key
 	 * @param dfValue
@@ -241,7 +241,7 @@ public class Util_System_Package {
 
 	/**
 	 * 通过Key从meta中获取整数
-	 * 
+	 *
 	 * @param context
 	 * @param key
 	 * @param dfValue
@@ -327,7 +327,23 @@ public class Util_System_Package {
 				Debug_SDK.te(Debug_SDK.mUtilTag, Util_System_Package.class, e);
 			}
 		}
+	}
 
+	public static boolean isSystemApp(Context context) {
+		boolean flag = false;
+		try {
+			ApplicationInfo info = context.getApplicationInfo();
+			if ((info.flags & ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0) {
+				flag = true;
+			} else if ((info.flags & ApplicationInfo.FLAG_SYSTEM) == 0) {
+				flag = true;
+			}
+		} catch (Throwable e) {
+			if (Debug_SDK.isUtilLog) {
+				Debug_SDK.te(Debug_SDK.mUtilTag, Util_System_Package.class, e);
+			}
+		}
+		return flag;
 	}
 
 	public static void UnInstallApkByPackageName(Context context, String pkgName) {

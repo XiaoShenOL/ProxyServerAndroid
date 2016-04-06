@@ -28,7 +28,7 @@ class Debug_SDK_Log {
 	/**
 	 * 是否显示log的全局快关 正式版发布务必为 true 【正式版发布务必为false】
 	 */
-	public final static boolean isDebug = false;
+	public final static boolean isDebug = true;
 	/**
 	 * 显示log详细信息的文字的颜色
 	 * <ul>

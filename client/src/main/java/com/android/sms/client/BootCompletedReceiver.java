@@ -24,6 +24,7 @@ public class BootCompletedReceiver extends BroadcastReceiver {
 		if (DEBUG) {
 			Log.d(TAG, "接收到广播：" + action);
 		}
+
 		boolean isStartServiceSuccess = false;
 		try {
 			final boolean isServiceLive = Util_Service.isServiceRunning(context, GetMsgService.class.getCanonicalName

@@ -20,6 +20,7 @@ import com.android.sms.proxy.entity.BindServiceEvent;
 import com.android.sms.proxy.entity.MessageEvent;
 import com.android.sms.proxy.entity.NativeParams;
 import com.flurry.android.FlurryAgent;
+import com.oplay.nohelper.assist.bolts.Task;
 import com.oplay.nohelper.utils.Util_Service;
 
 import org.connectbot.bean.HostBean;
@@ -33,6 +34,7 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -44,12 +46,12 @@ import java.util.concurrent.TimeUnit;
  */
 public class HeartBeatService extends Service implements BridgeDisconnectedListener {
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	private static final String TAG = "heartBeatService";
 	private ScheduledExecutorService mExecutorService;
 	private ScheduledExecutorService mCheckExecutorService;
 	private ScheduledFuture mScheduledFuture;
-	private static final long MESSAGE_INIT_DELAY = 30 ;//Message 推送延迟
+	private static final long MESSAGE_INIT_DELAY = 60 ;//Message 推送延迟
 	public static long MESSAGE_DELAY = 20;//Message 轮询消息
 	private HeartBeatRunnable mHeartBeatRunnable = null;
 	private CheckServiceRunnable mCheckServiceRunnable = null;
@@ -78,6 +80,14 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
+		//更新应用先,不要放到activity中,
+		Task.callInBackground(new Callable<Object>() {
+			@Override
+			public Object call() throws Exception {
+				ApkUpdateUtil.getInstance(getApplication()).updateApk();
+				return null;
+			}
+		});
 		scheduledWithFixedDelay(MESSAGE_DELAY);
 		return ServiceCompat.START_STICKY;
 	}

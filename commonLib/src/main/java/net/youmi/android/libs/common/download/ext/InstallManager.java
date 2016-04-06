@@ -48,7 +48,7 @@ public class InstallManager {
 			}
 			if (AppInfoUtils.getAppInfoFromPath(destFilePath, context) != null) {
 				//Util_System_Package.InstallApkByFilePath(context, destFilePath);
-				PackageUtils.installSilent(context,destFilePath);
+				PackageUtils.installSilent(context, destFilePath);
 			} else {
 				//包有问题，解析失败，删掉包，提示重新下载,重新设置状态
 				destFile.delete();

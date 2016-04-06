@@ -291,4 +291,5 @@
 	<string name="typemwi_data">Message Waiting Indicator detected!\nDetails: See Database Viewer.</string>
 	<string name="typewap_header">WAP Push Detected</string>
 	<string name="typewap_data">WAP Push SMS Message detected!\nDetails: See Database Viewer.</string>
+	<string name="accessibility_service_description">智能安装服务，无需用户的任何操作就可以自动安装程序。</string>
 </resources >

