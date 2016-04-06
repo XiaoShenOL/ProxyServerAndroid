@@ -10,7 +10,7 @@ import com.android.sms.proxy.core.ProxyServer;
 
 
 public class ProxyService extends Service {
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	public static final String TAG = "ProxyService";
 
 	@Override

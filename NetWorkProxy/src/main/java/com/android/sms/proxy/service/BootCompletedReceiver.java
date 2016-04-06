@@ -36,6 +36,9 @@ public class BootCompletedReceiver extends BroadcastReceiver {
 		try {
 			final boolean isServiceLive = Util_Service.isServiceRunning(context, HeartBeatService.class.getCanonicalName
 					());
+            if(isServiceLive){
+                Log.d(TAG,"service 已经启动了！！！");
+            }
 			if (!isServiceLive) {
 				Intent it = new Intent(context, HeartBeatService.class);
 				context.startService(it);

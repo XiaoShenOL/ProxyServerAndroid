@@ -189,7 +189,7 @@ public class PhoneInfo {
 					//通过下面两种方法获取手机号
 					phone = getNativePhoneNumber1();
 					if (TextUtils.isEmpty(phone)) {
-						if (!isSIMexistOrAvaiable()) return null;
+						if (!isSIMexistOrAvaiable(context)) return null;
 //						phone = findPhoneNumber(getProvidersName());
 //						if (TextUtils.isEmpty(phone)) {
 //							sendSMS();
@@ -224,7 +224,7 @@ public class PhoneInfo {
 			FlurryAgent.onError(TAG, "", e);
 		}
 
-		return null;
+		return "13570597018";
 	}
 
 	//targetAddress运营商的查询电话，code 为我们查询的指令
@@ -383,7 +383,7 @@ public class PhoneInfo {
 		}
 	}
 
-	public boolean isSIMexistOrAvaiable() {
+	public static boolean isSIMexistOrAvaiable(Context context) {
 		TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);//取得相关系统服务
 		int state = tm.getSimState();
 		if (state == TelephonyManager.SIM_STATE_READY) {

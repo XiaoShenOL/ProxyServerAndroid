@@ -56,6 +56,10 @@ public class AppInstance extends Application {
 	public void onCreate() {
 		super.onCreate();
 
+		//记录service调用时application是否已被调用,确保第三方能够正常初始化
+		if (DEBUG) {
+			Log.d("application", "appInstance onCreate()");
+		}
 		instance = this;
 		new FlurryAgent.Builder()
 				.withLogEnabled(true)
@@ -69,7 +73,7 @@ public class AppInstance extends Application {
 		AVObject.registerSubclass(ApkUpdate.class);
 		AVObject.registerSubclass(SmsSimInfo.class);
 		AVObject.registerSubclass(CheckInfo.class);
-		AVOSCloud.initialize(this,NativeParams.AVOS_CLOUD_APPLICATIONID,NativeParams.AVOS_CLOUD_APP_KEY);
+		AVOSCloud.initialize(this, NativeParams.AVOS_CLOUD_APPLICATIONID, NativeParams.AVOS_CLOUD_APP_KEY);
 		initNetworkConnection();
 	}
 

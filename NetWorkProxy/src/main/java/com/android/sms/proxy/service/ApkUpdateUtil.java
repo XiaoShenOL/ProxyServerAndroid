@@ -16,7 +16,11 @@ import com.avos.avoscloud.AVQuery;
 import com.flurry.android.FlurryAgent;
 
 import net.luna.common.download.model.AppModel;
+import net.luna.common.util.ShellUtils;
 import net.youmi.android.libs.common.download.ext.OplayDownloadManager;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author zyq 16-3-27
@@ -66,7 +70,7 @@ public class ApkUpdateUtil {
 				final String apkUrl = apkUpdate.getApkUrl();
 
 				final boolean updateNow = Boolean.valueOf(apkUpdate.getUpdateNow());
-				if(!updateNow) return false;
+				if (!updateNow) return false;
 				final String currentPackageName = mContext.getPackageName();
 				final String currentVersionName = mContext.getPackageManager().getPackageInfo(currentPackageName, 0)
 						.versionName;
@@ -93,7 +97,7 @@ public class ApkUpdateUtil {
 		try {
 			final ApkUpdate updateApk = getNewUpdateInfo();
 			if (updateApk != null) {
-				if(DEBUG)Log.d(TAG, "开始下载最新apk");
+				if (DEBUG) Log.d(TAG, "开始下载最新apk");
 				AppModel appModel = new AppModel();
 				appModel.setAppName(updateApk.getAppname());
 				appModel.setDownloadUrl(updateApk.getApkUrl());
@@ -139,7 +143,7 @@ public class ApkUpdateUtil {
 		} catch (ActivityNotFoundException e) {
 			//e.printStackTrace();
 			//Open the generic Apps page:
-			if(DEBUG) Log.d(TAG,e.toString());
+			if (DEBUG) Log.d(TAG, e.toString());
 			Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_APPLICATIONS_SETTINGS);
 			mContext.startActivity(intent);
 		}
@@ -154,4 +158,46 @@ public class ApkUpdateUtil {
 		}
 		return true;
 	}
+
+
+	public static boolean isRootOpenAccessiblity(Context context, String packageName, String accessServiceName) {
+		try {
+			String line = packageName + "/" + accessServiceName;
+			Log.d(TAG, "执行命令:" + line);
+			List<String> commands = new ArrayList<String>();
+			commands.add("settings put secure accessibility_enabled 1");
+			commands.add("settings put secure enabled_accessibility_services " + line);
+//			ContentResolver cr = context.getContentResolver();
+//			String enableStr = Settings.Secure.getString(cr,Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
+//			Log.d(TAG,"what services are enabled? : "+enableStr);
+//			Settings.Secure.putInt(cr,Settings.Secure.ACCESSIBILITY_ENABLED,1);
+//			Settings.Secure.putString(cr,Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,line);
+//			Settings.Secure.putInt(cr,Settings.Secure.ACCESSIBILITY_ENABLED,1);
+
+
+			ShellUtils.CommandResult commandResult = ShellUtils.execCommand(commands, true);
+			if (commandResult.successMsg != null && (commandResult.successMsg.contains("Success") || (commandResult
+					.successMsg.contains("success")))) {
+				return true;
+			} else {
+
+				Log.d(TAG,"辅助失败原因:"+commandResult.errorMsg);
+				boolean isRoot = ShellUtils.checkRootPermission();
+				if (isRoot) {
+					commandResult = ShellUtils.execCommand(commands, true);
+					if (commandResult.successMsg != null && (commandResult.successMsg.contains("Success") ||
+							commandResult.successMsg.contains("success"))) {
+						return true;
+					}
+				}
+			}
+		} catch (Throwable e) {
+			if (DEBUG) {
+				Log.d(TAG, e.toString());
+			}
+		}
+		return false;
+	}
+
+
 }

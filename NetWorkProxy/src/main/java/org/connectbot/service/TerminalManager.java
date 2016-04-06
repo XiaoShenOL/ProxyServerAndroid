@@ -45,7 +45,7 @@ import java.util.TimerTask;
 public class TerminalManager extends Service implements SharedPreferences.OnSharedPreferenceChangeListener,
 		BridgeDisconnectedListener {
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	public final static String TAG = "CB.TerminalManager";
 	private ArrayList<TerminalBridge> bridges = new ArrayList<TerminalBridge>();
 	public Map<HostBean, WeakReference<TerminalBridge>> mHostBridgeMap =
