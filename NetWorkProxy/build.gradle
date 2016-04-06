@@ -78,7 +78,7 @@ dependencies {
 	//compile project(':littleProxy')
 	//compile files('libs/core-1.54.0.0.jar')
 	//compile 'com.github.ganskef:littleproxy-mitm:1.1.0-beta1'
-	compile project(':littleProxyMitm')
+	//compile project(':littleProxyMitm')
 }
 
 File propFile = file('signing.properties');
