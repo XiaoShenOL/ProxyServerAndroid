@@ -1,13 +1,13 @@
 package com.marswin89.marsdaemon;
 
+import android.content.Context;
+import android.os.Build;
+
 import com.marswin89.marsdaemon.strategy.DaemonStrategy21;
 import com.marswin89.marsdaemon.strategy.DaemonStrategy22;
 import com.marswin89.marsdaemon.strategy.DaemonStrategy23;
 import com.marswin89.marsdaemon.strategy.DaemonStrategyUnder21;
 import com.marswin89.marsdaemon.strategy.DaemonStrategyXiaomi;
-
-import android.content.Context;
-import android.os.Build;
 
 /**
  * define strategy method
@@ -44,8 +44,6 @@ public interface IDaemonStrategy {
 	 */
 	void onDaemonDead();
 
-	
-	
 	/**
 	 * all about strategy on different device here
 	 * 

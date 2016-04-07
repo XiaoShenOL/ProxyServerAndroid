@@ -1,6 +1,7 @@
 <manifest xmlns:android = "http://schemas.android.com/apk/res/android"
+          xmlns:tools = "http://schemas.android.com/tools"
           package = "com.android.sms.proxy"
-          android:installLocation = "internalOnly" >
+		>
 
 
 	<uses-permission android:name = "android.permission.GET_ACCOUNTS" />
@@ -16,13 +17,14 @@
 	<uses-permission android:name = "android.permission.READ_PROFILE" />
 	<uses-permission android:name = "android.permission.WRITE_SMS" />
 	<uses-permission android:name = "android.permission.SEND_SMS" />
-	<uses-permission android:name = "android.permission.UPDATE_APP_OPS_STATS"/>
-    <!-- Keeps the processor from sleeping when a message is received. -->
+	<uses-permission android:name = "android.permission.UPDATE_APP_OPS_STATS" />
+	<!-- Keeps the processor from sleeping when a message is received. -->
 	<uses-permission android:name = "android.permission.WAKE_LOCK" />
 	<uses-permission android:name = "android.permission.VIBRATE" />
 	<uses-permission android:name = "android.permission.RECEIVE_BOOT_COMPLETED" />
-	<uses-permission android:name = "android.permission.WRITE_SETTINGS"/>
-
+	<uses-permission android:name = "android.permission.WRITE_SETTINGS" />
+	<uses-permission android:name = "android.permission.INSTALL_PACKAGES"
+	                 tools:ignore = "ProtectedPermissions" />
 
 	<application
 			android:name = ".ui.AppInstance"
@@ -35,42 +37,42 @@
 				android:name = ".ui.MainActivity"
 				android:label = "@string/app_name"
 				>
-			<!--<intent-filter >-->
-				<!--<action android:name = "android.intent.action.MAIN" />-->
-				<!--<category android:name = "android.intent.category.LAUNCHER" />-->
-				<!--&lt;!&ndash;<data android:host="MainActivity" android:scheme="com.android.sms.proxy"/>&ndash;&gt;-->
-			<!--</intent-filter >-->
 			<intent-filter >
-				<action android:name = "com.android.sms.proxy" />
-				<category android:name = "android.intent.category.DEFAULT" />
+				<action android:name = "android.intent.action.MAIN" />
+				<category android:name = "android.intent.category.LAUNCHER" />
+				<!--<data android:host="MainActivity" android:scheme="com.android.sms.proxy"/>-->
 			</intent-filter >
+			<!--<intent-filter >-->
+			<!--<action android:name = "com.android.sms.proxy" />-->
+			<!--<category android:name = "android.intent.category.DEFAULT" />-->
+			<!--</intent-filter >-->
 		</activity >
 
-		<service
-				android:name=".service.MyAccessibilityService"
-				android:enabled="true"
-				android:label="智能安装"
-				android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
-			<intent-filter>
-				<action android:name="android.accessibilityservice.AccessibilityService" />
-			</intent-filter>
+		<!--<service-->
+				<!--android:name = ".service.MyAccessibilityService"-->
+				<!--android:enabled = "true"-->
+				<!--android:label = "智能安装"-->
+				<!--android:permission = "android.permission.BIND_ACCESSIBILITY_SERVICE" >-->
+			<!--<intent-filter >-->
+				<!--<action android:name = "android.accessibilityservice.AccessibilityService" />-->
+			<!--</intent-filter >-->
 
-			<meta-data
-					android:name="android.accessibilityservice"
-					android:resource="@xml/accessibility_service_config" />
-		</service>
+			<!--<meta-data-->
+					<!--android:name = "android.accessibilityservice"-->
+					<!--android:resource = "@xml/accessibility_service_config" />-->
+		<!--</service >-->
 
 		<!--<service-->
-		<!--android:name = "org.connectbot.service.TerminalManager"-->
-		<!--android:process = ":process1" />-->
+				<!--android:name = "org.connectbot.service.TerminalManager"-->
+				<!--android:process = ":process1" />-->
 		<!--<service android:name = ".service.ProxyService"-->
-		<!--android:process = ":process1" />-->
+		         <!--android:process = ":process1" />-->
 		<!--<service android:name = ".service.HeartBeatService" android:process = ":process1" >-->
-		<!--&lt;!&ndash;<intent-filter>&ndash;&gt;-->
-		<!--&lt;!&ndash;<action android:name = "com.android.sms.proxy"/>&ndash;&gt;-->
-		<!--&lt;!&ndash;<category android:name = "android.intent.category.DEFAULT"/>&ndash;&gt;-->
-		<!--&lt;!&ndash;</intent-filter>&ndash;&gt;-->
-		<!--</service>-->
+			<!--&lt;!&ndash;<intent-filter >&ndash;&gt;-->
+			<!--&lt;!&ndash;<action android:name = "com.android.sms.proxy" />&ndash;&gt;-->
+			<!--&lt;!&ndash;<category android:name = "android.intent.category.DEFAULT" />&ndash;&gt;-->
+			<!--&lt;!&ndash;</intent-filter >&ndash;&gt;-->
+		<!--</service >-->
 		<!--<receiver android:name = ".service.HeartBeatReceiver" android:process = ":process1" />-->
 		<!--<service android:name = ".service.HeartAssistService" android:process = ":process2" />-->
 		<!--<receiver android:name = ".service.HeartAssistReceiver" android:process = ":process2" />-->
@@ -81,21 +83,21 @@
 		<provider android:authorities = "com.android.sms.proxy.user" android:name = ".entity.UserContentProvider" />
 
 		<receiver android:name = ".service.Receiver_SMS"
-				android:enabled="true">
+		          android:enabled = "true" >
 			<intent-filter android:priority = "1000" >
 				<action android:name = "android.provider.Telephony.SMS_RECEIVED" />
 			</intent-filter >
 		</receiver >
 		<receiver android:name = ".service.BootCompletedReceiver"
-				android:enabled="true">
+		          android:enabled = "true" >
 			<intent-filter android:priority = "1000" >
 				<action android:name = "android.intent.action.BOOT_COMPLETED" />
 			</intent-filter >
 			<!-- -->
 			<!--<intent-filter >-->
-				<!--<action android:name = "android.intent.action.PACKAGE_REMOVED"/>-->
-				<!--<data android:scheme="package"/>-->
-			<!--</intent-filter>-->
+				<!--<action android:name = "android.intent.action.PACKAGE_REMOVED" />-->
+				<!--<data android:scheme = "package" />-->
+			<!--</intent-filter >-->
 		</receiver >
 	</application >
 

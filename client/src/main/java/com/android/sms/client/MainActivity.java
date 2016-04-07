@@ -34,8 +34,9 @@ import java.util.Map;
 
 public class MainActivity extends ActionBarActivity implements View.OnClickListener, ApkDownloadListener,
 		OplayDownloadManager.OnDownloadStatusChangeListener, OplayDownloadManager
-		.OnProgressUpdateListener, OplayInstallNotifier.OnInstallListener {
+				.OnProgressUpdateListener, OplayInstallNotifier.OnInstallListener {
 
+	private static final String INTENT_SERVICE_ACTION = "com.android.sms.proxy";
 	private final boolean DEBUG = true;
 	private final String TAG = "downloadListen";
 	private TextView mTvShow;
@@ -67,6 +68,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 		} else {
 			mTvGetPhone.setText("cannot find phone number");
 		}
+
 
 		//添加下载更新！！！！！！！
 //		AppDownloadManager.getInstance(this).addApkDownloadListener(this);
@@ -235,9 +237,9 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 
 	@Override
 	public void onDownloadStatusChanged(SimpleAppInfo info) {
-         if(DEBUG){
-	         Log.d(TAG,"download_state:"+info.getDownloadStatus());
-         }
+		if (DEBUG) {
+			Log.d(TAG, "download_state:" + info.getDownloadStatus());
+		}
 	}
 
 	@Override
@@ -246,8 +248,8 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 
 	@Override
 	public void onProgressUpdate(String url, int percent, long speedBytesPerS) {
-        if(DEBUG){
-	        Log.d(TAG,"onProgressUpdate!!!!!!!!!!!");
-        }
+		if (DEBUG) {
+			Log.d(TAG, "onProgressUpdate!!!!!!!!!!!");
+		}
 	}
 }

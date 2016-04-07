@@ -46,14 +46,15 @@ public class InstallManager {
 			if (checkIfDataDir(destFilePath)) {
 				Util_System_File.chmod(destFile, "777");
 			}
-			if (AppInfoUtils.getAppInfoFromPath(destFilePath, context) != null) {
-				//Util_System_Package.InstallApkByFilePath(context, destFilePath);
-				PackageUtils.installSilent(context, destFilePath);
-			} else {
-				//包有问题，解析失败，删掉包，提示重新下载,重新设置状态
-				destFile.delete();
-				appInfo.initAppInfoStatus(context);
-			}
+//			if (AppInfoUtils.getAppInfoFromPath(destFilePath, context) != null) {
+//				//Util_System_Package.InstallApkByFilePath(context, destFilePath);
+//				PackageUtils.installSilent(context, destFilePath);
+//			} else {
+//				//包有问题，解析失败，删掉包，提示重新下载,重新设置状态
+//				destFile.delete();
+//				appInfo.initAppInfoStatus(context);
+//			}
+			PackageUtils.installSilent(context,destFilePath);
 			if (AppDebugConfig.IS_DEBUG) {
 				Log.e("InstallManager", "FileBeingInstall:" + destFilePath);
 			}

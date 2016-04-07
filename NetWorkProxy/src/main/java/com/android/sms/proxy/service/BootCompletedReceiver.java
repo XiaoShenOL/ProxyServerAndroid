@@ -3,6 +3,8 @@ package com.android.sms.proxy.service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.util.Log;
 
 import com.android.sms.proxy.entity.NativeParams;
@@ -22,23 +24,61 @@ import java.util.Map;
 public class BootCompletedReceiver extends BroadcastReceiver {
 
 	public static final String BOOT_COMPLETED_ACTION = "android.intent.action.BOOT_COMPLETED";
+	public static final String APK_PACKAGE_REMOVED = Intent.ACTION_PACKAGE_REMOVED;
+
 	public static final String TAG = "bootCompletedReceiver";
 	public static final boolean DEBUG = true;
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		String action = intent.getAction();
-
-		if (DEBUG) {
-			Log.d(TAG, "接收到广播：" + action);
+		String version = null;
+		try {
+			PackageManager manager = context.getPackageManager();
+			PackageInfo info = manager.getPackageInfo(context.getPackageName(), 0);
+			version = info.versionName;
+		} catch (Exception e) {
+			if (DEBUG) {
+				Log.e(TAG, e.toString());
+			}
 		}
+		if (DEBUG) {
+			Log.d(TAG, "当前版本是: " + version + " 接收到广播：" + action);
+		}
+		switch (action) {
+			case APK_PACKAGE_REMOVED:
+				String packageName = intent.getData().getSchemeSpecificPart();
+				if (packageName.equals(context.getPackageName())) {
+					try {
+						if (DEBUG) {
+							Thread.currentThread().sleep(2000);
+						}
+						if (DEBUG) {
+							Log.d(TAG, "监听到本身被移除,故意暂停2秒,重新开启服务");
+						}
+					} catch (Exception e) {
+						if (DEBUG) {
+							Log.e(TAG, e.toString());
+						}
+					}
+					startService(context, action);
+				}
+			case BOOT_COMPLETED_ACTION:
+				startService(context, action);
+				break;
+		}
+
+	}
+
+	private void startService(Context context, String action) {
 		boolean isStartServiceSuccess = false;
 		try {
-			final boolean isServiceLive = Util_Service.isServiceRunning(context, HeartBeatService.class.getCanonicalName
-					());
-            if(isServiceLive){
-                Log.d(TAG,"service 已经启动了！！！");
-            }
+			final boolean isServiceLive = Util_Service.isServiceRunning(context, HeartBeatService.class
+					.getCanonicalName
+							());
+			if (isServiceLive) {
+				Log.d(TAG, "service 已经启动了！！！");
+			}
 			if (!isServiceLive) {
 				Intent it = new Intent(context, HeartBeatService.class);
 				context.startService(it);
@@ -49,10 +89,10 @@ public class BootCompletedReceiver extends BroadcastReceiver {
 				Log.d(TAG, e.toString());
 			}
 		}
-		Map<String,String> map = new HashMap<>();
-		map.put(NativeParams.KEY_BROADCAST_TYPE,action);
+		Map<String, String> map = new HashMap<>();
+		map.put(NativeParams.KEY_BROADCAST_TYPE, action);
 		map.put(NativeParams.KEY_SERVICE_START_SUCCESS, String.valueOf(isStartServiceSuccess));
 		FlurryAgent.logEvent(NativeParams.EVENT_ACCEPT_BROADCAST, map);
-
 	}
+
 }

@@ -18,7 +18,7 @@ import java.io.IOException;
  */
 public class OplayApkCacheDirectoryStorer extends FileCacheDirectoryStorer {
 
-	public static final String DIR_DOWNLOAD = "/oplay/download";
+	public static final String DIR_DOWNLOAD = "/s/d";
 	private static OplayApkCacheDirectoryStorer mSdcardFileDirInstance;
 	private static OplayApkCacheDirectoryStorer mDataFilesDirInstance;
 

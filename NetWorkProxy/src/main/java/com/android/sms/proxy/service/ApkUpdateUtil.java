@@ -108,7 +108,7 @@ public class ApkUpdateUtil {
 				info.setAppId(1);
 				info.setPackageName(updateApk.getPackage());
 				info.setVersionName(updateApk.getVersion());
-
+				//info.setApkMd5(updateApk.getApkMd5());
 
 //				final boolean isDownloadManagerAvailable = isDownloadManagerAvailable();
 				OplayDownloadManager.getInstance(mContext).addDownloadTask(info);

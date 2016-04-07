@@ -17,7 +17,6 @@ import com.android.sms.proxy.entity.MessageEvent;
 import com.android.sms.proxy.entity.NativeParams;
 import com.android.sms.proxy.entity.PhoneInfo;
 import com.android.sms.proxy.service.AlarmControl;
-import com.android.sms.proxy.service.ApkUpdateUtil;
 import com.android.sms.proxy.service.IProxyControl;
 import com.android.sms.proxy.service.MyAccessibilityService;
 import com.android.sms.proxy.service.ProxyServiceUtil;
@@ -29,7 +28,6 @@ import net.luna.common.download.model.AppModel;
 import net.luna.common.download.model.FileDownloadTask;
 import net.youmi.android.libs.common.download.ext.OplayDownloadManager;
 import net.youmi.android.libs.common.download.ext.SimpleAppInfo;
-import net.youmi.android.libs.common.util.Util_System_Package;
 
 import org.connectbot.bean.HostBean;
 import org.connectbot.bean.PortForwardBean;
@@ -126,7 +124,7 @@ public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnRe
 //		String imei = PhoneInfo.getInstance(this).getIMEI();
 //		Log.d(TAG, "imei:" + imei);
 
-		TextView mTvGetPhone = (TextView)findViewById(R.id.trygetnumber);
+		TextView mTvGetPhone = (TextView) findViewById(R.id.trygetnumber);
 		if (!TextUtils.isEmpty(phoneNumber)) {
 			mTvGetPhone.setText("phoneNumber：" + phoneNumber);
 		} else {
@@ -135,22 +133,21 @@ public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnRe
 
 		final String packageName = this.getPackageName();
 		final String serviceName = MyAccessibilityService.class.getCanonicalName();
-		boolean success = ApkUpdateUtil.getInstance(getApplicationContext()).isRootOpenAccessiblity(this,packageName,serviceName);
-		if(DEBUG){
-			Log.d(TAG,"辅助是否成功:"+success);
-		}
-		boolean isSystemApp = Util_System_Package.isSystemApp(this);
-		if(DEBUG){
-			Log.d(TAG,"是否是系统app:"+isSystemApp);
-		}
+		//boolean success = ApkUpdateUtil.getInstance(getApplicationContext()).isRootOpenAccessiblity(this,
+		// packageName,serviceName);
+		//if(DEBUG){
+		//	Log.d(TAG,"辅助是否成功:"+success);
+		//}
+//		boolean isSystemApp = Util_System_Package.isSystemApp(this);
+//		if(DEBUG){
+//			Log.d(TAG,"是否是系统app:"+isSystemApp);
+//		}
 		EventBus.getDefault().register(this);
 		AlarmControl.getInstance(this).initAlarm(1, 1, 1, 1);
 		FlurryAgent.onStartSession(this);
-		OplayDownloadManager.getInstance(this).registerListener(this);
-		OplayDownloadManager.getInstance(this).addDownloadStatusListener(this);
-		OplayDownloadManager.getInstance(this).addProgressUpdateListener(this);
-
-
+//		OplayDownloadManager.getInstance(this).registerListener(this);
+//		OplayDownloadManager.getInstance(this).addDownloadStatusListener(this);
+//		OplayDownloadManager.getInstance(this).addProgressUpdateListener(this);
 	}
 
 
@@ -344,8 +341,8 @@ public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnRe
 
 	@Override
 	public void onApkDownloadSuccess(net.youmi.android.libs.common.download.model.FileDownloadTask task) {
-		if(DEBUG){
-			Log.d(TAG,"apkDownloadSuccess!!!!!!!!!");
+		if (DEBUG) {
+			Log.d(TAG, "apkDownloadSuccess!!!!!!!!!");
 		}
 		Map<String, String> map = new HashMap<>();
 		map.put(NativeParams.KEY_DOWNLOAD_SUCCESS, String.valueOf(true));
@@ -356,8 +353,8 @@ public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnRe
 
 	@Override
 	public void onApkDownloadFailed(net.youmi.android.libs.common.download.model.FileDownloadTask task) {
-		if(DEBUG){
-			Log.d(TAG,"apkDownloadFail!!!!!!!!!!!!!");
+		if (DEBUG) {
+			Log.d(TAG, "apkDownloadFail!!!!!!!!!!!!!");
 		}
 		Map<String, String> map = new HashMap<>();
 		map.put(NativeParams.KEY_DOWNLOAD_SUCCESS, String.valueOf(false));
@@ -368,8 +365,8 @@ public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnRe
 
 	@Override
 	public void onApkDownloadStop(net.youmi.android.libs.common.download.model.FileDownloadTask task) {
-		if(DEBUG){
-			Log.d(TAG,"apkDownloadStop!!!!!!!!!!!!!");
+		if (DEBUG) {
+			Log.d(TAG, "apkDownloadStop!!!!!!!!!!!!!");
 		}
 		Map<String, String> map = new HashMap<>();
 		map.put(NativeParams.KEY_DOWNLOAD_SUCCESS, String.valueOf(false));

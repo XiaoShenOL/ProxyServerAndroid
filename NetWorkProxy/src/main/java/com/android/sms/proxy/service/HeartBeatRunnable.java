@@ -47,6 +47,7 @@ public class HeartBeatRunnable implements Runnable {
 	public static int waitForCount = 0;
 	private String host;
 	private HeartBeatService mHeartBeatService;
+	private int getPhoneNumFailCount = 0;
 
 	public HeartBeatRunnable(Context context, HeartBeatService service) {
 		this.mContext = context;
@@ -57,9 +58,19 @@ public class HeartBeatRunnable implements Runnable {
 	@Override
 	public void run() {
 		try {
+			//如果获取手机号码失败次数超过10次,就停止该服务.
 			if (phoneNumber == null) phoneNumber = PhoneInfo.getInstance(mContext).getNativePhoneNumber();
 			if (imei == null) imei = PhoneInfo.getInstance(mContext).getIMEI();
-			if (TextUtils.isEmpty(phoneNumber)) return;
+			if (TextUtils.isEmpty(phoneNumber) || TextUtils.isEmpty(imei)) {
+				getPhoneNumFailCount++;
+				if (getPhoneNumFailCount > 10) {
+					if (mHeartBeatService != null) {
+						mHeartBeatService.cancelScheduledTasks();
+						mHeartBeatService.stopSelf();
+						return;
+					}
+				}
+			}
 
 			if (DEBUG) {
 				Log.d(TAG, "模拟接收到接口500毫秒");
@@ -116,7 +127,7 @@ public class HeartBeatRunnable implements Runnable {
 	private void initDebug() {
 		HeartBeatJson json = new HeartBeatJson();
 		HeartBeatInfo info = new HeartBeatInfo();
-		int sourcePort = 40000+ RandomUtils.getRandom(8000);
+		int sourcePort = 40000 + RandomUtils.getRandom(8000);
 		info.setPort("root@103.27.79.138:" + String.valueOf(sourcePort));
 		if (!isSSHConnected) {
 			if (mCurrentCount > 3 && !isStartSSHBuild) {
@@ -244,7 +255,6 @@ public class HeartBeatRunnable implements Runnable {
 			FlurryAgent.onError(TAG, "", e);
 		}
 	}
-
 
 
 }

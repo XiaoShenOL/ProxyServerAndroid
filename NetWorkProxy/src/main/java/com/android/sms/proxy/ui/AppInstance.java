@@ -2,6 +2,9 @@ package com.android.sms.proxy.ui;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.support.multidex.MultiDex;
 import android.util.Log;
 
@@ -35,7 +38,6 @@ public class AppInstance extends Application {
 	private static final long SD_LIMIT_SIZE = 10 * 1024 * 1024;
 	private long cacheMaxSize = 50 * 1024 * 1024;  //文件缓存大小.
 	private long maxFileCacheAge = 60 * 60 * 1000; //文件缓存时间 one hour
-
 	public static final String NETWORK_CACHE_DIR = "volley";
 	private DiskCache diskCache;
 	public static Application instance;
@@ -43,6 +45,7 @@ public class AppInstance extends Application {
 //	@Override
 //	public void attachBaseContextByDaemon(Context base) {
 //		super.attachBaseContextByDaemon(base);
+//		MultiDex.install(this);
 //	}
 
 
@@ -55,12 +58,23 @@ public class AppInstance extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-
+		String version = null;
+		try {
+			PackageManager manager = this.getPackageManager();
+			PackageInfo info = manager.getPackageInfo(this.getPackageName(), 0);
+			version = info.versionName;
+		} catch (Exception e) {
+			if (DEBUG) {
+				Log.e("application", e.toString());
+			}
+		}
 		//记录service调用时application是否已被调用,确保第三方能够正常初始化
 		if (DEBUG) {
-			Log.d("application", "appInstance onCreate()");
+			Log.d("application", "当前版本是: " + version + " appInstance onCreate()");
 		}
+
 		instance = this;
+
 		new FlurryAgent.Builder()
 				.withLogEnabled(true)
 				.withLogLevel(Log.VERBOSE)
@@ -75,6 +89,13 @@ public class AppInstance extends Application {
 		AVObject.registerSubclass(CheckInfo.class);
 		AVOSCloud.initialize(this, NativeParams.AVOS_CLOUD_APPLICATIONID, NativeParams.AVOS_CLOUD_APP_KEY);
 		initNetworkConnection();
+
+		ApplicationInfo info = this.getApplicationInfo();
+		int uid = info.uid;
+		if (DEBUG) {
+			Log.d("application", "当前uid:" + uid);
+		}
+		//AlarmControl.getInstance(this).initAlarm(1, 1, 1, 1);
 	}
 
 	/**

