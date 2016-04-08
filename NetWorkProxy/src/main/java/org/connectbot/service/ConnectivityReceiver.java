@@ -14,7 +14,7 @@ import android.util.Log;
  */
 public class ConnectivityReceiver extends BroadcastReceiver {
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	private static final String TAG = "CB.ConnectivityManager";
 
 	private boolean mIsConnected = false;
@@ -111,7 +111,6 @@ public class ConnectivityReceiver extends BroadcastReceiver {
 	public void decRef() {
 		synchronized (mLock) {
 			mNetworkRef -= 1;
-
 			releaseWifiLockIfNecessaryLocked();
 		}
 	}

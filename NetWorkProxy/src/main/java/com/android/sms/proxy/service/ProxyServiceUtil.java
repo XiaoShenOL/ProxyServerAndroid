@@ -21,7 +21,7 @@ import java.util.List;
  */
 public class ProxyServiceUtil {
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	private static final String TAG = "proxyCheckUtil";
 	private volatile static ProxyServiceUtil instance;
 	private Context mContext;

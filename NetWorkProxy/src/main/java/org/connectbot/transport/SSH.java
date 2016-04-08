@@ -58,7 +58,7 @@ public class SSH extends AbsTransport implements ConnectionMonitor, InteractiveC
 	}
 
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	private static final String PROTOCOL = "ssh";
 	private static final String TAG = "CB.SSH";
 	private static final int DEFAULT_PORT = 22;

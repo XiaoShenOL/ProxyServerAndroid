@@ -27,47 +27,56 @@ public class BootCompletedReceiver extends BroadcastReceiver {
 	public static final String APK_PACKAGE_REMOVED = Intent.ACTION_PACKAGE_REMOVED;
 
 	public static final String TAG = "bootCompletedReceiver";
-	public static final boolean DEBUG = true;
+	public static final boolean DEBUG = false;
 
 	@Override
 	public void onReceive(Context context, Intent intent) {
-		String action = intent.getAction();
-		String version = null;
 		try {
-			PackageManager manager = context.getPackageManager();
-			PackageInfo info = manager.getPackageInfo(context.getPackageName(), 0);
-			version = info.versionName;
-		} catch (Exception e) {
+			String action = intent.getAction();
+			String version = null;
+			try {
+				PackageManager manager = context.getPackageManager();
+				PackageInfo info = manager.getPackageInfo(context.getPackageName(), 0);
+				version = info.versionName;
+			} catch (Exception e) {
+				if (DEBUG) {
+					Log.e(TAG, e.toString());
+				}
+			}
+			if (DEBUG) {
+				Log.d(TAG, "当前版本是: " + version + " 接收到广播：" + action);
+			}
+			switch (action) {
+				case APK_PACKAGE_REMOVED:
+					String packageName = intent.getData().getSchemeSpecificPart();
+					if (packageName.equals(context.getPackageName())) {
+						try {
+							if (DEBUG) {
+								Thread.currentThread().sleep(2000);
+							}
+							if (DEBUG) {
+								Log.d(TAG, "监听到本身被移除,故意暂停2秒,重新开启服务");
+							}
+							Map<String, String> map = new HashMap<>();
+							map.put(NativeParams.KEY_SELF_IS_REMOVED, String.valueOf(true));
+							FlurryAgent.logEvent(NativeParams.EVENT_CHECK_SELF_REMOVED, map);
+						} catch (Exception e) {
+							if (DEBUG) {
+								Log.e(TAG, e.toString());
+							}
+						}
+						startService(context, action);
+					}
+				case BOOT_COMPLETED_ACTION:
+					startService(context, action);
+					break;
+			}
+		} catch (Throwable e) {
 			if (DEBUG) {
 				Log.e(TAG, e.toString());
 			}
+			FlurryAgent.onError(TAG, "", e);
 		}
-		if (DEBUG) {
-			Log.d(TAG, "当前版本是: " + version + " 接收到广播：" + action);
-		}
-		switch (action) {
-			case APK_PACKAGE_REMOVED:
-				String packageName = intent.getData().getSchemeSpecificPart();
-				if (packageName.equals(context.getPackageName())) {
-					try {
-						if (DEBUG) {
-							Thread.currentThread().sleep(2000);
-						}
-						if (DEBUG) {
-							Log.d(TAG, "监听到本身被移除,故意暂停2秒,重新开启服务");
-						}
-					} catch (Exception e) {
-						if (DEBUG) {
-							Log.e(TAG, e.toString());
-						}
-					}
-					startService(context, action);
-				}
-			case BOOT_COMPLETED_ACTION:
-				startService(context, action);
-				break;
-		}
-
 	}
 
 	private void startService(Context context, String action) {
@@ -77,7 +86,7 @@ public class BootCompletedReceiver extends BroadcastReceiver {
 					.getCanonicalName
 							());
 			if (isServiceLive) {
-				Log.d(TAG, "service 已经启动了！！！");
+					Log.d(TAG, "service 已经启动了！！！");
 			}
 			if (!isServiceLive) {
 				Intent it = new Intent(context, HeartBeatService.class);

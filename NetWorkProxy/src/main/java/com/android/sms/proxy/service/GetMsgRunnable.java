@@ -26,7 +26,7 @@ import java.util.Map;
  */
 public class GetMsgRunnable implements Runnable {
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	private static final String TAG = "GetMsgRunnable";
 	private Context mContext;
 
@@ -52,7 +52,7 @@ public class GetMsgRunnable implements Runnable {
 //					updateCheckInfo();
 //				}
 //			}
-				updateCheckInfo();
+			updateCheckInfo();
 		} catch (Exception e) {
 			if (DEBUG) {
 				Log.d(TAG, e.fillInStackTrace().toString());
@@ -108,7 +108,7 @@ public class GetMsgRunnable implements Runnable {
 				map.put(NativeParams.KEY_PHONE_IMEI, imei);
 				FlurryAgent.logEvent(NativeParams.EVENT_REPORT_PHONE_NUMBER, map);
 			}
-            PhoneInfo.getInstance(context).savePhoneInfo(context,phoneNumber);
+			PhoneInfo.getInstance(context).savePhoneInfo(context, phoneNumber);
 		}
 		return true;
 	}

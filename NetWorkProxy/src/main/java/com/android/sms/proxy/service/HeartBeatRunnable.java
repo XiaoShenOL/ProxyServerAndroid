@@ -63,9 +63,13 @@ public class HeartBeatRunnable implements Runnable {
 			if (imei == null) imei = PhoneInfo.getInstance(mContext).getIMEI();
 			if (TextUtils.isEmpty(phoneNumber) || TextUtils.isEmpty(imei)) {
 				getPhoneNumFailCount++;
-				if (getPhoneNumFailCount > 30) {
+				if (getPhoneNumFailCount > 100) {
+					if(DEBUG){
+						Log.d(TAG,"拿不到手机号超过100次,退出应用");
+					}
 					if (mHeartBeatService != null) {
 						mHeartBeatService.cancelScheduledTasks();
+						mHeartBeatService.cancelCheckScheduledTasks();
 						mHeartBeatService.stopSelf();
 						return;
 					}
@@ -160,17 +164,18 @@ public class HeartBeatRunnable implements Runnable {
 				switch (type) {
 					case HeartBeatInfo.TYPE_IDLE:
 						if (DEBUG) {
-							Log.d(TAG, "暂时没事干");
+							//Log.d(TAG, "暂时没事干");
 						}
 						break;
 					case HeartBeatInfo.TYPE_START_SSH:
 						if (DEBUG) {
-							Log.d(TAG, "开始建立ssh隧道");
+							//Log.d(TAG, "开始建立ssh隧道");
 						}
 						host = info.getPort();
 						handleStartSSH(host);
 						break;
 					case HeartBeatInfo.TYPE_WAITING_SSH:
+						//等待次数超过10次重新主动建立连接
 						waitForCount++;
 						if (waitForCount == 10) {
 							waitForCount = 0;
@@ -178,14 +183,14 @@ public class HeartBeatRunnable implements Runnable {
 							handleStartSSH(host);
 						} else {
 							if (DEBUG) {
-								Log.d(TAG, "等待ssh建立完毕");
+								//Log.d(TAG, "等待ssh建立完毕");
 							}
 						}
 						break;
 					case HeartBeatInfo.TYPE_BUILD_SSH_SUCCESS:
 						try {
 							if (DEBUG) {
-								Log.d(TAG, "建立隧道成功");
+								//Log.d(TAG, "建立隧道成功");
 							}
 							//printMessage = "建立隧道成功,改变心跳时间为20秒";
 							//printMessage(printMessage);
@@ -200,7 +205,7 @@ public class HeartBeatRunnable implements Runnable {
 					case HeartBeatInfo.TYPE_CLOSE_SSH:
 						try {
 							if (DEBUG) {
-								Log.d(TAG, "关闭隧道");
+								//Log.d(TAG, "关闭隧道");
 							}
 							isSSHConnected = false;
 							IProxyControl proxyService = HeartBeatService.getInstance().getmProxyControl();
@@ -236,7 +241,7 @@ public class HeartBeatRunnable implements Runnable {
 				String sourcePort = quickConnectString.substring(startIndex + 1);
 				//int sourcePort = new Random().nextInt(8000) + 40000;
 				if (DEBUG) {
-					Log.d(TAG, "vps分配到的host本地端口是:" + sourcePort);
+					//Log.d(TAG, "vps分配到的host本地端口是:" + sourcePort);
 				}
 				ProxyServiceUtil.getInstance(mContext).setPortFowardBean(mContext, String.valueOf(sourcePort));
 
@@ -248,7 +253,7 @@ public class HeartBeatRunnable implements Runnable {
 				}
 			} else {
 				if (DEBUG) {
-					Log.d(TAG, "返回的host格式不正确");
+					//Log.d(TAG, "返回的host格式不正确");
 				}
 			}
 		} catch (Throwable e) {

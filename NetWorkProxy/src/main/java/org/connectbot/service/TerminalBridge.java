@@ -20,6 +20,7 @@ import java.util.List;
  */
 public class TerminalBridge {
 	public final static String TAG = "CB.TerminalBridge";
+	public final static boolean DEBUG = false;
 
 	protected final TerminalManager manager;
 
@@ -67,6 +68,7 @@ public class TerminalBridge {
 			transport.addPortForward(mForwardBean);
 		}
 
+		if(DEBUG)
 		Log.d(TAG, manager.res.getString(R.string.terminal_connecting, host.getHostname(), host.getPort(), host
 				.getProtocol()));
 		Thread connectionThread = new Thread(new Runnable() {
@@ -184,6 +186,7 @@ public class TerminalBridge {
 	 */
 	public boolean enablePortForward(PortForwardBean portForward) {
 		if (!transport.isConnected()) {
+			if(DEBUG)
 			Log.i(TAG, "Attempt to enable port forward while not connected");
 			return false;
 		}
@@ -199,6 +202,7 @@ public class TerminalBridge {
 	 */
 	public boolean disablePortForward(PortForwardBean portForward) {
 		if (!transport.isConnected()) {
+			if(DEBUG)
 			Log.i(TAG, "Attempt to disable port forward while not connected");
 			return false;
 		}

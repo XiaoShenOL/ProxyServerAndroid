@@ -58,7 +58,7 @@ public final class OplayDownloadManager extends BaseApkDownloadManager implement
 		OplayInstallNotifier.OnInstallListener {
 
 	private static final int MAX_DOWNLOADING_COUNT = 3;
-	private final static boolean DEBUG = true;
+	private final static boolean DEBUG = false;
 	public static OplayDownloadManager mInstance = null;
 
 	private static DBHelper_Download dbHelper_download = null;

@@ -27,7 +27,7 @@ import java.util.List;
  */
 public class ApkUpdateUtil {
 
-	public static final boolean DEBUG = true;
+	public static final boolean DEBUG = false;
 	public static final String TAG = "apkUpdateUtil";
 	public volatile static ApkUpdateUtil mInstance;
 	private Context mContext;

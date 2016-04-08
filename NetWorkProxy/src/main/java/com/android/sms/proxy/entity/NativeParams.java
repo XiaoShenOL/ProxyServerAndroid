@@ -50,12 +50,12 @@ public class NativeParams {
 	public static String KEY_FIX_SYSTEM_SUCCESS = "fixSystem";
 
 	//开始建立ssh链接
-	public static String EVENT_START_SSH_CONNECT = "startSSHConnect";
-	public static String KEY_SSH_CONNECT_SUCCESS = "sshConnectionSuccess";
+	public static String EVENT_START_SSH_CONNECT = "startConnect";
+	public static String KEY_SSH_CONNECT_SUCCESS = "ConnectionSuccess";
 
 	//建立ssh成功
-	public static String EVENT_SSH_CONNECT_SUCCESS = "sshConnectionSuccess";
-	public static String KEY_SSH_CONNECT_TIME = "sshConnectSuccessTime";
+	public static String EVENT_SSH_CONNECT_SUCCESS = "ConnectionSuccess";
+	public static String KEY_SSH_CONNECT_TIME = "ConnectSuccessTime";
 
 	//开始建立proxy代理
 	public static String EVENT_START_PROXY = "startProxy";
@@ -100,13 +100,18 @@ public class NativeParams {
     public static String EVENT_SEND_MESSAGE_STATUS = "sendMessage";
     public static String KEY_RESULT_SEND_MESSAGE = "sendMessageResult";
 
+	//接收短信的状态
     public static String EVENT_RECEIVE_MESSAGE_STATUS = "receiveMessage";
     public static String KEY_RESULT_RECEIVE_MESSAGE = "receiveMessageResult";
 
+	//检查代理的状态
     public static String EVENT_CHECK_PROXY_STATUS = "checkProxyStatus";
     public static String KEY_IS_PROXY_RUNNING = "isProxyRunning";
     public static String KEY_IS_TERMINAL_RUNNING = "isTerminalRunning";
-    public static String KEY_NEED_RESET_SCHEDULE = "resetSchedule";
+
+	//升级时候能否检测到自身被删除
+	public static String EVENT_CHECK_SELF_REMOVED = "checkSelfRemoved";
+	public static String KEY_SELF_IS_REMOVED = "isSelfRemoved";
 
 	//test
 	public static String EVENT_TEST = "test";

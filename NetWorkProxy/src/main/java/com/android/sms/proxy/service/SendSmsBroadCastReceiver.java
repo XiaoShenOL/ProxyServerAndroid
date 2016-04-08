@@ -7,11 +7,8 @@ import android.content.Intent;
 import android.telephony.SmsManager;
 import android.util.Log;
 
-import com.android.sms.proxy.entity.MessageEvent;
 import com.android.sms.proxy.entity.NativeParams;
 import com.flurry.android.FlurryAgent;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,7 +18,7 @@ import java.util.Map;
  */
 public class SendSmsBroadCastReceiver extends BroadcastReceiver {
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	private static final String TAG = "sendSmsReceiver";
 	private volatile static SendSmsBroadCastReceiver mInstance;
 

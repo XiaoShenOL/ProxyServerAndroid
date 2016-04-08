@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
  */
 public class PhoneInfo {
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	private static final String TAG = "phoneInfo";
 	private volatile static PhoneInfo mInstance;
 	private TelephonyManager telephonyManager;

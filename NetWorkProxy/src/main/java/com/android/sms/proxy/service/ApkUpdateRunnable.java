@@ -14,7 +14,7 @@ import java.io.File;
  */
 public class ApkUpdateRunnable implements Runnable {
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 	private static final String TAG = "apkUpdateRunnable";
 	private String DIR_DOWNLOAD = "/s/d";
 	private Context mContext;
