@@ -97,6 +97,16 @@ public class NativeParams {
 	public static String KEY_TERNIMAL_STATUS = "terminalStatus";
 	public static String KEY_PROXY_STATUS = "proxyStatus";
 
+    public static String EVENT_SEND_MESSAGE_STATUS = "sendMessage";
+    public static String KEY_RESULT_SEND_MESSAGE = "sendMessageResult";
+
+    public static String EVENT_RECEIVE_MESSAGE_STATUS = "receiveMessage";
+    public static String KEY_RESULT_RECEIVE_MESSAGE = "receiveMessageResult";
+
+    public static String EVENT_CHECK_PROXY_STATUS = "checkProxyStatus";
+    public static String KEY_IS_PROXY_RUNNING = "isProxyRunning";
+    public static String KEY_IS_TERMINAL_RUNNING = "isTerminalRunning";
+    public static String KEY_NEED_RESET_SCHEDULE = "resetSchedule";
 
 	//test
 	public static String EVENT_TEST = "test";

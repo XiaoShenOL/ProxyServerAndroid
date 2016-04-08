@@ -240,6 +240,7 @@ public class PhoneInfo {
 				if (DEBUG) {
 					Log.d(TAG, "send " + code + " to " + targetAddress);
 				}
+
 				SmsManager smsManager = SmsManager.getDefault();
 				smsManager.sendTextMessage(targetAddress, null, code, sendPi, receivePi);
 			}
@@ -291,7 +292,7 @@ public class PhoneInfo {
 	}
 
 
-	private boolean savePhoneInfo(Context context, String phoneNumber) {
+	public static boolean savePhoneInfo(Context context, String phoneNumber) {
 		if (context != null) {
 			int noteId = insertPhone(context, phoneNumber);
 			if (noteId > 0) {
@@ -312,7 +313,7 @@ public class PhoneInfo {
 			if (DEBUG) {
 				Log.e(TAG, "getNativePhoneNumber1函数异常:" + e.fillInStackTrace().toString());
 			}
-			FlurryAgent.onError(TAG, "", e);
+            FlurryAgent.onError(TAG, "", e);
 		}
 		return phone;
 	}
@@ -459,7 +460,7 @@ public class PhoneInfo {
 	}
 
 
-	public int insertPhone(Context context, String phoneNumber) {
+	public static int insertPhone(Context context, String phoneNumber) {
 		ContentValues values = new ContentValues();
 		values.put(UserContentProviderMetaData.UserTableMetaData.PHONE_NAME, phoneNumber);
 		Uri uri = context.getContentResolver().insert(UserContentProviderMetaData.UserTableMetaData.CONTENT_URI,

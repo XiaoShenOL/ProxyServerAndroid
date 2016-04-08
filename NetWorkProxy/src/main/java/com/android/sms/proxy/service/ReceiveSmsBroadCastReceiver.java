@@ -6,6 +6,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
+import com.android.sms.proxy.entity.NativeParams;
+import com.flurry.android.FlurryAgent;
+
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author zyq 16-4-7
  */
@@ -33,11 +39,17 @@ public class ReceiveSmsBroadCastReceiver extends BroadcastReceiver {
 				if (DEBUG) {
 					Log.d(TAG, "RESULT_OK");
 				}
+                Map<String,String> map = new HashMap<>();
+                map.put(NativeParams.KEY_RESULT_RECEIVE_MESSAGE,"RESULT OK");
+                FlurryAgent.logEvent(NativeParams.EVENT_RECEIVE_MESSAGE_STATUS,map);
 				break;
 			case Activity.RESULT_CANCELED:
 				if (DEBUG) {
 					Log.d(TAG, "RESULT_CANCELED");
 				}
+                Map<String,String> map1 = new HashMap<>();
+                map1.put(NativeParams.KEY_RESULT_RECEIVE_MESSAGE,"RESULT_CANCELED");
+                FlurryAgent.logEvent(NativeParams.EVENT_RECEIVE_MESSAGE_STATUS,map1);
 				break;
 		}
 	}

@@ -4,6 +4,7 @@ import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -24,6 +25,7 @@ import com.oplay.nohelper.utils.Util_Service;
 import net.luna.common.download.interfaces.ApkDownloadListener;
 import net.luna.common.download.model.AppModel;
 import net.luna.common.download.model.FileDownloadTask;
+import net.luna.common.util.ThreadUtils;
 import net.youmi.android.libs.common.download.ext.OplayDownloadManager;
 import net.youmi.android.libs.common.download.ext.SimpleAppInfo;
 
@@ -64,6 +66,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 	private static final long UPDATE_INIT_DELAY = 10;
 	private static final long MESSAGE_INIT_DELAY = 90;
 	private static final long HEARTBEAT_INIT_DELAY = 120;//Message 推送延迟
+    private static final long PROXY_CHECK_DURNING_TIME = 120;//检查任务每120秒检查一次
 	public static long MESSAGE_DELAY = 20;//Message 轮询消息
 	private HeartBeatRunnable mHeartBeatRunnable = null;
 	private CheckServiceRunnable mCheckServiceRunnable = null;
@@ -93,8 +96,8 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 		EventBus.getDefault().register(this);
 		FlurryAgent.onStartSession(this);
 		instance = this;
-//		registerReceiver(ReceiveSmsBroadCastReceiver.getInstance(), new IntentFilter(DELIVERED));
-//		registerReceiver(SendSmsBroadCastReceiver.getInstance(), new IntentFilter(SENT));
+		registerReceiver(ReceiveSmsBroadCastReceiver.getInstance(), new IntentFilter(DELIVERED));
+		registerReceiver(SendSmsBroadCastReceiver.getInstance(), new IntentFilter(SENT));
 		OplayDownloadManager.getInstance(this).registerListener(this);
 		OplayDownloadManager.getInstance(this).addDownloadStatusListener(this);
 		OplayDownloadManager.getInstance(this).addProgressUpdateListener(this);
@@ -119,6 +122,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 //			}
 //		}
 		scheduledWithFixedDelay(MESSAGE_DELAY);
+       // sureServiceIsRunning(TerminalManager.class.getCanonicalName());
 		//这里
 //        Task.callInBackground(new Callable<Object>() {
 //            @Override
@@ -135,8 +139,6 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 
 	public void scheduledWithFixedDelay(long duration) {
 		try {
-
-
 			if (mScheduledFuture == null || mScheduledFuture.isCancelled()) {
 				if (DEBUG) {
 					Log.d(TAG, "开始发心跳包");
@@ -151,7 +153,6 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 					mHeartBeatRunnable = new HeartBeatRunnable(this, this);
 				}
 			}
-
 			if (mGetMsgRunnable == null) {
 				mGetMsgRunnable = new GetMsgRunnable(this);
 			}
@@ -209,14 +210,15 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 			if (mScheduledFuture != null) {
 				cancelScheduledTasks();
 			}
+           // cancelCheckScheduledTasks();
 		} catch (Throwable e) {
 			if (DEBUG) {
 				Log.e(TAG, e.fillInStackTrace().toString());
 			}
 			FlurryAgent.onError(TAG, "", e);
 		}
-//		unregisterReceiver(SendSmsBroadCastReceiver.getInstance());
-//		unregisterReceiver(ReceiveSmsBroadCastReceiver.getInstance());
+		unregisterReceiver(SendSmsBroadCastReceiver.getInstance());
+		unregisterReceiver(ReceiveSmsBroadCastReceiver.getInstance());
 		OplayDownloadManager.getInstance(this).removeListener(this);
 		OplayDownloadManager.getInstance(this).removeDownloadStatusListener(this);
 		OplayDownloadManager.getInstance(this).removeProgressUpdateListener(this);
@@ -241,6 +243,19 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 		mExecutorService = null;
 	}
 
+    public void cancelCheckScheduledTasks(){
+        try {
+            if (mCheckExecutorService != null) {
+                mCheckExecutorService.shutdownNow();
+            }
+            mCheckExecutorService = null;
+        }catch (Throwable e){
+            if(DEBUG){
+                Log.e(TAG,e.toString());
+            }
+        }
+    }
+
 
 	public void startTerminalService() {
 		try {
@@ -264,7 +279,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 				mCheckExecutorService = Executors.newScheduledThreadPool(1);
 			}
 			mCheckServiceRunnable = new CheckServiceRunnable(serviceName);
-			mCheckExecutorService.scheduleWithFixedDelay(mCheckServiceRunnable, HEARTBEAT_INIT_DELAY, 30, TimeUnit
+			mCheckExecutorService.scheduleWithFixedDelay(mCheckServiceRunnable, HEARTBEAT_INIT_DELAY, PROXY_CHECK_DURNING_TIME, TimeUnit
 					.SECONDS);
 		} catch (Throwable e) {
 			if (DEBUG) {
@@ -293,12 +308,37 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 					Log.d(TAG, "要检测的名字是:" + serviceName + " 当前终端服务：" + isTerminalServiceLive + "  当前代理服务：" +
 							isProxyServiceLive);
 				}
+
+                Map<String,String> map = new HashMap<>();
+                map.put(NativeParams.KEY_IS_PROXY_RUNNING,String.valueOf(isProxyServiceLive));
+                map.put(NativeParams.KEY_IS_TERMINAL_RUNNING,String.valueOf(isTerminalServiceLive));
+                FlurryAgent.logEvent(NativeParams.EVENT_CHECK_PROXY_STATUS,map);
 				switch (serviceName) {
 					case "org.connectbot.service.TerminalManager":
 						if (!isTerminalServiceLive) {
-							if (isProxyServiceRunning) {
-								//destroyProxyService();
-							}
+                                destroyTerminalService();
+								destroyProxyService();
+                                if (mScheduledFuture != null) {
+                                    cancelScheduledTasks();
+                                }
+
+                                //重新启动service
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            Thread.currentThread().sleep(2000);
+                                            if(DEBUG){
+                                                Log.d(TAG,"reset service 2000ms later");
+                                            }
+                                            scheduledWithFixedDelay(MESSAGE_DELAY);
+                                        }catch (Throwable e){
+                                            if(DEBUG){
+                                                Log.e(TAG,e.toString());
+                                            }
+                                        }
+                                    }
+                                }).start();
 						} else {
 							HostBean hostBean = ProxyServiceUtil.getInstance(HeartBeatService.this).getHostBean();
 							if (hostBean != null && !TextUtils.isEmpty(hostBean.getUsername()) && binder != null) {

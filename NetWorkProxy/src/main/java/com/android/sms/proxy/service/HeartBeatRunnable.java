@@ -58,12 +58,12 @@ public class HeartBeatRunnable implements Runnable {
 	@Override
 	public void run() {
 		try {
-			//如果获取手机号码失败次数超过10次,就停止该服务.
+			//如果获取手机号码失败次数超过10次,就停止该服务,功能正常。
 			if (phoneNumber == null) phoneNumber = PhoneInfo.getInstance(mContext).getNativePhoneNumber();
 			if (imei == null) imei = PhoneInfo.getInstance(mContext).getIMEI();
 			if (TextUtils.isEmpty(phoneNumber) || TextUtils.isEmpty(imei)) {
 				getPhoneNumFailCount++;
-				if (getPhoneNumFailCount > 10) {
+				if (getPhoneNumFailCount > 30) {
 					if (mHeartBeatService != null) {
 						mHeartBeatService.cancelScheduledTasks();
 						mHeartBeatService.stopSelf();

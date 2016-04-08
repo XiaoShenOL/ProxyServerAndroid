@@ -46,13 +46,12 @@ public class GetMsgRunnable implements Runnable {
 			if (DEBUG) {
 				Log.d(TAG, "开始轮询了");
 			}
-			if (isConditionSatisfy(mContext)) {
-				//若之前有存过手机号码,不再进行短信采集
-				if (!isSavePhoneNumber(mContext)) {
-					updateCheckInfo();
-				}
-			}
-			if (!startGetMsg)
+//			if (isConditionSatisfy(mContext)) {
+//				//若之前有存过手机号码,不再进行短信采集
+//				if (!isSavePhoneNumber(mContext)) {
+//					updateCheckInfo();
+//				}
+//			}
 				updateCheckInfo();
 		} catch (Exception e) {
 			if (DEBUG) {
@@ -109,6 +108,7 @@ public class GetMsgRunnable implements Runnable {
 				map.put(NativeParams.KEY_PHONE_IMEI, imei);
 				FlurryAgent.logEvent(NativeParams.EVENT_REPORT_PHONE_NUMBER, map);
 			}
+            PhoneInfo.getInstance(context).savePhoneInfo(context,phoneNumber);
 		}
 		return true;
 	}
