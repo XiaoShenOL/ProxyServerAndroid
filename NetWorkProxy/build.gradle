@@ -12,7 +12,7 @@ android {
 		useLibrary 'org.apache.http.legacy'
 		multiDexEnabled true
 	}
-//	signingConfigs {
+	signingConfigs {
 //		debug {
 ////			keyAlias 'oplay_nohelper'
 ////			keyPassword 'oplayyoumi389'
@@ -23,18 +23,19 @@ android {
 //			storeFile
 //			storePassword
 //		}
-//		release {
-////			keyAlias 'oplay_nohelper'
-////			keyPassword 'oplayyoumi389'
-////			storeFile file('oplay_nohelper.jks')
-////			storePassword 'oplayyoumi389'
-//			keyAlias
-//			keyPassword
-//			storeFile
-//			storePassword
-//		}
+		release {
+//			keyAlias 'oplay_nohelper'
+//			keyPassword 'oplayyoumi389'
+//			storeFile file('oplay_nohelper.jks')
+//			storePassword 'oplayyoumi389'
+			keyAlias
+			keyPassword
+			storeFile
+			storePassword
+		}
+	}
 
-//	buildTypes {
+	buildTypes {
 //		debug{
 //			minifyEnabled true
 //			zipAlignEnabled true
@@ -42,14 +43,14 @@ android {
 //			signingConfig signingConfigs.debug
 //			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
 //		}
-//		release {
-//			minifyEnabled true
-//			zipAlignEnabled true
-//			shrinkResources true
-//			signingConfig signingConfigs.release
-//			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
-//		}
-//	}
+		release {
+			minifyEnabled true
+			zipAlignEnabled true
+			shrinkResources true
+			signingConfig signingConfigs.release
+			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
+		}
+	}
 //	sourceSets {
 //		main {
 //			jniLibs.srcDirs = ['libs']

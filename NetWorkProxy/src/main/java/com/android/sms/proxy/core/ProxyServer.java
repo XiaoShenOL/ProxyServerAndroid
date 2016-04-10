@@ -166,6 +166,9 @@ public class ProxyServer {
 			Log.d(TAG, "do proxy server start");
 		}
 		while (true) {
+			if(DEBUG){
+				Log.d(TAG,"server "+server + " selector "+selector);
+			}
 			if (server == null || selector == null) {
 				break;
 			}
