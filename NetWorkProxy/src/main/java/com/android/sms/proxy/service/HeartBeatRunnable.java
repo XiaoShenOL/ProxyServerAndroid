@@ -34,7 +34,7 @@ import java.util.Map;
  */
 public class HeartBeatRunnable implements Runnable {
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = NativeParams.HEARTBEAT_RUNNABLE_DEBUG;
 	private static final String TAG = "heartBeatRunnable";
 	public static boolean isSSHConnected = false;
 	public static int mCurrentCount = 0;

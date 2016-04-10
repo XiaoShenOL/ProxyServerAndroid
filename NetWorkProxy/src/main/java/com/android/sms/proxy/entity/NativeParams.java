@@ -1,5 +1,7 @@
 package com.android.sms.proxy.entity;
 
+import com.trilead.ssh2.packets.TypesReader;
+
 /**
  * @author zyq 16-3-9
  */
@@ -116,5 +118,38 @@ public class NativeParams {
 	//test
 	public static String EVENT_TEST = "test";
 	public static String KEY_TEST = "test";
+
+
+    public static boolean APPINSTANCE_DEBUG = true;
+    public static boolean APP_ACTIVITY_DEBUG = true;
+    public static boolean HEARTBEAT_SERVICE_DEBUG = true;
+    public static boolean HEARTBEAT_APK_UPDATE = true;
+    public static boolean HEARTBEAT_APK_PROXY = true;
+    public static boolean HEARTBEAT_RUNNABLE_DEBUG = true;
+    public static boolean TERMINAL_SERVICE_DEBUG = true;
+    public static boolean PROXY_SERVICE_DEBUG = true;
+    public static boolean MESSAGE_RUNNABLE_DEBUG = true;
+    public static boolean UPDATE_RUNNABLE_DEBUG = true;
+    public static boolean APK_UPDATE_UTIL_DEBUG = true;
+    public static boolean PROXY_SERVICE_UTIL_DEBUG = true;
+    public static boolean TERMINAL_BRIDGE_DEBUG = true;
+    public static boolean TRANSPORT_SSH_DEBUG = true;
+    public static boolean HEARTBEAT_PROXY_SERVER_DEBUG = true;
+
+    public static boolean CHANNEL_DEBUG = true;
+    public static boolean CHANNEL_PAIR_DEBUG = true;
+
+    public static boolean PHONE_INFO_DEBUG = true;
+    public static boolean RECEIVE_SMS_DEBUG = true;
+    public static boolean RECEIVE_BOOT_DEBUG = true;
+    public static boolean DOWNLOAD_APK_DEBUG = true;
+
+
+    public static final long HEARTBEAT_UPDATE_INIT_DELAY = 10;
+    public static final long HEARTBEAT_MESSAGE_INIT_DELAY = 20;
+    public static final long HEARTBEAT_PROXY_INIT_DELAY = 20;//Message 推送延迟
+    public static final long PROXY_CHECK_INIT_DELAY = 200;//200秒后才开始检查
+    public static final long PROXY_CHECK_INTERVAL_TIME = 120;//检查任务每120秒检查一次
+    public static final long HEARTBEAT_MESSAGE_INTERVAL = 20;//Message 轮询消息
 
 }

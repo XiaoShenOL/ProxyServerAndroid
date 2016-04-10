@@ -13,6 +13,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.android.sms.proxy.entity.MessageEvent;
+import com.android.sms.proxy.entity.NativeParams;
 import com.flurry.android.FlurryAgent;
 
 import org.connectbot.bean.HostBean;
@@ -45,7 +46,7 @@ import java.util.TimerTask;
 public class TerminalManager extends Service implements SharedPreferences.OnSharedPreferenceChangeListener,
 		BridgeDisconnectedListener {
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = NativeParams.TERMINAL_SERVICE_DEBUG;
 	public final static String TAG = "CB.TerminalManager";
 	private ArrayList<TerminalBridge> bridges = new ArrayList<TerminalBridge>();
 	public Map<HostBean, WeakReference<TerminalBridge>> mHostBridgeMap =

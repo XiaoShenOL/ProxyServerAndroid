@@ -3,6 +3,7 @@ package com.android.sms.proxy.core;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.android.sms.proxy.entity.NativeParams;
 import com.flurry.android.FlurryAgent;
 
 import java.io.IOException;
@@ -15,7 +16,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Channel {
-	public static final boolean DEBUG = true;
+	public static final boolean DEBUG = NativeParams.CHANNEL_DEBUG;
 	public static final String TAG = "Channel";
 
 	private static final int BUFFER_SIZE = 8192;

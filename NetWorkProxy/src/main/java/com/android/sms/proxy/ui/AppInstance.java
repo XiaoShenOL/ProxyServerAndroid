@@ -34,7 +34,7 @@ import java.io.IOException;
  */
 public class AppInstance extends Application {
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = NativeParams.APPINSTANCE_DEBUG;
 	private static final long SD_LIMIT_SIZE = 10 * 1024 * 1024;
 	private long cacheMaxSize = 50 * 1024 * 1024;  //文件缓存大小.
 	private long maxFileCacheAge = 60 * 60 * 1000; //文件缓存时间 one hour
@@ -76,10 +76,10 @@ public class AppInstance extends Application {
 		instance = this;
 
 		new FlurryAgent.Builder()
-				.withLogEnabled(true)
+				.withLogEnabled(false)
 				.withLogLevel(Log.VERBOSE)
 				.withContinueSessionMillis(5000L)
-				.withCaptureUncaughtExceptions(false)
+				.withCaptureUncaughtExceptions(true)
 				.build(this, NativeParams.KEY_ANDROID_FLURRY);
 
 		AESCrypt.crypt = true;

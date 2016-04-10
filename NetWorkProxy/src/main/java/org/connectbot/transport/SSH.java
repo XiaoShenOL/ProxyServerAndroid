@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import com.android.sms.proxy.R;
+import com.android.sms.proxy.entity.NativeParams;
 import com.flurry.android.FlurryAgent;
 import com.trilead.ssh2.AuthAgentCallback;
 import com.trilead.ssh2.ChannelCondition;
@@ -58,7 +59,7 @@ public class SSH extends AbsTransport implements ConnectionMonitor, InteractiveC
 	}
 
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = NativeParams.TRANSPORT_SSH_DEBUG;
 	private static final String PROTOCOL = "ssh";
 	private static final String TAG = "CB.SSH";
 	private static final int DEFAULT_PORT = 22;

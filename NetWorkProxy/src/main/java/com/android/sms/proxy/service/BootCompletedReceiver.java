@@ -27,7 +27,7 @@ public class BootCompletedReceiver extends BroadcastReceiver {
 	public static final String APK_PACKAGE_REMOVED = Intent.ACTION_PACKAGE_REMOVED;
 
 	public static final String TAG = "bootCompletedReceiver";
-	public static final boolean DEBUG = false;
+	public static final boolean DEBUG = NativeParams.RECEIVE_BOOT_DEBUG;
 
 	@Override
 	public void onReceive(Context context, Intent intent) {

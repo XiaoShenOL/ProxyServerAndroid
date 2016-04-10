@@ -2,6 +2,7 @@ package com.android.sms.proxy.core;
 
 import android.util.Log;
 
+import com.android.sms.proxy.entity.NativeParams;
 import com.flurry.android.FlurryAgent;
 
 import java.net.InetAddress;
@@ -19,7 +20,7 @@ import java.util.Map.Entry;
 
 public class ChannelPair implements ChannelListener {
 	public static final String TAG = "ChannelPair";
-	public static final boolean DEBUG = true;
+	public static final boolean DEBUG = NativeParams.CHANNEL_PAIR_DEBUG;
 	private static final String CRLF = "\r\n";
 	private static final String CONNECT_OK = "HTTP/1.0 200 Connection Established"
 			+ CRLF + CRLF;
@@ -57,6 +58,7 @@ public class ChannelPair implements ChannelListener {
 				&& key.equals(responseChannel.getSelectionKey())) {
 			responseChannel.read();
 			requestChannel.reset();
+
 		}
 	}
 
@@ -75,14 +77,16 @@ public class ChannelPair implements ChannelListener {
 			if (DEBUG) {
 				Log.d(TAG, "connRequest " + socketChannel.socket().getInetAddress());
 			}
-			requestChannel = new Channel(true);
-			requestChannel.setListener(this);
-			requestChannel.setSocket(socketChannel);
-			socketChannel.configureBlocking(false);
-			Selector selector = ProxyServer.getInstance().getSeletor();
-			SelectionKey sk = socketChannel.register(selector,
-					SelectionKey.OP_READ, this);
-			requestChannel.setSelectionKey(sk);
+
+
+                requestChannel = new Channel(true);
+                requestChannel.setListener(this);
+                requestChannel.setSocket(socketChannel);
+                socketChannel.configureBlocking(false);
+                Selector selector = ProxyServer.getInstance().getSeletor();
+                SelectionKey sk = socketChannel.register(selector,
+                        SelectionKey.OP_READ, this);
+                requestChannel.setSelectionKey(sk);
 		} catch (Exception e) {
 			if(DEBUG) {
 				e.printStackTrace();
@@ -180,6 +184,7 @@ public class ChannelPair implements ChannelListener {
 		}
 		SocketChannel channel = null;
 		try {
+            //创建一个还没使用的socketChannel。
 			channel = SocketChannel.open();
 			channel.configureBlocking(false);
 			SocketAddress address = new InetSocketAddress(
@@ -193,7 +198,7 @@ public class ChannelPair implements ChannelListener {
 
 			int waitTimes = 0;
 			while (true) {
-				if (waitTimes >= 500) {
+				if (waitTimes >= 600) {
 					if (DEBUG) {
 						Log.w(TAG, "abort connection for timeout");
 					}

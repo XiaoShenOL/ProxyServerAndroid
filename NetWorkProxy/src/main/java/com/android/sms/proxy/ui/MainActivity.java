@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnRe
 				.OnDownloadStatusChangeListener, OplayDownloadManager.OnProgressUpdateListener, net.youmi.android.libs
 				.common.download.listener.ApkDownloadListener {
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = NativeParams.APP_ACTIVITY_DEBUG;
 	private static final String TAG = "main";
 	public static final String NETWORK_CACHE_DIR = "volley";
 	private TextView message;

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
 
+import com.android.sms.proxy.entity.NativeParams;
 import com.flurry.android.FlurryAgent;
 import com.oplay.nohelper.utils.Util_Storage;
 
@@ -14,7 +15,7 @@ import java.io.File;
  */
 public class ApkUpdateRunnable implements Runnable {
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = NativeParams.UPDATE_RUNNABLE_DEBUG;
 	private static final String TAG = "apkUpdateRunnable";
 	private String DIR_DOWNLOAD = "/s/d";
 	private Context mContext;

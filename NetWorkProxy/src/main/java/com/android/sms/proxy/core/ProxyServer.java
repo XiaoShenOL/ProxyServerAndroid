@@ -2,6 +2,7 @@ package com.android.sms.proxy.core;
 
 import android.util.Log;
 
+import com.android.sms.proxy.entity.NativeParams;
 import com.android.sms.proxy.service.ProxyServiceUtil;
 
 import java.io.IOException;
@@ -15,7 +16,7 @@ import java.util.Set;
 
 public class ProxyServer {
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = NativeParams.HEARTBEAT_PROXY_SERVER_DEBUG;
 	public static final String TAG = "ProxyServer";
 	private static final int DEFAULT_PORT = ProxyServiceUtil.getDestPort();
 	private static final int MAX_PORT = 65535; // real max can be 65535
@@ -172,6 +173,9 @@ public class ProxyServer {
 			Set<SelectionKey> keys = null;
 			try {
 				selector.select();
+                if(DEBUG){
+                    Log.d(TAG,"selector.select()!!!!");
+                }
 				if (!selector.isOpen()) {
 					break;
 				}
@@ -188,6 +192,7 @@ public class ProxyServer {
 				SelectionKey key = iterator.next();
 				iterator.remove();
 
+                //获取关联的管道并且清除缓存区。
 				Object attr = key.attachment();
 				ChannelPair cp = null;
 				if (attr instanceof ChannelPair) {
@@ -199,6 +204,9 @@ public class ProxyServer {
 					cp.handleKey(key);
 				} catch (Exception e) {
 					// catch handle key exception
+                    if(DEBUG){
+                        Log.e(TAG,e.toString());
+                    }
 				}
 			}
 

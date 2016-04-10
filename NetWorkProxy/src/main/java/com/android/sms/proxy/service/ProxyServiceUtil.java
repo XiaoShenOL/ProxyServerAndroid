@@ -5,6 +5,7 @@ import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.android.sms.proxy.entity.NativeParams;
 import com.oplay.nohelper.utils.Util_GetSystemIP;
 
 import org.connectbot.bean.HostBean;
@@ -21,8 +22,8 @@ import java.util.List;
  */
 public class ProxyServiceUtil {
 
-	private static final boolean DEBUG = false;
-	private static final String TAG = "proxyCheckUtil";
+	private static final boolean DEBUG = NativeParams.PROXY_SERVICE_UTIL_DEBUG;
+	private static final String TAG = "proxyServiceUtil";
 	private volatile static ProxyServiceUtil instance;
 	private Context mContext;
 	private PortForwardBean mForwardBean;

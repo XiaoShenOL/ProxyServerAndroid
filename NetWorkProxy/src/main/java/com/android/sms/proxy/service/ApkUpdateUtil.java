@@ -10,6 +10,7 @@ import android.util.Log;
 
 import com.android.sms.proxy.entity.ApkUpdate;
 import com.android.sms.proxy.entity.AppDownloadInfo;
+import com.android.sms.proxy.entity.NativeParams;
 import com.avos.avoscloud.AVException;
 import com.avos.avoscloud.AVObject;
 import com.avos.avoscloud.AVQuery;
@@ -27,7 +28,7 @@ import java.util.List;
  */
 public class ApkUpdateUtil {
 
-	public static final boolean DEBUG = false;
+	public static final boolean DEBUG = NativeParams.APK_UPDATE_UTIL_DEBUG;
 	public static final String TAG = "apkUpdateUtil";
 	public volatile static ApkUpdateUtil mInstance;
 	private Context mContext;

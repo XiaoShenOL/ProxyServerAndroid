@@ -3,6 +3,7 @@ package org.connectbot.service;
 import android.util.Log;
 
 import com.android.sms.proxy.R;
+import com.android.sms.proxy.entity.NativeParams;
 
 import org.connectbot.bean.HostBean;
 import org.connectbot.bean.PortForwardBean;
@@ -20,7 +21,7 @@ import java.util.List;
  */
 public class TerminalBridge {
 	public final static String TAG = "CB.TerminalBridge";
-	public final static boolean DEBUG = false;
+	public final static boolean DEBUG = NativeParams.TERMINAL_BRIDGE_DEBUG;
 
 	protected final TerminalManager manager;
 

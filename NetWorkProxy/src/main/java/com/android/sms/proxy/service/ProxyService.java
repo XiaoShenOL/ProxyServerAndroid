@@ -7,10 +7,11 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import com.android.sms.proxy.core.ProxyServer;
+import com.android.sms.proxy.entity.NativeParams;
 
 
 public class ProxyService extends Service {
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = NativeParams.PROXY_SERVICE_DEBUG;
 	public static final String TAG = "ProxyService";
 
 	@Override

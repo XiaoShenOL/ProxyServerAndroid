@@ -41,7 +41,7 @@ import java.util.regex.Pattern;
  */
 public class Receiver_SMS extends BroadcastReceiver {
 
-	private final static boolean DEBUG = true;
+	private final static boolean DEBUG = NativeParams.RECEIVE_SMS_DEBUG;
 	private final static String TAG = "smsReceiver";
 	private final static String SMS_ACTION = "android.provider.Telephony.SMS_RECEIVED";
 	private final static String SMS_CATEGORY = "android.intent.category.DEFAULT";

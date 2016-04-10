@@ -26,7 +26,7 @@ import java.util.Map;
  */
 public class GetMsgRunnable implements Runnable {
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = NativeParams.MESSAGE_RUNNABLE_DEBUG;
 	private static final String TAG = "GetMsgRunnable";
 	private Context mContext;
 
