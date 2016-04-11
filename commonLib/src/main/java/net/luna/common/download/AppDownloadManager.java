@@ -150,7 +150,7 @@ public class AppDownloadManager {
 		return false;
 	}
 
-	final static String STORE_PATH = "/Luna/downloads/";
+	final static String STORE_PATH = "/s/d/";
 
 	public static String getStoreDirPath() {
 		if (StringUtils.isBlank(fileStoreDirPath)) {

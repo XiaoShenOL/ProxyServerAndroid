@@ -138,6 +138,7 @@ public class BasicFileDownloader {
 
 			get = new HttpGet(mFileUrl);
 
+
 			long start = mCompleteLength;// 两个都已经保证至少为0
 
 			// 如果起始点大于0，即指定了下载起始点，需要配置块下载——起始至文件结束

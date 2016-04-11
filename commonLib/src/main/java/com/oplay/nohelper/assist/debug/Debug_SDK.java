@@ -6,7 +6,7 @@ package com.oplay.nohelper.assist.debug;
 public class Debug_SDK extends Debug_SDK_Log_Temp {
 
 
-	public final static boolean isDownloadLog = false;
+	public final static boolean isDownloadLog = true;
 	public final static String mDownloadTag = "download_";
 
 	public final static boolean isDBLog = false;
@@ -71,7 +71,7 @@ public class Debug_SDK extends Debug_SDK_Log_Temp {
 	public final static boolean isDiyOfferLog = false;
 	public final static String mDiyOfferTag = "diyoffer_";
 
-	public final static boolean isStorageLog = false;
+	public final static boolean isStorageLog = true;
 	public final static String mStorageTag = "storage";
 
 }

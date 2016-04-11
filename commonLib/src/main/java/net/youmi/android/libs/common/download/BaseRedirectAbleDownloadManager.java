@@ -1,6 +1,7 @@
 package net.youmi.android.libs.common.download;
 
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 
 import net.youmi.android.libs.common.basic.Basic_StringUtil;
@@ -14,6 +15,7 @@ import net.youmi.android.libs.common.download.listener.FileDownloadWebViewListen
 import net.youmi.android.libs.common.download.model.FileDownloadTask;
 import net.youmi.android.libs.common.download.webview.FileDownloadWebView;
 import net.youmi.android.libs.common.template.Template_ListenersManager;
+import net.youmi.android.libs.common.util.Util_System_Runtime;
 
 import java.io.File;
 import java.util.HashMap;
@@ -46,7 +48,7 @@ import java.util.List;
  * 通过IDownloadFileNameFactory获取。</li>
  * </ol>
  * <p>
- *
+ * <p/>
  * </p>
  * 注意，sdk必须继承该类，并使用单例进行apk的下载管理。子类应该考虑对下载过程中的步骤进行效果记录的发送。<br/>
  * 该管理器只负责完成下载流程，之后的启动安装流程并不进行处理。子类需要对后续操作进行补充处理。
@@ -122,11 +124,23 @@ public abstract class BaseRedirectAbleDownloadManager<T> extends Template_Listen
 				return true;
 			}
 
-			// 判断是否需要使用webview进行预先加载获取最终url
-//			if (isNeedToLoadWithWebView(rawUrl)) {
-				try {
-					FileDownloadWebView wv = new FileDownloadWebView(mApplicationContext, this, rawUrl, md5sum);
-					mFileDownloadWebViewSet.add(wv);
+			try {
+				if (Debug_SDK.isDownloadLog) {
+					Debug_SDK.ti(Debug_SDK.mDownloadTag, this, "跳转到webview获取下载地址", rawUrl);
+				}
+				final FileDownloadWebView wv = new FileDownloadWebView(mApplicationContext, this, rawUrl, md5sum);
+				mFileDownloadWebViewSet.add(wv);
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+					Util_System_Runtime.getInstance().runInUiThread(new Runnable() {
+						@Override
+						public void run() {
+							if(Debug_SDK.isDownloadLog){
+								Debug_SDK.td(Debug_SDK.mDownloadTag,this,"KITKAT");
+							}
+							wv.loadUrl();
+						}
+					});
+				} else {
 					try {
 						new Thread(wv).start();// 启动自我监听，睡眠 60s（期间加载url），60s后根据加载结果来反馈监听
 					} catch (Throwable e) {
@@ -135,12 +149,42 @@ public abstract class BaseRedirectAbleDownloadManager<T> extends Template_Listen
 						}
 					}
 					wv.loadUrl();
-					return true;
-				} catch (Throwable e) {
-					if (Debug_SDK.isDownloadLog) {
-						Debug_SDK.td(Debug_SDK.mDownloadTag, this, e);
-					}
 				}
+				return true;
+			} catch (Throwable e) {
+				if (Debug_SDK.isDownloadLog) {
+					Debug_SDK.td(Debug_SDK.mDownloadTag, this, e);
+				}
+			}
+
+			// 判断是否需要使用webview进行预先加载获取最终url
+//			if (isNeedToLoadWithWebView(rawUrl)) {
+//			try {
+//				FileDownloadWebView wv = new FileDownloadWebView(mApplicationContext, this, rawUrl, md5sum);
+//				mFileDownloadWebViewSet.add(wv);
+//				try {
+//					new Thread(wv).start();// 启动自我监听，睡眠 60s（期间加载url），60s后根据加载结果来反馈监听
+//				} catch (Throwable e) {
+//					if (Debug_SDK.isDownloadLog) {
+//						Debug_SDK.td(Debug_SDK.mDownloadTag, this, e);
+//					}
+//				}
+//				wv.loadUrl();
+//				return true;
+//			} catch (Throwable e) {
+//				if (Debug_SDK.isDownloadLog) {
+//					Debug_SDK.td(Debug_SDK.mDownloadTag, this, e);
+//				}
+//			}
+
+//			FileDownloadTask task = new FileDownloadTask(rawUrl);
+//			onFinishGetDownloadFileUrl(task);
+//			FileDownloadTask task = new FileDownloadTask(ra, mMd5sum, contentLength);
+//			Log.d("webview", "rawUrl:" + mRawUrl + "  targetUrl:" + url + " userAgent:" + userAgent + " mimetype:"
+//					+ mimetype + " contentLength:" + contentLength);
+//			task.setRawUrl(mRawUrl);
+//			task.setRedirectUrls(mRedirectUrls);
+//			mListener.onFinishGetDownloadFileUrl(this, task, userAgent, contentDisposition, mimetype);
 		} catch (Throwable e) {
 			if (Debug_SDK.isDownloadLog) {
 				Debug_SDK.te(Debug_SDK.mDownloadTag, this, e);
@@ -149,6 +193,32 @@ public abstract class BaseRedirectAbleDownloadManager<T> extends Template_Listen
 		return false;
 	}
 
+
+	/**
+	 * 通过特殊的webview来获取最终的下载url——成功，那么就启动下载任务
+	 */
+
+	 public void onFinishGetDownloadFileUrl(FileDownloadTask task) {
+		try {
+			if (task != null && task.isAvailable()) {
+				task.setStoreFile(getStoreDownloadFile(task, null)); // 重要，必须传入最终存储文件
+				if (Debug_SDK.isDownloadLog) {
+					Debug_SDK.td(Debug_SDK.mDownloadTag, this, "webview 解析重定向成功，准备开启下载");
+				}
+				if (FinalFileDownloadManager.getInstance().downloadFile(mApplicationContext, task, this)) {
+					if (Debug_SDK.isDownloadLog) {
+						Debug_SDK.td(Debug_SDK.mDownloadTag, this, "开启下载成功");
+					}
+					mFileDownloadTaskSet.add(task);
+					mMap_Downloading_RawUrl_FileDownloadTask.put(task.getRawUrl(), task);
+				}
+			}
+		} catch (Throwable e) {
+			if (Debug_SDK.isDownloadLog) {
+				Debug_SDK.te(Debug_SDK.mDownloadTag, this, e);
+			}
+		}
+	}
 	/**
 	 * 停止下载任务
 	 *
@@ -171,7 +241,6 @@ public abstract class BaseRedirectAbleDownloadManager<T> extends Template_Listen
 
 	/**
 	 * 停止下载任务
-	 *
 	 */
 	public boolean stopDownload(String url) {
 		return stopDownload(url, null);
@@ -179,7 +248,6 @@ public abstract class BaseRedirectAbleDownloadManager<T> extends Template_Listen
 
 	/**
 	 * 停止下载任务
-	 *
 	 */
 	public boolean stopDownload(String url, String md5sum) {
 		if (Basic_StringUtil.isNullOrEmpty(url)) {
@@ -296,7 +364,7 @@ public abstract class BaseRedirectAbleDownloadManager<T> extends Template_Listen
 
 	/**
 	 * 将指定的下载任务从set和map中移除
-	 * <p>
+	 * <p/>
 	 * 文件下载成功，失败，或者文件本来就存在的时候都要调用这个
 	 *
 	 * @param task
@@ -543,7 +611,7 @@ public abstract class BaseRedirectAbleDownloadManager<T> extends Template_Listen
 
 	@Override
 	public final void onFileDownloadProgressUpdate(FileDownloadTask task, long contentLength, long completeLength,
-			int percent, long speedBytesPerS) {
+	                                               int percent, long speedBytesPerS) {
 		try {
 			if (task == null) {
 				return;
@@ -580,7 +648,7 @@ public abstract class BaseRedirectAbleDownloadManager<T> extends Template_Listen
 				}
 			}
 		}
-		if(lists.size()==0){
+		if (lists.size() == 0) {
 			notifyListener_onFileDownloadProgressUpdate(null, task, contentLength, completeLength, percent,
 					speedBytesPerS);
 		}
@@ -591,7 +659,7 @@ public abstract class BaseRedirectAbleDownloadManager<T> extends Template_Listen
 	 */
 	@Override
 	final public void onFinishGetDownloadFileUrl(FileDownloadWebView webView, FileDownloadTask task, String userAgent,
-			String contentDisposition, String mimetype) {
+	                                             String contentDisposition, String mimetype) {
 		try {
 			if (task != null && task.isAvailable()) {
 				task.setStoreFile(getStoreDownloadFile(task, contentDisposition)); // 重要，必须传入最终存储文件
@@ -619,7 +687,8 @@ public abstract class BaseRedirectAbleDownloadManager<T> extends Template_Listen
 	 * 通过特殊的webview获取最终的url地址失败——超时，那么久需要通知说下载失败了
 	 */
 	@Override
-	public void onGetDownloadFileUrlTimesout_ToNofifyDownloadFailed(FileDownloadWebView webView, FileDownloadTask task) {
+	public void onGetDownloadFileUrlTimesout_ToNofifyDownloadFailed(FileDownloadWebView webView, FileDownloadTask
+			task) {
 		if (mFileDownloadWebViewSet == null) {
 			return;
 		}
@@ -628,7 +697,7 @@ public abstract class BaseRedirectAbleDownloadManager<T> extends Template_Listen
 		}
 		mFileDownloadWebViewSet.remove(webView);
 		try {
-			Log.d("test","下载地址："+task.getDestUrl());
+			Log.d("test", "下载地址：" + task.getDestUrl());
 			onFileDownloadFailed(task);
 		} catch (Throwable e) {
 			if (Debug_SDK.isDownloadLog) {
@@ -731,6 +800,7 @@ public abstract class BaseRedirectAbleDownloadManager<T> extends Template_Listen
 	 * 子类必须实现，通知监听器文件的下载进度
 	 */
 	protected abstract void notifyListener_onFileDownloadProgressUpdate(T listener, FileDownloadTask task,
-			long contentLength, long completeLength, int percent, long speedBytesPerS);
+	                                                                    long contentLength, long completeLength, int
+			                                                                    percent, long speedBytesPerS);
 
 }

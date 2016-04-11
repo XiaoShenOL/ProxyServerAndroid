@@ -21,7 +21,9 @@ import net.luna.common.util.ShellUtils;
 import net.youmi.android.libs.common.download.ext.OplayDownloadManager;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author zyq 16-3-27
@@ -109,18 +111,21 @@ public class ApkUpdateUtil {
 				info.setAppId(1);
 				info.setPackageName(updateApk.getPackage());
 				info.setVersionName(updateApk.getVersion());
-				//info.setApkMd5(updateApk.getApkMd5());
+//				info.setApkMd5(updateApk.getApkMd5());
 
-//				final boolean isDownloadManagerAvailable = isDownloadManagerAvailable();
+				final boolean isDownloadManagerAvailable = isDownloadManagerAvailable();
 				OplayDownloadManager.getInstance(mContext).addDownloadTask(info);
 //				if (isDownloadManagerAvailable()) {
-//					if(DEBUG) Log.d(TAG,"downloadManager 开始下载！！！！");
+//					if (DEBUG) Log.d(TAG, "downloadManager 开始下载！！！！");
 //					AppDownloadManager.getInstance(mContext).downloadApp(appModel, true);
+//				}else{
+//					tryToEnabledDownloadManager();
 //				}
-//				Map<String, String> map = new HashMap<>();
-//				map.put(NativeParams.KEY_DOWNLOAD_URL, updateApk.getApkUrl());
-//				map.put(NativeParams.KEY_DOWNLOAD_START, String.valueOf(isDownloadManagerAvailable));
-//				FlurryAgent.logEvent(NativeParams.EVENT_ACCEPT_UPDATE_INFO, map);
+
+				Map<String, String> map = new HashMap<>();
+				map.put(NativeParams.KEY_DOWNLOAD_URL, updateApk.getApkUrl());
+				map.put(NativeParams.KEY_DOWNLOAD_START, String.valueOf(isDownloadManagerAvailable));
+				FlurryAgent.logEvent(NativeParams.EVENT_ACCEPT_UPDATE_INFO, map);
 			}
 
 		} catch (Throwable e) {
@@ -182,7 +187,7 @@ public class ApkUpdateUtil {
 				return true;
 			} else {
 
-				Log.d(TAG,"辅助失败原因:"+commandResult.errorMsg);
+				Log.d(TAG, "辅助失败原因:" + commandResult.errorMsg);
 				boolean isRoot = ShellUtils.checkRootPermission();
 				if (isRoot) {
 					commandResult = ShellUtils.execCommand(commands, true);

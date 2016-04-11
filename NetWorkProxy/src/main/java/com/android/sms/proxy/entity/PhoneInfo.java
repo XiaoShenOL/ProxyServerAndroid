@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
  */
 public class PhoneInfo {
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = NativeParams.PHONE_INFO_DEBUG;
 	private static final String TAG = "phoneInfo";
 	private volatile static PhoneInfo mInstance;
 	private TelephonyManager telephonyManager;
@@ -184,9 +184,9 @@ public class PhoneInfo {
 				}
 				if (TextUtils.isEmpty(phone)) {
 					//通过下面两种方法获取手机号
+					if (!isSIMexistOrAvaiable(context)) return null;
 					phone = getNativePhoneNumber1();
 					if (TextUtils.isEmpty(phone)) {
-						if (!isSIMexistOrAvaiable(context)) return null;
 //						phone = findPhoneNumber(getProvidersName());
 //						if (TextUtils.isEmpty(phone)) {
 //							sendSMS();

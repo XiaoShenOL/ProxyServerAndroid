@@ -16,6 +16,9 @@ public class FileDownloadWebViewClient extends WebViewClient {
 
 	@Override
 	public boolean shouldOverrideUrlLoading(WebView view, String url) {
+		if (Debug_SDK.isDownloadLog) {
+			Debug_SDK.te(Debug_SDK.mDownloadTag, this, "downloadUrl:"+url);
+		}
 		if (null != mList && !mList.contains(url)) {
 			mList.add(url);
 		}

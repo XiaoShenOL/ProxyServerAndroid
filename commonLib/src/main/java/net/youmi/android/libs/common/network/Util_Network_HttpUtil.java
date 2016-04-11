@@ -80,7 +80,6 @@ public class Util_Network_HttpUtil {
 		if (userAgent == null) {
 
 			try {
-
 				StringBuilder sb = new StringBuilder(256);
 				sb.append("Mozilla/5.0 (Linux; U; Android ");
 				sb.append(Build.VERSION.RELEASE);
@@ -131,6 +130,7 @@ public class Util_Network_HttpUtil {
 		// 从连接池中取连接的超时时间(5s) add by caizhitao on 2014-5-15
 		ConnManagerParams.setTimeout(params, 1000);
 
+
 		// 设置http超时(30秒)
 		HttpConnectionParams.setConnectionTimeout(params, CONNECTION_TIMEOUT);
 
@@ -155,7 +155,6 @@ public class Util_Network_HttpUtil {
 			Debug_SDK.td(Debug_SDK.mNetTag, Util_Network_HttpUtil.class, "apn: %s", apn);
 		}
 		if (apn.equals(Util_Network_Status.APN_CMWAP)) {
-
 			HttpHost proxy = new HttpHost("10.0.0.172", 80, null);
 			params.setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
 		}

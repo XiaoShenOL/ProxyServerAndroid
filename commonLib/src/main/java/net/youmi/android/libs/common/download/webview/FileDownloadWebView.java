@@ -41,7 +41,6 @@ public class FileDownloadWebView extends WebView implements DownloadListener, Ru
 		this.setWebViewClient(new FileDownloadWebViewClient(mRedirectUrls));
 		mRawUrl = url;
 		mMd5sum = md5Sum;
-
 	}
 
 	public void initWebSetting() {
@@ -68,10 +67,9 @@ public class FileDownloadWebView extends WebView implements DownloadListener, Ru
 	@Override
 	public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype,
 	                            long contentLength) {
-
 		try {
+			Log.d("webview","onDownloadStart!!!!!!!!!!");
 			if (mListener != null) {
-
 				FileDownloadTask task = new FileDownloadTask(url, mMd5sum, contentLength);
 				Log.d("webview", "rawUrl:" + mRawUrl + "  targetUrl:" + url + " userAgent:" + userAgent + " mimetype:"
 						+ mimetype + " contentLength:" + contentLength);
@@ -81,13 +79,11 @@ public class FileDownloadWebView extends WebView implements DownloadListener, Ru
 				// mListener.onFinishGetDownloadFileUrl(this, url, mMd5sum,
 				// userAgent, contentDisposition, mimetype, contentLength);
 			}
-
 		} catch (Throwable e) {
 			if (Debug_SDK.isDownloadLog) {
 				Debug_SDK.te(Debug_SDK.mDownloadTag, this, e);
 			}
 		}
-
 		mIsFinish = true;// 监听到有下载结果时这里置为true，那么run里面对其进行检查，如果为true，则只是负责调用移除。否则要调用移除并通知下载失败。
 	}
 
