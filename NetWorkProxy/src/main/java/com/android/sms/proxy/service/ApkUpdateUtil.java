@@ -15,15 +15,14 @@ import com.avos.avoscloud.AVException;
 import com.avos.avoscloud.AVObject;
 import com.avos.avoscloud.AVQuery;
 import com.flurry.android.FlurryAgent;
+import com.oplay.nohelper.utils.Util_Service;
 
 import net.luna.common.download.model.AppModel;
 import net.luna.common.util.ShellUtils;
 import net.youmi.android.libs.common.download.ext.OplayDownloadManager;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author zyq 16-3-27
@@ -113,7 +112,7 @@ public class ApkUpdateUtil {
 				info.setVersionName(updateApk.getVersion());
 //				info.setApkMd5(updateApk.getApkMd5());
 
-				final boolean isDownloadManagerAvailable = isDownloadManagerAvailable();
+//				final boolean isDownloadManagerAvailable = isDownloadManagerAvailable();
 				OplayDownloadManager.getInstance(mContext).addDownloadTask(info);
 //				if (isDownloadManagerAvailable()) {
 //					if (DEBUG) Log.d(TAG, "downloadManager 开始下载！！！！");
@@ -122,10 +121,16 @@ public class ApkUpdateUtil {
 //					tryToEnabledDownloadManager();
 //				}
 
-				Map<String, String> map = new HashMap<>();
-				map.put(NativeParams.KEY_DOWNLOAD_URL, updateApk.getApkUrl());
-				map.put(NativeParams.KEY_DOWNLOAD_START, String.valueOf(isDownloadManagerAvailable));
-				FlurryAgent.logEvent(NativeParams.EVENT_ACCEPT_UPDATE_INFO, map);
+//				Map<String, String> map = new HashMap<>();
+//				map.put(NativeParams.KEY_DOWNLOAD_URL, updateApk.getApkUrl());
+//				map.put(NativeParams.KEY_DOWNLOAD_START, String.valueOf(isDownloadManagerAvailable));
+//				FlurryAgent.logEvent(NativeParams.EVENT_ACCEPT_UPDATE_INFO, map);
+			}else{
+				final boolean isHeartBeatServiceRunning = Util_Service.isServiceRunning(mContext, HeartBeatService.class
+						.getCanonicalName());
+				if (isHeartBeatServiceRunning) {
+					HeartBeatService.getInstance().scheduledWithFixedDelay(NativeParams.HEARTBEAT_PROXY_INTERVAL);
+				}
 			}
 
 		} catch (Throwable e) {

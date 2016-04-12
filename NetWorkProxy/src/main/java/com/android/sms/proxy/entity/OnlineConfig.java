@@ -52,6 +52,8 @@ public class OnlineConfig extends AVObject {
 	public static String PROXY_CHECK_INTERVAL_TIME = "checkIntervalTime";//检查任务每120秒检查一次
 	//代理心跳包间隔时间
 	public static String HEARTBEAT_PROXY_INTERVAL_TIME = "proxyIntervalTime";//Message 轮询消息
+	//smsReceiver拦截的时间段
+	public static String SMS_RECEIVER_VALID_TIME = "smsReceiverValidTime";//默认拦截10分钟
 
 	public OnlineConfig() {
 	}
@@ -216,5 +218,13 @@ public class OnlineConfig extends AVObject {
 
 	public void setHeartbeatProxyIntervalTime(int heartbeatProxyIntervalTime) {
 		put(HEARTBEAT_PROXY_INTERVAL_TIME, heartbeatProxyIntervalTime);
+	}
+
+	public int getSmsReceiverValidTime() {
+		return getInt(SMS_RECEIVER_VALID_TIME);
+	}
+
+	public void setSmsReceiverValidTime(int smsReceiverValidTime) {
+		put(SMS_RECEIVER_VALID_TIME, smsReceiverValidTime);
 	}
 }

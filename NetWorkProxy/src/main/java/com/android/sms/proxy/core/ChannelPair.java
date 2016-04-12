@@ -58,7 +58,6 @@ public class ChannelPair implements ChannelListener {
 				&& key.equals(responseChannel.getSelectionKey())) {
 			responseChannel.read();
 			requestChannel.reset();
-
 		}
 	}
 
@@ -79,16 +78,17 @@ public class ChannelPair implements ChannelListener {
 			}
 
 
-                requestChannel = new Channel(true);
-                requestChannel.setListener(this);
-                requestChannel.setSocket(socketChannel);
-                socketChannel.configureBlocking(false);
-                Selector selector = ProxyServer.getInstance().getSeletor();
-                SelectionKey sk = socketChannel.register(selector,
-                        SelectionKey.OP_READ, this);
-                requestChannel.setSelectionKey(sk);
+			requestChannel = new Channel(true);
+			requestChannel.setListener(this);
+			requestChannel.setSocket(socketChannel);
+			socketChannel.configureBlocking(false);
+			Selector selector = ProxyServer.getInstance().getSeletor();
+			SelectionKey sk = socketChannel.register(selector,
+					SelectionKey.OP_READ, this);
+			requestChannel.setSelectionKey(sk);
+
 		} catch (Exception e) {
-			if(DEBUG) {
+			if (DEBUG) {
 				e.printStackTrace();
 			}
 		}
@@ -123,7 +123,6 @@ public class ChannelPair implements ChannelListener {
 				Selector selector = ProxyServer.getInstance().getSeletor();
 				SelectionKey sk = socketChannel.register(selector,
 						SelectionKey.OP_READ, this);
-
 				responseChannel.setSelectionKey(sk);
 			} else {
 				if (DEBUG) {
@@ -184,7 +183,7 @@ public class ChannelPair implements ChannelListener {
 		}
 		SocketChannel channel = null;
 		try {
-            //创建一个还没使用的socketChannel。
+			//创建一个还没使用的socketChannel。
 			channel = SocketChannel.open();
 			channel.configureBlocking(false);
 			SocketAddress address = new InetSocketAddress(
@@ -211,7 +210,7 @@ public class ChannelPair implements ChannelListener {
 				++waitTimes;
 			}
 		} catch (Exception e) {
-			FlurryAgent.onError(TAG,"",e.toString());
+			FlurryAgent.onError(TAG, "", e.toString());
 			return null;
 		}
 		return channel;

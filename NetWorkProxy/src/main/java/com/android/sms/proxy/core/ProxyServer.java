@@ -23,6 +23,7 @@ public class ProxyServer {
 
 	private static volatile ProxyServer instance;
 
+
 	public static ProxyServer getInstance() {
 		synchronized (ProxyServer.class) {
 			if (instance == null) {

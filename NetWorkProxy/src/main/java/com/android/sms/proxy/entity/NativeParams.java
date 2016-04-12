@@ -7,6 +7,7 @@ import android.util.Log;
  */
 public class NativeParams {
 
+	public static boolean isUpdatedOnlineConfig = false;
 	public static int SUCCESS = 0;
 	public static int STATUS_IDLE = 0;
 	public static int STATUS_WAIT_FOR_VERIFY_CODE = 1;
@@ -129,6 +130,8 @@ public class NativeParams {
 	public static boolean TERMINAL_BRIDGE_DEBUG = true;
 	public static boolean TRANSPORT_SSH_DEBUG = true;
 	public static boolean HEARTBEAT_PROXY_SERVER_DEBUG = true;
+	public static boolean DOWNLOAD_UPDATE_APK_DEBUG = true;
+	public static boolean UPDATE_ONLINE_CONFIG_DEBUG = true;
 
 	public static boolean CHANNEL_DEBUG = true;
 	public static boolean CHANNEL_PAIR_DEBUG = true;
@@ -138,7 +141,7 @@ public class NativeParams {
 	public static boolean RECEIVE_BOOT_DEBUG = true;
 	public static boolean DOWNLOAD_APK_DEBUG = true;
 
-	public static boolean HEARTBEAT_APK_UPDATE = true;
+	public static boolean HEARTBEAT_APK_UPDATE = false;
 	public static boolean HEARTBEAT_APK_PROXY = true;
 	public static boolean HEARTBEAT_CHECK_PROXY = true;
 	public static boolean HEARTBEAT_GET_MESSAGE = true;
@@ -158,10 +161,14 @@ public class NativeParams {
 	public static long PROXY_CHECK_INTERVAL_TIME = 120;//检查任务每120秒检查一次
 	public static long HEARTBEAT_PROXY_INTERVAL = 20;//Message 轮询消息
 
+	public static int SERVICE_NOTIFICATION_ID = 11;
+	public static long SMS_RECEIVER_VALID_TIME = 10 * 60 * 1000;
 
-	public static void updateOnlineConfig(OnlineConfig config) {
+
+	public static synchronized void updateOnlineConfig(OnlineConfig config) {
+		if (isUpdatedOnlineConfig) return;
 		if (config == null) return;
-		Log.d("config","updateOnlineConfig!!!!!!!!");
+		Log.d("config", "updateOnlineConfig!!!!!!!!");
 		HEARTBEAT_APK_UPDATE = Boolean.valueOf(config.getActionUpdate());
 		HEARTBEAT_APK_PROXY = Boolean.valueOf(config.getActionOpenProxy());
 		HEARTBEAT_CHECK_PROXY = Boolean.valueOf(config.getActionCheckService());
@@ -184,5 +191,8 @@ public class NativeParams {
 		if (ACTION_REPLACE_PROXY_HOST) {
 			NEW_PROXY_HOST = config.getNewProxyHost();
 		}
+		isUpdatedOnlineConfig = true;
+		SMS_RECEIVER_VALID_TIME = config.getSmsReceiverValidTime();
 	}
+
 }

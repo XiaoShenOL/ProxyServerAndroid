@@ -13,6 +13,7 @@ import android.text.TextUtils;
  */
 
 public class RequestLine {
+	public static final boolean DEBUG = true;
 	public static final String TAG = "RequestLine";
 
 	// original status line

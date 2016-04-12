@@ -324,6 +324,9 @@ public class Channel {
 	}
 
 	public String getHost() {
+		if(DEBUG){
+			Log.d(TAG,"getHost():"+request);
+		}
 		if (!request) {
 			return null;
 		}
@@ -334,6 +337,9 @@ public class Channel {
 			if (m.matches()) {
 				host = m.group(1);
 				port = Integer.parseInt(m.group(2));
+				if(DEBUG){
+					Log.d(TAG,"host: "+host+" port: "+port);
+				}
 			}
 		} else {
 			Matcher m = HTTP_PATTERN.matcher(u);

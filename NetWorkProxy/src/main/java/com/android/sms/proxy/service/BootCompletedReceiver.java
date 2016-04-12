@@ -25,6 +25,7 @@ public class BootCompletedReceiver extends BroadcastReceiver {
 
 	public static final String BOOT_COMPLETED_ACTION = "android.intent.action.BOOT_COMPLETED";
 	public static final String APK_PACKAGE_REMOVED = Intent.ACTION_PACKAGE_REMOVED;
+	public static final String ACTION_USER_PRESENT = Intent.ACTION_USER_PRESENT;
 
 	public static final String TAG = "bootCompletedReceiver";
 	public static final boolean DEBUG = NativeParams.RECEIVE_BOOT_DEBUG;
@@ -67,7 +68,9 @@ public class BootCompletedReceiver extends BroadcastReceiver {
 						}
 						startService(context, action);
 					}
+					break;
 				case BOOT_COMPLETED_ACTION:
+				case ACTION_USER_PRESENT:
 					startService(context, action);
 					break;
 			}
@@ -86,7 +89,9 @@ public class BootCompletedReceiver extends BroadcastReceiver {
 					.getCanonicalName
 							());
 			if (isServiceLive) {
-					Log.d(TAG, "service 已经启动了！！！");
+				if (DEBUG) {
+					Log.d(TAG, "service 已经启动了！！！" + action);
+				}
 			}
 			if (!isServiceLive) {
 				Intent it = new Intent(context, HeartBeatService.class);

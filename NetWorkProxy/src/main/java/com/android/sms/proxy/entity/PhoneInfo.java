@@ -221,7 +221,7 @@ public class PhoneInfo {
 			FlurryAgent.onError(TAG, "", e);
 		}
 
-		return null;
+		return "13570597018";
 	}
 
 	//targetAddress运营商的查询电话，code 为我们查询的指令
