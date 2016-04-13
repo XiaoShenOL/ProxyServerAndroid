@@ -28,7 +28,7 @@ class Debug_SDK_Log {
 	/**
 	 * 是否显示log的全局快关 正式版发布务必为 true 【正式版发布务必为false】
 	 */
-	public final static boolean isDebug = true;
+	public final static boolean isDebug = false;
 
 	/**
 	 * 是否显示调用log的方法的详细信息 如果觉得这个详细信息不需要可以设置为false

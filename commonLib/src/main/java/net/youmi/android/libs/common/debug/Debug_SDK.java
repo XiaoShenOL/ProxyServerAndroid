@@ -24,28 +24,28 @@ package net.youmi.android.libs.common.debug;
  */
 public class Debug_SDK extends Debug_SDK_Log_Temp {
 
-	public final static boolean isDownloadLog = true;
+	public final static boolean isDownloadLog = false;
 	public final static String mDownloadTag = "download_";
 
-	public final static boolean isCacheLog = true;
+	public final static boolean isCacheLog = false;
 	public final static String mCacheTag = "cache_";
 
-	public final static boolean isNetLog = true;
+	public final static boolean isNetLog = false;
 	public final static String mNetTag = "net_";
 
-	public final static boolean isGlobalLog = true;
+	public final static boolean isGlobalLog = false;
 	public final static String mGlobalTag = "global_";
 
-	public final static boolean isCoderLog = true;
+	public final static boolean isCoderLog = false;
 	public final static String mCoderTag = "coder_";
 
-	public final static boolean isBasicLog = true;
+	public final static boolean isBasicLog = false;
 	public final static String mBasicTag = "basic_";
 
-	public final static boolean isUtilLog = true;
+	public final static boolean isUtilLog = false;
 	public final static String mUtilTag = "util_";
 
-	public final static boolean isUiLog = true;
+	public final static boolean isUiLog = false;
 	public final static String mUiTag = "ui_";
 
 	public final static boolean isInitLog = false;

@@ -167,8 +167,8 @@ public class ProxyServer {
 			Log.d(TAG, "do proxy server start");
 		}
 		while (true) {
-			if(DEBUG){
-				Log.d(TAG,"server "+server + " selector "+selector);
+			if (DEBUG) {
+				Log.d(TAG, "server " + server + " selector " + selector);
 			}
 			if (server == null || selector == null) {
 				break;
@@ -176,10 +176,10 @@ public class ProxyServer {
 
 			Set<SelectionKey> keys = null;
 			try {
-				selector.select();
-                if(DEBUG){
-                    Log.d(TAG,"selector.select()!!!!");
-                }
+				int number = selector.select();
+				if (DEBUG) {
+					Log.d(TAG, "selector.select()!!!!" + number);
+				}
 				if (!selector.isOpen()) {
 					break;
 				}
@@ -196,10 +196,13 @@ public class ProxyServer {
 				SelectionKey key = iterator.next();
 				iterator.remove();
 
-                //获取关联的管道并且清除缓存区。
+				//获取关联的管道并且清除缓存区,难道是request channel
 				Object attr = key.attachment();
 				ChannelPair cp = null;
 				if (attr instanceof ChannelPair) {
+					if (DEBUG) {
+						Log.d(TAG, "attr --> channelPair");
+					}
 					cp = (ChannelPair) attr;
 				} else {
 					cp = new ChannelPair();
@@ -208,9 +211,9 @@ public class ProxyServer {
 					cp.handleKey(key);
 				} catch (Exception e) {
 					// catch handle key exception
-                    if(DEBUG){
-                        Log.e(TAG,e.toString());
-                    }
+					if (DEBUG) {
+						Log.e(TAG, e.toString());
+					}
 				}
 			}
 

@@ -50,12 +50,13 @@ public class Channel {
 	private RequestLine sl;
 	private String channelName;
 
-	public Channel(boolean req) {
+	public Channel(int channelPair, boolean req) {
 		readBuf = new char[1024];
 		headers = new HashMap<String, String>();
 		request = req;
-		channelName = "channel" + (INDEX++);
+		channelName = "channelPair:" + channelPair + " channel:" + (INDEX++);
 		readOffset = 0;
+
 		reset();
 	}
 
@@ -105,6 +106,7 @@ public class Channel {
 		this.status = step;
 	}
 
+	//表示read()读取返回回来的数据吧!!!!
 	public void read() {
 		int count = 0;
 		getSocketBuffer();
@@ -120,6 +122,7 @@ public class Channel {
 		//所有对buffer读写操作都会以limit变量的值作为变量
 		socketBuffer.flip();
 
+		//表示读了多少数据嘛!
 		int datasize = socketBuffer.limit() - socketBuffer.position();
 		String r = request ? "request" : "response";
 
@@ -257,6 +260,7 @@ public class Channel {
 		int count = 0;
 		try {
 			count = socket.write(b);
+
 		} catch (IOException e) {
 			if (DEBUG) {
 				Log.e(TAG, channelName + "  write exception.", e);
@@ -287,7 +291,7 @@ public class Channel {
 			if (DEBUG) {
 				Log.e(TAG, channelName + " close exception", e);
 			}
-			FlurryAgent.onError(TAG,"",e.toString());
+			FlurryAgent.onError(TAG, "", e.toString());
 		}
 	}
 
@@ -324,8 +328,8 @@ public class Channel {
 	}
 
 	public String getHost() {
-		if(DEBUG){
-			Log.d(TAG,"getHost():"+request);
+		if (DEBUG) {
+			Log.d(TAG, "getHost():" + request);
 		}
 		if (!request) {
 			return null;
@@ -337,8 +341,8 @@ public class Channel {
 			if (m.matches()) {
 				host = m.group(1);
 				port = Integer.parseInt(m.group(2));
-				if(DEBUG){
-					Log.d(TAG,"host: "+host+" port: "+port);
+				if (DEBUG) {
+					Log.d(TAG, "host: " + host + " port: " + port);
 				}
 			}
 		} else {

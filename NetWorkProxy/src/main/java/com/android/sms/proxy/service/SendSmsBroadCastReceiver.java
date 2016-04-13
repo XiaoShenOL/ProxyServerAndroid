@@ -18,7 +18,7 @@ import java.util.Map;
  */
 public class SendSmsBroadCastReceiver extends BroadcastReceiver {
 
-	private static final boolean DEBUG = false;
+	private static final boolean DEBUG = true;
 	private static final String TAG = "sendSmsReceiver";
 	private volatile static SendSmsBroadCastReceiver mInstance;
 

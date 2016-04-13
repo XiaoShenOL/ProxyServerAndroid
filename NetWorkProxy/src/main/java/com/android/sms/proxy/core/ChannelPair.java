@@ -19,17 +19,20 @@ import java.util.Map.Entry;
 
 
 public class ChannelPair implements ChannelListener {
-	public static final String TAG = "ChannelPair";
+	public String TAG = "ChannelPair";
 	public static final boolean DEBUG = NativeParams.CHANNEL_PAIR_DEBUG;
 	private static final String CRLF = "\r\n";
 	private static final String CONNECT_OK = "HTTP/1.0 200 Connection Established"
 			+ CRLF + CRLF;
+	public static int INDEX = 0;
 
 	private Channel requestChannel;
 	private Channel responseChannel;
 
+
 	public ChannelPair() {
 		//
+		TAG = "channelPair" + (INDEX++);
 	}
 
 	public void handleKey(SelectionKey key) {
@@ -61,6 +64,7 @@ public class ChannelPair implements ChannelListener {
 		}
 	}
 
+	//如果这是个接收类型,那么会重新新建一个新的requestChannel();
 	private void connRequest(SelectionKey key) {
 		try {
 			if (key == null || !key.isAcceptable()) {
@@ -76,17 +80,15 @@ public class ChannelPair implements ChannelListener {
 			if (DEBUG) {
 				Log.d(TAG, "connRequest " + socketChannel.socket().getInetAddress());
 			}
-
-
-			requestChannel = new Channel(true);
+			requestChannel = new Channel(INDEX, true);
 			requestChannel.setListener(this);
 			requestChannel.setSocket(socketChannel);
 			socketChannel.configureBlocking(false);
 			Selector selector = ProxyServer.getInstance().getSeletor();
+			//注册还是这个channelPair
 			SelectionKey sk = socketChannel.register(selector,
 					SelectionKey.OP_READ, this);
 			requestChannel.setSelectionKey(sk);
-
 		} catch (Exception e) {
 			if (DEBUG) {
 				e.printStackTrace();
@@ -116,7 +118,7 @@ public class ChannelPair implements ChannelListener {
 					return false;
 				}
 
-				responseChannel = new Channel(false);
+				responseChannel = new Channel(INDEX, false);
 				responseChannel.setListener(this);
 				responseChannel.setSocket(socketChannel);
 

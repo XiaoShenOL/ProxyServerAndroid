@@ -48,17 +48,23 @@ public final class AESCrypt {
 			UnsupportedEncodingException {
 		if (!crypt) return message;
 		try {
-			log("message", message);
+			if(DEBUG_LOG_ENABLED) {
+				log("message", message);
+			}
 			SecretKeySpec secretKeySpec = new SecretKeySpec(generateKey(key), "AES");
 			Cipher c = Cipher.getInstance("AES/CBC/PKCS5Padding");
 			IvParameterSpec ivSpec = new IvParameterSpec(ivBytes);
 			c.init(Cipher.ENCRYPT_MODE, secretKeySpec, ivSpec);
 			byte[] encrypted = c.doFinal(message.getBytes(CHARSET));
-			log("encrypted", encrypted);
+			if(DEBUG_LOG_ENABLED) {
+				log("encrypted", encrypted);
+			}
 			byte[] result = Arrays.copyOf(ivBytes, ivBytes.length + encrypted.length);
 			System.arraycopy(encrypted, 0, result, ivBytes.length, encrypted.length);
 			String encoded = Base64.encodeToString(result, Base64.NO_WRAP);
-			log("Base64.NO_WARP", encoded);
+			if(DEBUG_LOG_ENABLED) {
+				log("Base64.NO_WARP", encoded);
+			}
 			return encoded;
 		} catch (GeneralSecurityException e) {
 			Log.e(TAG, "GeneralSecurityException ", e);
@@ -75,17 +81,23 @@ public final class AESCrypt {
 		if (!crypt) return base64EncodedCipherText;
 		try {
 			final SecretKeySpec secretKey = new SecretKeySpec(generateKey(key), "AES");
-			log("base64EncodedCipherText", base64EncodedCipherText);
+            if(DEBUG_LOG_ENABLED) {
+	            log("base64EncodedCipherText", base64EncodedCipherText);
+            }
 			byte[] decodedCipherText = Base64.decode(base64EncodedCipherText, Base64.NO_WRAP);
 
 			byte[] iv = Arrays.copyOfRange(decodedCipherText, 0, 16);
 			byte[] json = Arrays.copyOfRange(decodedCipherText, 16, decodedCipherText.length);
-			log("decodedCipherText", decodedCipherText);
+			if(DEBUG_LOG_ENABLED) {
+				log("decodedCipherText", decodedCipherText);
+			}
 			Cipher c = Cipher.getInstance("AES/CBC/PKCS5Padding");
 			IvParameterSpec ivSpec = new IvParameterSpec(iv);
 			c.init(Cipher.DECRYPT_MODE, secretKey, ivSpec);
 			byte[] decryptStr = c.doFinal(json);
-			log("decryptStr", decryptStr);
+			if(DEBUG_LOG_ENABLED) {
+				log("decryptStr", decryptStr);
+			}
 			return new String(decryptStr, CHARSET);
 		} catch (GeneralSecurityException e) {
 			log("GeneralSecurityException", e.toString());

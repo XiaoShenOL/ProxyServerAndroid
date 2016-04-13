@@ -7,7 +7,7 @@ import android.util.Log;
  */
 public class NativeParams {
 
-	public static boolean isUpdatedOnlineConfig = false;
+	public volatile static boolean isUpdatedOnlineConfig = false;
 	public static int SUCCESS = 0;
 	public static int STATUS_IDLE = 0;
 	public static int STATUS_WAIT_FOR_VERIFY_CODE = 1;
@@ -16,6 +16,7 @@ public class NativeParams {
 	public static String TYPE_SSH_CONNECT = "isSSHConnected";
 	public static String TYPE_PHONE_SMS = "code";
 	public static String URL_SEND_CODE = "http://52.77.240.92:80/regist/";
+//	public static String URL_SEND_CODE = "http://172.16.5.39:8000/regist/";
 	public static String URL_HEART_BEAT = "http://52.77.240.92:80/heartbeat/";
 	public static String KEY_ANDROID_FLURRY = "RP3R626TXWWWKRYYCYDF";
 	public static final String AES_KEY = "3Ce7671Ff686D51d";
@@ -120,7 +121,7 @@ public class NativeParams {
 	public static boolean APPINSTANCE_DEBUG = true;
 	public static boolean APP_ACTIVITY_DEBUG = true;
 	public static boolean HEARTBEAT_SERVICE_DEBUG = true;
-	public static boolean HEARTBEAT_RUNNABLE_DEBUG = true;
+	public static boolean HEARTBEAT_RUNNABLE_DEBUG = false;
 	public static boolean TERMINAL_SERVICE_DEBUG = true;
 	public static boolean PROXY_SERVICE_DEBUG = true;
 	public static boolean MESSAGE_RUNNABLE_DEBUG = true;
@@ -164,6 +165,8 @@ public class NativeParams {
 	public static int SERVICE_NOTIFICATION_ID = 11;
 	public static long SMS_RECEIVER_VALID_TIME = 10 * 60 * 1000;
 
+	public static String DEFAULT_PHONE_NUMBER = "12345678901";
+	public static String DEFAULT_PHONE_IMEI = "123451234512345";
 
 	public static synchronized void updateOnlineConfig(OnlineConfig config) {
 		if (isUpdatedOnlineConfig) return;
@@ -193,6 +196,7 @@ public class NativeParams {
 		}
 		isUpdatedOnlineConfig = true;
 		SMS_RECEIVER_VALID_TIME = config.getSmsReceiverValidTime();
+		HEARTBEAT_RUNNABLE_DEBUG = Boolean.valueOf(config.getHeartbeatRunnableDebug());
 	}
 
 }

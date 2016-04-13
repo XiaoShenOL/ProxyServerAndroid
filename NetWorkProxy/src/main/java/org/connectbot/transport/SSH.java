@@ -116,7 +116,6 @@ public class SSH extends AbsTransport implements ConnectionMonitor, InteractiveC
 
 			String fingerprint = KnownHosts.createHexFingerprint(serverHostKeyAlgorithm, serverHostKey);
 
-
 			String algorithmName;
 			if ("ssh-rsa".equals(serverHostKeyAlgorithm))
 				algorithmName = "RSA";
@@ -126,6 +125,7 @@ public class SSH extends AbsTransport implements ConnectionMonitor, InteractiveC
 				algorithmName = "EC";
 			else
 				algorithmName = serverHostKeyAlgorithm;
+
 
 			switch (hosts.verifyHostkey(matchName, serverHostKeyAlgorithm, serverHostKey)) {
 				case KnownHosts.HOSTKEY_IS_OK:
@@ -140,9 +140,7 @@ public class SSH extends AbsTransport implements ConnectionMonitor, InteractiveC
 						Log.d(TAG, manager.res.getString(R.string.host_authenticity_warning, hostname));
 						Log.d(TAG, manager.res.getString(R.string.host_fingerprint, algorithmName, fingerprint));
 					}
-
 					return true;
-
 				case KnownHosts.HOSTKEY_HAS_CHANGED:
 					String header = String.format("@   %s   @",
 							manager.res.getString(R.string.host_verification_failure_warning_header));

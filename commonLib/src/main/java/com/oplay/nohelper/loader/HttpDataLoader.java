@@ -14,6 +14,7 @@ import java.lang.reflect.Type;
  */
 public class HttpDataLoader {
 
+	private static final boolean DEBUG = true;
 	public static final String AES_KEY = "3Ce7671Ff686D51d";
 	private static final Gson GSON = new GsonBuilder()
 			.serializeNulls()
@@ -21,16 +22,20 @@ public class HttpDataLoader {
 
 	public static <T> T fromJson(String json, Class<T> classOfT) {
 		try {
-			Log.d("HttpDataLoader","加密后结果是："+json);
+			if (DEBUG) {
+				Log.d("HttpDataLoader", "加密后结果是：" + json);
+			}
 			String result = AESCrypt.decrypt(AES_KEY, json);
-			Log.d("HttpDataLoader", "解密后结果是：" + result);
+			if (DEBUG) {
+				Log.d("HttpDataLoader", "解密后结果是：" + result);
+			}
 			return GSON.fromJson(result, classOfT);
 		} catch (Exception e) {
-			Log.e("error",e.fillInStackTrace().toString());
+			if (DEBUG) {
+				Log.e("error", e.fillInStackTrace().toString());
+			}
 		}
 		return null;
-
-
 	}
 
 	public static <T> T fromJson(String json, Type type) {

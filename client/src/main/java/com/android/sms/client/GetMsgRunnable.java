@@ -49,9 +49,6 @@ public class GetMsgRunnable implements Runnable {
 	}
 
 
-
-
-
 	//获取最新的指令，
 	private void updateCheckInfo() throws AVException {
 		AVQuery<CheckInfo> query = AVObject.getQuery(CheckInfo.class);
@@ -86,9 +83,10 @@ public class GetMsgRunnable implements Runnable {
 					if (DEBUG) {
 						Log.d(TAG, "４５秒后重新查询！！！！");
 					}
-					Thread.sleep(35000);
+					Thread.sleep(10000);
 					SmsManageUtil.getInstance(mContext).deleteSMS(mContext, info.getOperatorCode());
-					Thread.sleep(15000);
+					Thread.sleep(25000);
+					sendSmsTime = 0;
 				} catch (InterruptedException e) {
 					if (DEBUG) {
 						Log.e(TAG, e.toString());

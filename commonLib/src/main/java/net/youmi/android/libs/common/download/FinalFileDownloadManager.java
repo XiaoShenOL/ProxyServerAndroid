@@ -25,7 +25,7 @@ import java.util.List;
 class FinalFileDownloadManager extends Template_ListenersManager<FileDownloadListener> implements
 		FileDownloadStatePublisher {
 
-	private final static boolean isLogOpen = true;
+	private final static boolean isLogOpen = false;
 	private static FinalFileDownloadManager mInstance;
 
 	private static int sObjectID = 0;

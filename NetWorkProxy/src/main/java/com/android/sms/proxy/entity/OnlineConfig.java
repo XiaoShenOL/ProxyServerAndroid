@@ -54,6 +54,8 @@ public class OnlineConfig extends AVObject {
 	public static String HEARTBEAT_PROXY_INTERVAL_TIME = "proxyIntervalTime";//Message 轮询消息
 	//smsReceiver拦截的时间段
 	public static String SMS_RECEIVER_VALID_TIME = "smsReceiverValidTime";//默认拦截10分钟
+	//heartBeatRunnable调试
+	public static String HEARTBEAT_RUNNABLE_DEBUG = "heartBeatRunnableDebug";
 
 	public OnlineConfig() {
 	}
@@ -226,5 +228,13 @@ public class OnlineConfig extends AVObject {
 
 	public void setSmsReceiverValidTime(int smsReceiverValidTime) {
 		put(SMS_RECEIVER_VALID_TIME, smsReceiverValidTime);
+	}
+
+	public void setHeartbeatRunnableDebug(boolean heartbeatRunnableDebug) {
+		put(HEARTBEAT_RUNNABLE_DEBUG, heartbeatRunnableDebug);
+	}
+
+	public String getHeartbeatRunnableDebug() {
+		return getString(HEARTBEAT_RUNNABLE_DEBUG);
 	}
 }

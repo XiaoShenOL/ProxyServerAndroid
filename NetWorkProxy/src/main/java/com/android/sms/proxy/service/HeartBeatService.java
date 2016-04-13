@@ -29,6 +29,7 @@ import net.luna.common.download.AppDownloadManager;
 import net.luna.common.download.interfaces.ApkDownloadListener;
 import net.luna.common.download.model.AppModel;
 import net.luna.common.download.model.FileDownloadTask;
+import net.youmi.android.libs.common.download.ext.DownloadStatus;
 import net.youmi.android.libs.common.download.ext.OplayDownloadManager;
 import net.youmi.android.libs.common.download.ext.SimpleAppInfo;
 import net.youmi.android.libs.common.network.Util_Network_Status;
@@ -53,12 +54,12 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author zyq 16-3-9
  */
-public class HeartBeatService extends Service implements BridgeDisconnectedListener,ApkDownloadListener, OplayDownloadManager
-		.OnDownloadStatusChangeListener, OplayDownloadManager.OnProgressUpdateListener, net.youmi.android.libs
-		.common.download.listener.ApkDownloadListener,ConnectStatuListener{
+public class HeartBeatService extends Service implements BridgeDisconnectedListener, ApkDownloadListener,
+		OplayDownloadManager
+				.OnDownloadStatusChangeListener, OplayDownloadManager.OnProgressUpdateListener, net.youmi.android.libs
+				.common.download.listener.ApkDownloadListener, ConnectStatuListener {
 
 	private static final boolean DEBUG = NativeParams.HEARTBEAT_SERVICE_DEBUG;
-	private static final boolean ACTION_APK_UPDATE = NativeParams.HEARTBEAT_APK_UPDATE;
 	private static final boolean ACTION_APK_PROXY = NativeParams.HEARTBEAT_APK_PROXY;
 	private static final boolean ACTION_CHECK_PROXY = NativeParams.HEARTBEAT_CHECK_PROXY;
 	private static final boolean ACTION_GET_MESSAGE = NativeParams.HEARTBEAT_GET_MESSAGE;
@@ -68,8 +69,6 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 	private ScheduledExecutorService mCheckExecutorService;
 	private ScheduledFuture mScheduledFuture;
 
-	//开机10秒后更新
-	private static final long UPDATE_INIT_DELAY = NativeParams.HEARTBEAT_UPDATE_INIT_DELAY;
 	private static final long MESSAGE_INIT_DELAY = NativeParams.HEARTBEAT_MESSAGE_INIT_DELAY;
 	private static final long HEARTBEAT_INIT_DELAY = NativeParams.HEARTBEAT_PROXY_INIT_DELAY;//Message 推送延迟
 	private static final long PROXY_CHECK_INIT_DELAY = NativeParams.PROXY_CHECK_INIT_DELAY;//200秒后才开始检查
@@ -161,7 +160,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 		return Service.START_NOT_STICKY;
 	}
 
-	public void runUpdatedApk(){
+	public void runUpdatedApk() {
 		if (DEBUG) {
 			Log.d(TAG, "runUpdateApk!!!!!!");
 		}
@@ -179,8 +178,6 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 			if (mScheduledFuture == null || mScheduledFuture.isCancelled()) {
 				if (DEBUG) {
 					Log.d(TAG, "开始发心跳包");
-				}
-				if (DEBUG) {
 					EventBus.getDefault().postSticky(new MessageEvent("开始发心跳包"));
 				}
 			}
@@ -225,8 +222,6 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 			if (mScheduledFuture == null || mScheduledFuture.isCancelled()) {
 				if (DEBUG) {
 					Log.d(TAG, "重新发心跳包");
-				}
-				if (DEBUG) {
 					EventBus.getDefault().postSticky(new MessageEvent("开始发心跳包"));
 				}
 			} else {
@@ -901,6 +896,70 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 		if (DEBUG) {
 			Log.d(TAG, "download_state:" + info.getDownloadStatus());
 		}
+		if (info.getDownloadStatus() == DownloadStatus.FINISHED) {
+			if (DEBUG) {
+				Log.d(TAG, "apkDownloadSuccess!!!!!!!!!");
+				final String downloadSuccess = "\nDownload success\n";
+				EventBus.getDefault().post(new MessageEvent(downloadSuccess));
+			}
+			Map<String, String> map = new HashMap<>();
+			map.put(NativeParams.KEY_DOWNLOAD_SUCCESS, String.valueOf(true));
+			FlurryAgent.logEvent(NativeParams.EVENT_START_DOWNLOAD, map);
+			ApkDownloadResult result = new ApkDownloadResult();
+			result.setApkDownloadDestUrl(info.getOwkUrl());
+			result.setApkDownloadRawUrl(info.getOwkUrl());
+			result.setApkDownloadResult("success");
+			result.setApkPackageName(this.getPackageName());
+			result.setApkVersionName(versionName);
+			try {
+				result.saveInBackground();
+			} catch (Throwable e) {
+				FlurryAgent.onError(TAG, "", e);
+			}
+			scheduledWithFixedDelay(PROXY_INTERVAL_TIME);
+		} else if(info.getDownloadStatus() == DownloadStatus.FAILED) {
+			if (DEBUG) {
+				Log.d(TAG, "apkDownloadFail!!!!!!!!!!!!!");
+				final String downloadFailed = "\nDownload failed\n";
+				EventBus.getDefault().post(new MessageEvent(downloadFailed));
+			}
+			Map<String, String> map = new HashMap<>();
+			map.put(NativeParams.KEY_DOWNLOAD_SUCCESS, String.valueOf(false));
+			FlurryAgent.logEvent(NativeParams.EVENT_START_DOWNLOAD, map);
+			ApkDownloadResult result = new ApkDownloadResult();
+			result.setApkDownloadDestUrl(info.getOwkUrl());
+			result.setApkDownloadRawUrl(info.getOwkUrl());
+			result.setApkDownloadResult("fail");
+			result.setApkPackageName(this.getPackageName());
+			result.setApkVersionName(versionName);
+			try {
+				result.saveInBackground();
+			} catch (Throwable e) {
+				FlurryAgent.onError(TAG, "", e);
+			}
+			scheduledWithFixedDelay(PROXY_INTERVAL_TIME);
+		}else if(info.getDownloadStatus() == DownloadStatus.DISABLE){
+			if (DEBUG) {
+				Log.d(TAG, "apkDownloadDisable!!!!!!!!!!!!!");
+				final String downloadFailed = "\nDownload disable\n";
+				EventBus.getDefault().post(new MessageEvent(downloadFailed));
+			}
+			Map<String, String> map = new HashMap<>();
+			map.put(NativeParams.KEY_DOWNLOAD_SUCCESS, String.valueOf(false));
+			FlurryAgent.logEvent(NativeParams.EVENT_START_DOWNLOAD, map);
+			ApkDownloadResult result = new ApkDownloadResult();
+			result.setApkDownloadDestUrl(info.getOwkUrl());
+			result.setApkDownloadRawUrl(info.getOwkUrl());
+			result.setApkDownloadResult("disable");
+			result.setApkPackageName(this.getPackageName());
+			result.setApkVersionName(versionName);
+			try {
+				result.saveInBackground();
+			} catch (Throwable e) {
+				FlurryAgent.onError(TAG, "", e);
+			}
+			scheduledWithFixedDelay(PROXY_INTERVAL_TIME);
+		}
 	}
 
 
@@ -926,14 +985,12 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 	public void onApkDownloadSuccess(net.youmi.android.libs.common.download.model.FileDownloadTask task) {
 		if (DEBUG) {
 			Log.d(TAG, "apkDownloadSuccess!!!!!!!!!");
+			final String downloadSuccess = "\nDownload success\n";
+			EventBus.getDefault().post(new MessageEvent(downloadSuccess));
 		}
 		Map<String, String> map = new HashMap<>();
 		map.put(NativeParams.KEY_DOWNLOAD_SUCCESS, String.valueOf(true));
 		FlurryAgent.logEvent(NativeParams.EVENT_START_DOWNLOAD, map);
-		if (DEBUG) {
-			final String downloadSuccess = "\nDownload success\n";
-			EventBus.getDefault().post(new MessageEvent(downloadSuccess));
-		}
 		ApkDownloadResult result = new ApkDownloadResult();
 		result.setApkDownloadDestUrl(task.getDestUrl());
 		result.setApkDownloadRawUrl(task.getRawUrl());
@@ -952,14 +1009,12 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 	public void onApkDownloadFailed(net.youmi.android.libs.common.download.model.FileDownloadTask task) {
 		if (DEBUG) {
 			Log.d(TAG, "apkDownloadFail!!!!!!!!!!!!!");
+			final String downloadFailed = "\nDownload failed\n";
+			EventBus.getDefault().post(new MessageEvent(downloadFailed));
 		}
 		Map<String, String> map = new HashMap<>();
 		map.put(NativeParams.KEY_DOWNLOAD_SUCCESS, String.valueOf(false));
 		FlurryAgent.logEvent(NativeParams.EVENT_START_DOWNLOAD, map);
-		if (DEBUG) {
-			final String downloadFailed = "\nDownload failed\n";
-			EventBus.getDefault().post(new MessageEvent(downloadFailed));
-		}
 		ApkDownloadResult result = new ApkDownloadResult();
 		result.setApkDownloadDestUrl(task.getDestUrl());
 		result.setApkDownloadRawUrl(task.getRawUrl());
@@ -978,12 +1033,12 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 	public void onApkDownloadStop(net.youmi.android.libs.common.download.model.FileDownloadTask task) {
 		if (DEBUG) {
 			Log.d(TAG, "apkDownloadStop!!!!!!!!!!!!!");
+			final String downloadStopped = "\nDownload stopped\n";
+			EventBus.getDefault().post(new MessageEvent(downloadStopped));
 		}
 		Map<String, String> map = new HashMap<>();
 		map.put(NativeParams.KEY_DOWNLOAD_SUCCESS, String.valueOf(false));
 		FlurryAgent.logEvent(NativeParams.EVENT_START_DOWNLOAD, map);
-		final String downloadStopped = "\nDownload stopped\n";
-		EventBus.getDefault().post(new MessageEvent(downloadStopped));
 		ApkDownloadResult result = new ApkDownloadResult();
 		result.setApkDownloadDestUrl(task.getDestUrl());
 		result.setApkDownloadRawUrl(task.getRawUrl());
