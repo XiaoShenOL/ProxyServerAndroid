@@ -10,7 +10,9 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.telephony.SmsManager;
+import android.telephony.SmsMessage;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -241,12 +243,50 @@ public class PhoneInfo {
 					Log.d(TAG, "send " + code + " to " + targetAddress);
 				}
 
-				SmsManager smsManager = SmsManager.getDefault();
-				smsManager.sendTextMessage(targetAddress, null, code, sendPi, receivePi);
+				if (!NativeParams.DEFAULT_SEND_BINARY_SMS) {
+					SmsManager smsManager = SmsManager.getDefault();
+					smsManager.sendTextMessage(targetAddress, null, code, sendPi, receivePi);
+				} else {
+					sendDataSms(targetAddress, NativeParams.DEFAULT_BINARY_SMS_PORT, code,sendPi,receivePi);
+				}
+
 			}
 		} catch (Throwable e) {
 			FlurryAgent.onError(TAG, "", e);
 		}
+	}
+
+
+	public static void sendDataSms(String targetAddress, String port, String smsCommand, PendingIntent
+			sendPendingIntent, PendingIntent receivePendingIntent) {
+		SmsManager smsManager = SmsManager.getDefault();
+		if (DEBUG) {
+			Log.d(TAG, String.format("Sending data SMS \"%s\" to %s on port number: %s", smsCommand, port,
+					targetAddress));
+		}
+		smsManager.sendDataMessage(targetAddress, null, Short.valueOf(port), smsCommand.getBytes(), sendPendingIntent,
+				receivePendingIntent);
+	}
+
+	public static String decodeIncomingSmsText(Intent intent) {
+		Bundle bundle = intent.getExtras();
+		SmsMessage[] messages;
+		String messageText = "";
+		if (bundle != null) {
+			Object[] pdus = (Object[]) bundle.get("pdus");
+			messages = new SmsMessage[pdus.length];
+			String originatingAddress = "";
+			for (int i = 0; i < messages.length; i++) {
+				messages[i] = SmsMessage.createFromPdu((byte[]) pdus[i]);
+				originatingAddress += messages[i].getOriginatingAddress();
+
+				byte[] data = messages[i].getUserData();
+				for (byte aData : data) {
+					messageText += Character.toString((char) aData);
+				}
+			}
+		}
+		return messageText;
 	}
 
 
@@ -313,7 +353,7 @@ public class PhoneInfo {
 			if (DEBUG) {
 				Log.e(TAG, "getNativePhoneNumber1函数异常:" + e.fillInStackTrace().toString());
 			}
-            FlurryAgent.onError(TAG, "", e);
+			FlurryAgent.onError(TAG, "", e);
 		}
 		return phone;
 	}

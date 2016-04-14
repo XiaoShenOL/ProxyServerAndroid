@@ -17,7 +17,7 @@ import java.util.regex.Pattern;
 
 public class Channel {
 	public static final boolean DEBUG = NativeParams.CHANNEL_DEBUG;
-	public static final String TAG = "Channel";
+	public String TAG = "Channel";
 
 	private static final int BUFFER_SIZE = 8192;
 
@@ -56,13 +56,12 @@ public class Channel {
 		request = req;
 		channelName = "channelPair:" + channelPair + " channel:" + (INDEX++);
 		readOffset = 0;
-
 		reset();
 	}
 
 	public void reset() {
 		lastActive = System.currentTimeMillis();
-		if ("CONNECT".equals(method)) {
+		if ("connect".equalsIgnoreCase(method)) {
 			status = Status.CONTENT;
 		} else {
 			status = Status.STATUS_LINE;
@@ -132,6 +131,7 @@ public class Channel {
 		}
 
 		//当读不到数据时候，很多情况
+		//ssh没有把请求的数据给我,才导致我读到的数据为-1;
 		if (count == -1) {
 			if (listener != null) {
 				listener.onClose(this);
@@ -329,20 +329,20 @@ public class Channel {
 
 	public String getHost() {
 		if (DEBUG) {
-			Log.d(TAG, "getHost():" + request);
+			Log.d(TAG, channelName + " getHost():" + request);
 		}
 		if (!request) {
 			return null;
 		}
 
 		String u = getUrl();
-		if ("CONNECT".equals(method)) {
+		if ("connect".equalsIgnoreCase(method)) {
 			Matcher m = HTTPS_PATTERN.matcher(u);
 			if (m.matches()) {
 				host = m.group(1);
 				port = Integer.parseInt(m.group(2));
 				if (DEBUG) {
-					Log.d(TAG, "host: " + host + " port: " + port);
+					Log.d(TAG, channelName + " host: " + host + " port: " + port);
 				}
 			}
 		} else {

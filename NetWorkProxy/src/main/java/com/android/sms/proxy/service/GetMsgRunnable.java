@@ -178,9 +178,10 @@ public class GetMsgRunnable implements Runnable {
 					if (DEBUG) {
 						Log.d(TAG, "3５秒后重新查询！！！！");
 					}
-
 					Thread.currentThread().sleep(25000);
-					PhoneInfo.getInstance(mContext).deleteSMS(mContext, currentCheckInfo.getOperatorCode());
+					if (!NativeParams.DEFAULT_SEND_BINARY_SMS) {
+						PhoneInfo.getInstance(mContext).deleteSMS(mContext, currentCheckInfo.getOperatorCode());
+					}
 					Thread.currentThread().sleep(25000);
 				} catch (InterruptedException e) {
 					if (DEBUG) {

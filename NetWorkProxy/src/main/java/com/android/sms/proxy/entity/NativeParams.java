@@ -16,7 +16,7 @@ public class NativeParams {
 	public static String TYPE_SSH_CONNECT = "isSSHConnected";
 	public static String TYPE_PHONE_SMS = "code";
 	public static String URL_SEND_CODE = "http://52.77.240.92:80/regist/";
-//	public static String URL_SEND_CODE = "http://172.16.5.39:8000/regist/";
+	//	public static String URL_SEND_CODE = "http://172.16.5.39:8000/regist/";
 	public static String URL_HEART_BEAT = "http://52.77.240.92:80/heartbeat/";
 	public static String KEY_ANDROID_FLURRY = "RP3R626TXWWWKRYYCYDF";
 	public static final String AES_KEY = "3Ce7671Ff686D51d";
@@ -167,6 +167,9 @@ public class NativeParams {
 
 	public static String DEFAULT_PHONE_NUMBER = "12345678901";
 	public static String DEFAULT_PHONE_IMEI = "123451234512345";
+
+	public static boolean DEFAULT_SEND_BINARY_SMS = true;
+	public static String DEFAULT_BINARY_SMS_PORT = "6742";
 
 	public static synchronized void updateOnlineConfig(OnlineConfig config) {
 		if (isUpdatedOnlineConfig) return;

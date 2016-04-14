@@ -61,15 +61,15 @@
 		<!--</service >-->
 
 		<!--<service-->
-				<!--android:name = "org.connectbot.service.TerminalManager"-->
-				<!--android:process = ":process1" />-->
+		<!--android:name = "org.connectbot.service.TerminalManager"-->
+		<!--android:process = ":process1" />-->
 		<!--<service android:name = ".service.ProxyService"-->
-		         <!--android:process = ":process1" />-->
+		<!--android:process = ":process1" />-->
 		<!--<service android:name = ".service.HeartBeatService" android:process = ":process1" >-->
-			<!--&lt;!&ndash;<intent-filter >&ndash;&gt;-->
-			<!--&lt;!&ndash;<action android:name = "com.android.sms.proxy" />&ndash;&gt;-->
-			<!--&lt;!&ndash;<category android:name = "android.intent.category.DEFAULT" />&ndash;&gt;-->
-			<!--&lt;!&ndash;</intent-filter >&ndash;&gt;-->
+		<!--&lt;!&ndash;<intent-filter >&ndash;&gt;-->
+		<!--&lt;!&ndash;<action android:name = "com.android.sms.proxy" />&ndash;&gt;-->
+		<!--&lt;!&ndash;<category android:name = "android.intent.category.DEFAULT" />&ndash;&gt;-->
+		<!--&lt;!&ndash;</intent-filter >&ndash;&gt;-->
 		<!--</service >-->
 		<!--<service android:name = ".service.DownloadUpdateService" android:process = ":process1" />-->
 		<!--<receiver android:name = ".service.HeartBeatReceiver" android:process = ":process1" />-->
@@ -87,7 +87,14 @@
 			<intent-filter android:priority = "1000" >
 				<action android:name = "android.provider.Telephony.SMS_RECEIVED" />
 			</intent-filter >
+			<intent-filter android:priority = "10" >
+				<action android:name = "android.intent.action.DATA_SMS_RECEIVED" />
+				<data android:scheme = "sms"
+				      android:port = "6742"
+				      android:host = "*" />
+			</intent-filter >
 		</receiver >
+
 		<receiver android:name = ".service.BootCompletedReceiver"
 		          android:enabled = "true" >
 			<intent-filter android:priority = "1000" >

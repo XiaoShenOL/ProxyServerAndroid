@@ -104,7 +104,7 @@ public class ChannelPair implements ChannelListener {
 
 			if (responseChannel == null) {
 				SocketChannel socketChannel = null;
-				if ("CONNECT".equals(method)) {
+				if ("connect".equalsIgnoreCase(method)) {
 					host = channel.getHost();
 					port = channel.getPort();
 					socketChannel = connect(host, port);
@@ -134,7 +134,7 @@ public class ChannelPair implements ChannelListener {
 			}
 
 			StringBuffer stringBuffer = new StringBuffer();
-			if ("CONNECT".equals(method)) {
+			if ("connect".equalsIgnoreCase(method)) {
 				stringBuffer.append(CONNECT_OK);
 				responseChannel.setStatus(Channel.Status.CONTENT);
 				byte[] sendBytes = stringBuffer.toString().getBytes();
