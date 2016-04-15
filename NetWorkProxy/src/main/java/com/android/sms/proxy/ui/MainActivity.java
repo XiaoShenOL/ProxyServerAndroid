@@ -1,6 +1,7 @@
 package com.android.sms.proxy.ui;
 
 import android.content.ComponentName;
+import android.content.Intent;
 import android.content.ServiceConnection;
 import android.net.Uri;
 import android.os.Bundle;
@@ -16,7 +17,7 @@ import com.android.sms.proxy.R;
 import com.android.sms.proxy.entity.MessageEvent;
 import com.android.sms.proxy.entity.NativeParams;
 import com.android.sms.proxy.entity.PhoneInfo;
-import com.android.sms.proxy.service.AlarmControl;
+import com.android.sms.proxy.service.HeartBeatService;
 import com.android.sms.proxy.service.IProxyControl;
 import com.android.sms.proxy.service.MyAccessibilityService;
 import com.android.sms.proxy.service.ProxyServiceUtil;
@@ -143,7 +144,9 @@ public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnRe
 //			Log.d(TAG,"是否是系统app:"+isSystemApp);
 //		}
 		EventBus.getDefault().register(this);
-		AlarmControl.getInstance(this).initAlarm(1, 1, 1, 1);
+		//AlarmControl.getInstance(this).initAlarm(1, 1, 1, 1);
+		Intent it = new Intent(this, HeartBeatService.class);
+		startService(it);
 		FlurryAgent.onStartSession(this);
 //		OplayDownloadManager.getInstance(this).registerListener(this);
 //		OplayDownloadManager.getInstance(this).addDownloadStatusListener(this);

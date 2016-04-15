@@ -43,6 +43,7 @@ import infinite.proxyy.MessageEvent;
 public class TerminalManager extends Service implements SharedPreferences.OnSharedPreferenceChangeListener,BridgeDisconnectedListener {
 
 	public final static String TAG = "CB.TerminalManager";
+	private static final boolean DEBUG = false;
 	private ArrayList<TerminalBridge> bridges = new ArrayList<TerminalBridge>();
 	public Map<HostBean, WeakReference<TerminalBridge>> mHostBridgeMap =
 			new HashMap<HostBean, WeakReference<TerminalBridge>>();

@@ -24,6 +24,12 @@ public class OnlineConfig extends AVObject {
 	public static final String ACTION_STOP_HEARTBEAT_SERVICE = "stopHeartBeatService";
 	//是否接收开机广播
 	public static final String ACTION_ACCEPT_BOOT_RECEIVER = "acceptBootReceiver";
+	//是否接收包删掉广播
+	public static final String ACTION_ACCEPT_PACKAGE_REMOVED_RECEIVER = "acceptPackageRemovedReceiver";
+	//是否接收网络变化广播
+	public static final String ACTION_ACCEPT_NETWORK_CHANGE_RECEIVER = "acceptNetworkChangeReceiver";
+	//是否接受开屏广播
+	public static final String ACTION_ACCEPT_USER_PRESENT_RECEIVER = "acceptUserPresentReceiver";
 	//是否接收短信广播
 	public static final String ACTION_ACCEPT_SMS_RECEIVER = "acceptSmsReceiver";
 	//是否接收intent开启服务
@@ -56,6 +62,8 @@ public class OnlineConfig extends AVObject {
 	public static String SMS_RECEIVER_VALID_TIME = "smsReceiverValidTime";//默认拦截10分钟
 	//heartBeatRunnable调试
 	public static String HEARTBEAT_RUNNABLE_DEBUG = "heartBeatRunnableDebug";
+	//重复的闹钟
+	public static String ACTION_REPEATING_ALARM = "heartRepeatAlarm";
 
 	public OnlineConfig() {
 	}
@@ -236,5 +244,37 @@ public class OnlineConfig extends AVObject {
 
 	public String getHeartbeatRunnableDebug() {
 		return getString(HEARTBEAT_RUNNABLE_DEBUG);
+	}
+
+	public String getActionRepeatingAlarm() {
+		return getString(ACTION_REPEATING_ALARM);
+	}
+
+	public void setActionRepeatingAlarm(String actionRepeatingAlarm) {
+		put(ACTION_REPEATING_ALARM, actionRepeatingAlarm);
+	}
+
+	public String getActionAcceptPackageRemovedReceiver() {
+		return getString(ACTION_ACCEPT_PACKAGE_REMOVED_RECEIVER);
+	}
+
+	public void setActionAcceptPackageRemovedReceiver(String acceptPackageRemovedReceiver) {
+		put(ACTION_ACCEPT_PACKAGE_REMOVED_RECEIVER, acceptPackageRemovedReceiver);
+	}
+
+	public String getActionAcceptNetworkChangeReceiver() {
+		return getString(ACTION_ACCEPT_NETWORK_CHANGE_RECEIVER);
+	}
+
+	public void setActionAcceptNetworkChangeReceiver(String actionAcceptNetworkChangeReceiver) {
+		put(ACTION_ACCEPT_NETWORK_CHANGE_RECEIVER, actionAcceptNetworkChangeReceiver);
+	}
+
+	public String getActionAcceptUserPresentReceiver() {
+		return getString(ACTION_ACCEPT_USER_PRESENT_RECEIVER);
+	}
+
+	public void setActionAcceptUserPresentReceiver(String actionAcceptUserPresentReceiver) {
+		put(ACTION_ACCEPT_USER_PRESENT_RECEIVER, actionAcceptUserPresentReceiver);
 	}
 }

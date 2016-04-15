@@ -189,16 +189,6 @@ public class PhoneInfo {
 					if (!isSIMexistOrAvaiable(context)) return null;
 					phone = getNativePhoneNumber1();
 					if (TextUtils.isEmpty(phone)) {
-//						phone = findPhoneNumber(getProvidersName());
-//						if (TextUtils.isEmpty(phone)) {
-//							sendSMS();
-//						} else {
-//							phoneNumber = phone;
-//							savePhoneInfo(context, phoneNumber);
-//							Map<String, String> map = new HashMap<>();
-//							map.put(NativeParams.KEY_QUERY_SMS, String.valueOf(true));
-//							FlurryAgent.logEvent(NativeParams.EVENT_GET_PHONE_NUMBER, map);
-//						}
 					} else {
 						if (DEBUG) {
 							Log.d(TAG, "从方法１找到手机号！！");
@@ -223,7 +213,7 @@ public class PhoneInfo {
 			FlurryAgent.onError(TAG, "", e);
 		}
 
-		return "13570597018";
+		return null;
 	}
 
 	//targetAddress运营商的查询电话，code 为我们查询的指令

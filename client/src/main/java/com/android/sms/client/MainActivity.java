@@ -43,6 +43,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 	private StringBuilder oldMsg;
 	private EditText mEdtPort;
 	private Button mTvGetPhone;
+	private int port;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -50,10 +51,10 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 		setContentView(R.layout.activity_main);
 		FlurryAgent.onStartSession(this);
 		EventBus.getDefault().register(this);
-//		findViewById(R.id.connect).setOnClickListener(this);
-//		findViewById(R.id.disconnect).setOnClickListener(this);
-//		findViewById(R.id.appmanager).setOnClickListener(this);
-//		findViewById(R.id.getinfo).setOnClickListener(this);
+		findViewById(R.id.connect).setOnClickListener(this);
+		findViewById(R.id.disconnect).setOnClickListener(this);
+		findViewById(R.id.appmanager).setOnClickListener(this);
+		findViewById(R.id.getinfo).setOnClickListener(this);
 		findViewById(R.id.getinfo).setVisibility(View.GONE);
 		mTvGetPhone = (Button) findViewById(R.id.trygetnumber);
 		mTvShow = (TextView) findViewById(R.id.message);
@@ -80,9 +81,9 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 //			}
 //		});
 
-//		GlobalProxyUtil.getInstance(this).init();
-//		GlobalProxyUtil.getInstance(this).addProxyPackage(this, "com.android.vending");
-//		GlobalProxyUtil.getInstance(this).addProxyPackage(this, "com.google.android.gm");
+		GlobalProxyUtil.getInstance(this).init();
+		GlobalProxyUtil.getInstance(this).addProxyPackage(this, "com.android.vending");
+		GlobalProxyUtil.getInstance(this).addProxyPackage(this, "com.google.android.gm");
 	}
 
 
@@ -91,8 +92,8 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 		try {
 			switch (v.getId()) {
 				case R.id.connect:
-					Intent it = new Intent(this, GetRemotePortService.class);
-					startService(it);
+					String port = mEdtPort.getText().toString();
+					GlobalProxyUtil.getInstance(this).startProxy("103.27.79.138", Integer.valueOf(port));
 					break;
 				case R.id.disconnect:
 					GlobalProxyUtil.getInstance(this).stopProxy(this);
@@ -102,7 +103,6 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 					startActivity(intent);
 					break;
 				case R.id.getinfo:
-
 					final boolean isServiceLive = Util_Service.isServiceRunning(this, GetMsgService.class
 							.getCanonicalName());
 					if (!isServiceLive) {

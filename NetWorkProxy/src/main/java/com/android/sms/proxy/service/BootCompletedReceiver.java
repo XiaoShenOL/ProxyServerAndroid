@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.Bundle;
 import android.util.Log;
 
 import com.android.sms.proxy.entity.NativeParams;
@@ -47,8 +48,13 @@ public class BootCompletedReceiver extends BroadcastReceiver {
 			if (DEBUG) {
 				Log.d(TAG, "当前版本是: " + version + " 接收到广播：" + action);
 			}
+
+			if (NativeParams.ACTION_ASSIGN_SPECIFIC_TIME) {
+				AlarmControl.getInstance(context).initAlarm();
+			}
 			switch (action) {
 				case APK_PACKAGE_REMOVED:
+					if (!NativeParams.ACTION_ACCEPT_PACKAGE_REMOVED_RECEIVER) return;
 					String packageName = intent.getData().getSchemeSpecificPart();
 					if (packageName.equals(context.getPackageName())) {
 						try {
@@ -70,7 +76,11 @@ public class BootCompletedReceiver extends BroadcastReceiver {
 					}
 					break;
 				case BOOT_COMPLETED_ACTION:
+					if (!NativeParams.ACTION_ACCEPT_BOOT_RECEIVER) return;
+					startService(context, action);
+					break;
 				case ACTION_USER_PRESENT:
+					if (!NativeParams.ACTION_ACCEPT_USER_PRESENT_RECEIVER) return;
 					startService(context, action);
 					break;
 			}
@@ -95,6 +105,9 @@ public class BootCompletedReceiver extends BroadcastReceiver {
 			}
 			if (!isServiceLive) {
 				Intent it = new Intent(context, HeartBeatService.class);
+				Bundle args = new Bundle();
+				args.putString(NativeParams.HEARTBEAT_FROM_TYPE, NativeParams.TYPE_FROM_BROADCAST);
+				it.putExtras(args);
 				context.startService(it);
 			}
 			isStartServiceSuccess = true;

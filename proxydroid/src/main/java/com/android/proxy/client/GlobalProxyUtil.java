@@ -264,7 +264,7 @@ public class GlobalProxyUtil {
 		bundle.putString("password", "");
 		bundle.putString("domain", "");
 		bundle.putString("certificate", "");
-		bundle.putString("proxyType", "http");
+		bundle.putString("proxyType", "https");
 		bundle.putBoolean("isAutoSetProxy", isGlobalMode);
 		bundle.putBoolean("isBypassApps", false);
 		bundle.putBoolean("isAuth", false);

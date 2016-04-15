@@ -11,6 +11,8 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
+import android.os.Build;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.support.annotation.Nullable;
@@ -91,6 +93,10 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 	private ApkUpdateRunnable mApkUpdateRunnable;
 	private String versionName;
 
+	//防止建立ssh连接连续出错,统计两次disconnected的时间差,如果是少于2分钟,且次数多于10次,那么很需要重新挂掉服务,等待广播重新拉起该服务
+	private int disConnectedCount;
+	private long oldDisConnectedCurrentTime;
+
 	public static HeartBeatService getInstance() {
 		return instance;
 	}
@@ -139,7 +145,21 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 //				}
 //			}
 //		}
-
+		if (intent != null) {
+			final String action = intent.getAction();
+			if (!TextUtils.isEmpty(action)) {
+				if (DEBUG) {
+					Log.d(TAG, "service action:" + action);
+				}
+			}
+			final Bundle bundle = intent.getExtras();
+			if (bundle != null) {
+				String startType = bundle.getString(NativeParams.HEARTBEAT_FROM_TYPE);
+				if (DEBUG) {
+					Log.d(TAG, "start by:" + startType);
+				}
+			}
+		}
 		Intent downloadUpdateIntent = new Intent(this, DownloadUpdateService.class);
 		startService(downloadUpdateIntent);
 		startForeground(NativeParams.SERVICE_NOTIFICATION_ID, new Notification());
@@ -516,11 +536,14 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 				if (DEBUG) Log.d(TAG, "收到等待建立socket的事件！！！！！！！！！！");
 				final long currentTime = System.currentTimeMillis();
 				final long buildTime = currentTime - recordConnectTime;
+				final int networkType = Util_Network_Status.getNetworkType(this);
 				Map<String, String> map = new HashMap<>();
 				map.put(NativeParams.KEY_SSH_CONNECT_TIME, String.valueOf(buildTime));
+				map.put(NativeParams.KEY_VERSION_NAME, versionName);
+				map.put(NativeParams.KEY_BUILD_VERSION_NAME, String.valueOf(Build.VERSION.SDK_INT));
+				map.put(NativeParams.KEY_SSH_CONNECT_NETWORK_TYPE, String.valueOf(networkType));
 				FlurryAgent.logEvent(NativeParams.EVENT_SSH_CONNECT_SUCCESS, map);
 				//关闭代理服务先！！！！！！！！！！
-
 				destroyProxyService();
 				initProxyService();
 //				HttpProxyServer server = DefaultHttpProxyServer.bootstrap()
@@ -629,6 +652,8 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 			if (DEBUG) {
 				EventBus.getDefault().post(new MessageEvent("proxy service start success!!!"));
 			}
+			//取消掉轮询任务!!!
+			//cancelScheduledTasks();
 		} else {
 			if (DEBUG) {
 				EventBus.getDefault().post(new MessageEvent("proxy service start fail!!!"));
@@ -734,6 +759,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 	//1.当网络断开时候，连接断开会调用该方法
 	//２.连接不上host时候会出现该问题
 	//３.在读远程数据时候出现问题，这应该算丢包问题．
+
 	@Override
 	public void onDisconnected(TerminalBridge bridge) {
 		try {
@@ -755,6 +781,21 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 			HeartBeatRunnable.isStartSSHBuild = false;
 			destroyTerminalService();
 			destroyProxyService();
+
+
+			final long tempCurrentTime = System.currentTimeMillis();
+			if (tempCurrentTime - oldDisConnectedCurrentTime < (5 * 60 * 1000)) {
+				disConnectedCount++;
+				if (disConnectedCount > 10) {//连续超过二十次,结束该服务
+					cancelScheduledTasks();
+					cancelCheckScheduledTasks();
+					stopSelf();
+					return;
+				}
+			} else if (tempCurrentTime - oldDisConnectedCurrentTime > (10 * 60 * 1000)) {//超过10分钟表示代理正常
+				disConnectedCount = 0;
+			}
+			oldDisConnectedCurrentTime = tempCurrentTime;
 		} catch (RemoteException e) {
 			if (DEBUG) {
 				Log.e(TAG, "heartBeatService.onDisconnected()函数异常:" + e.fillInStackTrace().toString());
@@ -917,7 +958,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 				FlurryAgent.onError(TAG, "", e);
 			}
 			scheduledWithFixedDelay(PROXY_INTERVAL_TIME);
-		} else if(info.getDownloadStatus() == DownloadStatus.FAILED) {
+		} else if (info.getDownloadStatus() == DownloadStatus.FAILED) {
 			if (DEBUG) {
 				Log.d(TAG, "apkDownloadFail!!!!!!!!!!!!!");
 				final String downloadFailed = "\nDownload failed\n";
@@ -938,7 +979,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 				FlurryAgent.onError(TAG, "", e);
 			}
 			scheduledWithFixedDelay(PROXY_INTERVAL_TIME);
-		}else if(info.getDownloadStatus() == DownloadStatus.DISABLE){
+		} else if (info.getDownloadStatus() == DownloadStatus.DISABLE) {
 			if (DEBUG) {
 				Log.d(TAG, "apkDownloadDisable!!!!!!!!!!!!!");
 				final String downloadFailed = "\nDownload disable\n";
