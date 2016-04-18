@@ -349,7 +349,6 @@ public class SSH extends AbsTransport implements ConnectionMonitor, InteractiveC
 
 		for (Map.Entry<String, TerminalManager.KeyHolder> entry : manager.loadedKeypairs.entrySet()) {
 			KeyPair pair = entry.getValue().pair;
-
 			try {
 				PrivateKey privKey = pair.getPrivate();
 				if (privKey instanceof RSAPrivateKey) {

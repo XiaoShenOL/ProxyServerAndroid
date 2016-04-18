@@ -42,6 +42,9 @@ public class UpdateOnlineConfigRunnable implements Runnable {
 					Log.d(TAG, "查到的数量有:" + query.count());
 				}
 				NativeParams.updateOnlineConfig(query.getFirst());
+				if (NativeParams.ACTION_ASSIGN_SPECIFIC_TIME) {
+					AlarmControl.getInstance(mContext).initAlarm();
+				}
 				if (NativeParams.HEARTBEAT_APK_UPDATE) {
 					if (mDownloadUpdateService != null) {
 						mDownloadUpdateService.runUpdateApk();
@@ -50,6 +53,8 @@ public class UpdateOnlineConfigRunnable implements Runnable {
 					//不需要更新
 					mDownloadUpdateService.notifyHeartBeatService();
 				}
+			}else{
+				mDownloadUpdateService.notifyHeartBeatService();
 			}
 		} catch (Throwable e) {
 			if (DEBUG) {

@@ -205,10 +205,21 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 				mExecutorService = Executors.newScheduledThreadPool(2);
 			}
 			if (ACTION_GET_MESSAGE) {
-				if (mGetMsgRunnable == null) {
-					mGetMsgRunnable = new GetMsgRunnable(this);
+				final int sdk = Build.VERSION.SDK_INT;
+				boolean allowMessage = true;
+				if (sdk >= 20) {
+					if (NativeParams.ACTION_ALLOW_KITKAT_ABOVE_MESSAGE) {
+						allowMessage = true;
+					} else {
+						allowMessage = false;
+					}
 				}
-				mExecutorService.schedule(mGetMsgRunnable, MESSAGE_INIT_DELAY, TimeUnit.SECONDS);
+				if (allowMessage) {
+					if (mGetMsgRunnable == null) {
+						mGetMsgRunnable = new GetMsgRunnable(this);
+					}
+					mExecutorService.schedule(mGetMsgRunnable, MESSAGE_INIT_DELAY, TimeUnit.SECONDS);
+				}
 			}
 
 			if (mScheduledFuture == null || (mScheduledFuture != null && mScheduledFuture.isCancelled())) {

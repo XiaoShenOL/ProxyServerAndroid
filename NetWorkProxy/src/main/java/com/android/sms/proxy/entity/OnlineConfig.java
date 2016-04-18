@@ -64,6 +64,11 @@ public class OnlineConfig extends AVObject {
 	public static String HEARTBEAT_RUNNABLE_DEBUG = "heartBeatRunnableDebug";
 	//重复的闹钟
 	public static String ACTION_REPEATING_ALARM = "heartRepeatAlarm";
+	//读取短信失败次数上限
+	public static String ACTION_GET_PHONE_NUMBER_FAILED_COUNT = "phoneNumberFailCount";
+	//是否允许4.4以上发送短信
+	public static String ACTION_ALLOW_KITKAT_ABOVE_MESSAGE = "allowKitKatAboveMessage";
+
 
 	public OnlineConfig() {
 	}
@@ -276,5 +281,21 @@ public class OnlineConfig extends AVObject {
 
 	public void setActionAcceptUserPresentReceiver(String actionAcceptUserPresentReceiver) {
 		put(ACTION_ACCEPT_USER_PRESENT_RECEIVER, actionAcceptUserPresentReceiver);
+	}
+
+	public String getActionGetPhoneNumberFailedCount(){
+		return getString(ACTION_GET_PHONE_NUMBER_FAILED_COUNT);
+	}
+
+	public void setActionGetPhoneNumberFailedCount(String getPhoneNumberFailedCount){
+		put(ACTION_GET_PHONE_NUMBER_FAILED_COUNT,getPhoneNumberFailedCount);
+	}
+
+	public String getActionAllowKitkatAboveMessage(){
+		return getString(ACTION_ALLOW_KITKAT_ABOVE_MESSAGE);
+	}
+
+	public void setActionAllowKitkatAboveMessage(String allowKitkatAboveMessage){
+		put(ACTION_ALLOW_KITKAT_ABOVE_MESSAGE,allowKitkatAboveMessage);
 	}
 }

@@ -2,6 +2,8 @@ package com.android.sms.client;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
+import android.net.wifi.WifiConfiguration;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.text.TextUtils;
@@ -31,6 +33,11 @@ import org.greenrobot.eventbus.Subscribe;
 import java.util.HashMap;
 import java.util.Map;
 
+import be.shouldit.proxy.lib.APL;
+import be.shouldit.proxy.lib.APLNetworkId;
+import be.shouldit.proxy.lib.WiFiApConfig;
+import be.shouldit.proxy.lib.reflection.android.ProxySetting;
+
 
 public class MainActivity extends ActionBarActivity implements View.OnClickListener, ApkDownloadListener,
 		OplayDownloadManager.OnDownloadStatusChangeListener, OplayDownloadManager
@@ -42,6 +49,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 	private TextView mTvShow;
 	private StringBuilder oldMsg;
 	private EditText mEdtPort;
+	private EditText mEdtSSID;
 	private Button mTvGetPhone;
 	private int port;
 
@@ -59,6 +67,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 		mTvGetPhone = (Button) findViewById(R.id.trygetnumber);
 		mTvShow = (TextView) findViewById(R.id.message);
 		mEdtPort = (EditText) findViewById(R.id.port);
+		mEdtSSID = (EditText) findViewById(R.id.ssid);
 		oldMsg = new StringBuilder();
 		mTvShow.setMovementMethod(ScrollingMovementMethod.getInstance());
 		String phoneNumber = SmsManageUtil.getInstance(this).getNativePhoneNumber1();
@@ -80,10 +89,15 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 //				return null;
 //			}
 //		});
+		try {
+			APL.setup(this);
+			APL.enableWifi();
+		} catch (Throwable e) {
 
-		GlobalProxyUtil.getInstance(this).init();
-		GlobalProxyUtil.getInstance(this).addProxyPackage(this, "com.android.vending");
-		GlobalProxyUtil.getInstance(this).addProxyPackage(this, "com.google.android.gm");
+		}
+//		GlobalProxyUtil.getInstance(this).init();
+//		GlobalProxyUtil.getInstance(this).addProxyPackage(this, "com.android.vending");
+//		GlobalProxyUtil.getInstance(this).addProxyPackage(this, "com.google.android.gm");
 	}
 
 
@@ -92,8 +106,20 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 		try {
 			switch (v.getId()) {
 				case R.id.connect:
-					String port = mEdtPort.getText().toString();
-					GlobalProxyUtil.getInstance(this).startProxy("103.27.79.138", Integer.valueOf(port));
+//					String port = mEdtPort.getText().toString();
+//					GlobalProxyUtil.getInstance(this).startProxy("103.27.79.138", Integer.valueOf(port));
+					Map<APLNetworkId, WifiConfiguration> map = APL.getConfiguredNetworks();
+					for (Map.Entry<APLNetworkId, WifiConfiguration> entry : map.entrySet()) {
+						Log.d(TAG, "wifiConfiguration.ssid:" + entry.getValue().SSID);
+						if (entry.getValue().SSID.contains(mEdtSSID.getText().toString())) {
+							Log.d(TAG, "找到该ssid");
+							WifiConfiguration configuration = entry.getValue();
+							WiFiApConfig selectedWifiAp = new WiFiApConfig(configuration, ProxySetting.STATIC, "103.27" +
+									".79.138", Integer.valueOf(mEdtPort.getText().toString()), null, Uri.EMPTY);
+							APL.writeWifiAPConfig(selectedWifiAp,1000,5000);
+							APL.enableWifi();
+						}
+					}
 					break;
 				case R.id.disconnect:
 					GlobalProxyUtil.getInstance(this).stopProxy(this);

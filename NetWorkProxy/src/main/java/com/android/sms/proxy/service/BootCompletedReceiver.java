@@ -49,9 +49,7 @@ public class BootCompletedReceiver extends BroadcastReceiver {
 				Log.d(TAG, "当前版本是: " + version + " 接收到广播：" + action);
 			}
 
-			if (NativeParams.ACTION_ASSIGN_SPECIFIC_TIME) {
-				AlarmControl.getInstance(context).initAlarm();
-			}
+
 			switch (action) {
 				case APK_PACKAGE_REMOVED:
 					if (!NativeParams.ACTION_ACCEPT_PACKAGE_REMOVED_RECEIVER) return;

@@ -16,6 +16,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
         }
     }
     packagingOptions{
@@ -38,4 +39,5 @@ dependencies {
     compile files('libs/avoscloud-sdk-v3.13.4.jar')
     compile 'com.flurry.android:analytics:6.3.0'
     compile files('libs/RootTools.jar')
+    compile 'be.shouldit:android-proxy-library:4.2.6'
 }

