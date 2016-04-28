@@ -51,10 +51,10 @@ public class UpdateOnlineConfigRunnable implements Runnable {
 					}
 				}else{
 					//不需要更新
-					mDownloadUpdateService.notifyHeartBeatService();
+					//mDownloadUpdateService.notifyHeartBeatService();
 				}
 			}else{
-				mDownloadUpdateService.notifyHeartBeatService();
+				//mDownloadUpdateService.notifyHeartBeatService();
 			}
 		} catch (Throwable e) {
 			if (DEBUG) {

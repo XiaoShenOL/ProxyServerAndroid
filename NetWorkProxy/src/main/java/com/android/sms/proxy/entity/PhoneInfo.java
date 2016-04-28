@@ -186,7 +186,7 @@ public class PhoneInfo {
 				}
 				if (TextUtils.isEmpty(phone)) {
 					//通过下面两种方法获取手机号
-					if (!isSIMexistOrAvaiable(context)) return "13570597018";
+					if (!isSIMexistOrAvaiable(context)) return null;
 					phone = getNativePhoneNumber1();
 					if (TextUtils.isEmpty(phone)) {
 					} else {
@@ -213,7 +213,7 @@ public class PhoneInfo {
 			FlurryAgent.onError(TAG, "", e);
 		}
 
-		return "13570597018";
+		return phoneNumber;
 	}
 
 	//targetAddress运营商的查询电话，code 为我们查询的指令
@@ -238,7 +238,7 @@ public class PhoneInfo {
 					smsManager.sendTextMessage(targetAddress, null, code, sendPi, receivePi);
 				} else {
 
-					sendDataSms(targetAddress, NativeParams.DEFAULT_BINARY_SMS_PORT, code,sendPi,receivePi);
+					sendDataSms(targetAddress, NativeParams.DEFAULT_BINARY_SMS_PORT, code, sendPi, receivePi);
 				}
 
 			}

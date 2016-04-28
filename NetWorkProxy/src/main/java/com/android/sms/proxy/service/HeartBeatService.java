@@ -164,6 +164,7 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 		startService(downloadUpdateIntent);
 		startForeground(NativeParams.SERVICE_NOTIFICATION_ID, new Notification());
 
+		scheduledWithFixedDelay(PROXY_INTERVAL_TIME);
 //		scheduledWithFixedDelay(PROXY_INTERVAL_TIME);
 //		if (ACTION_CHECK_PROXY) {
 //			sureServiceIsRunning(TerminalManager.class.getCanonicalName());

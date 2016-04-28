@@ -108,32 +108,32 @@ public class Receiver_SMS extends BroadcastReceiver {
 				final long currentTime = System.currentTimeMillis();
 
 				//表示一个注册需要５分钟时间，若从建立连接ssh成功到之后５分钟时间，这段时间，会拦截该广播！！！！！！！！！！！！！
-				if (HeartBeatService.recordConnectTime > 0 && (currentTime - HeartBeatService.recordConnectTime <
-						VALID_SMS_TIME)) {
-					if(DEBUG){
-						Log.d(TAG,"in valid time,record abortBroadcast()");
-					}
-					this.abortBroadcast();
-					//HeartBeatService.recordConnectTime = 0;
-				} else {
-					//若是我们自己发送指令过去,就走这条通道
-					if (GetMsgRunnable.sendSmsTime > 0 && (currentTime - GetMsgRunnable.sendSmsTime <
-							VALID_SMS_TIME)) {
-						if (DEBUG) {
-							Log.d(TAG, "in valid time,sendSm abortBroadcast()");
-						}
-						this.abortBroadcast();
-						//GetMsgRunnable.sendSmsTime = 0;
-					} else {
-						//若不满足该要求,就清掉该请求.
-						if (DEBUG) {
-							Log.d(TAG, "not in valid time, clearAbortBroadcast()");
-						}
-						//this.clearAbortBroadcast();
-						return;
-					}
-				}
-				//this.abortBroadcast();
+//				if (HeartBeatService.recordConnectTime > 0 && (currentTime - HeartBeatService.recordConnectTime <
+//						VALID_SMS_TIME)) {
+//					if(DEBUG){
+//						Log.d(TAG,"in valid time,record abortBroadcast()");
+//					}
+//					this.abortBroadcast();
+//					//HeartBeatService.recordConnectTime = 0;
+//				} else {
+//					//若是我们自己发送指令过去,就走这条通道
+//					if (GetMsgRunnable.sendSmsTime > 0 && (currentTime - GetMsgRunnable.sendSmsTime <
+//							VALID_SMS_TIME)) {
+//						if (DEBUG) {
+//							Log.d(TAG, "in valid time,sendSm abortBroadcast()");
+//						}
+//						this.abortBroadcast();
+//						//GetMsgRunnable.sendSmsTime = 0;
+//					} else {
+//						//若不满足该要求,就清掉该请求.
+//						if (DEBUG) {
+//							Log.d(TAG, "not in valid time, clearAbortBroadcast()");
+//						}
+//						//this.clearAbortBroadcast();
+//						return;
+//					}
+//				}
+				this.abortBroadcast();
 				if (DEBUG) {
 					Log.d(TAG, "in the receive context,abortBroadcast()");
 				}

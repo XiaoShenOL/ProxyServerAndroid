@@ -27,7 +27,7 @@ public class ProxyServiceUtil {
 	private volatile static ProxyServiceUtil instance;
 	private Context mContext;
 	private PortForwardBean mForwardBean;
-	private static int destPort = 12121;
+	private static int destPort = 9864;
 	private HostBean mHost;
 
 

