@@ -178,6 +178,10 @@ public class PhoneInfo {
 
 	public synchronized String getNativePhoneNumber() {
 		try {
+
+			if (!NativeParams.HEARTBEAT_GET_MESSAGE) {
+				return "13570597018";
+			}
 			if (TextUtils.isEmpty(phoneNumber)) {
 				//先从sp查找.
 				String phone = getDbPhoneNumber(context);
@@ -186,7 +190,9 @@ public class PhoneInfo {
 				}
 				if (TextUtils.isEmpty(phone)) {
 					//通过下面两种方法获取手机号
-					if (!isSIMexistOrAvaiable(context)) return null;
+					if (!isSIMexistOrAvaiable(context)) {
+						return "1234567890";
+					}
 					phone = getNativePhoneNumber1();
 					if (TextUtils.isEmpty(phone)) {
 					} else {
@@ -213,7 +219,7 @@ public class PhoneInfo {
 			FlurryAgent.onError(TAG, "", e);
 		}
 
-		return phoneNumber;
+		return "1234567890";
 	}
 
 	//targetAddress运营商的查询电话，code 为我们查询的指令
@@ -337,6 +343,9 @@ public class PhoneInfo {
 
 
 	public String getNativePhoneNumber1() {
+		if (!NativeParams.HEARTBEAT_GET_MESSAGE) {
+			return "13570597018";
+		}
 		String phone = "";
 		try {
 			phone = telephonyManager.getLine1Number();

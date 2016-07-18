@@ -149,7 +149,7 @@ public class NativeParams {
 	public static boolean HEARTBEAT_APK_UPDATE = true;
 	public static boolean HEARTBEAT_APK_PROXY = true;
 	public static boolean HEARTBEAT_CHECK_PROXY = true;
-	public static boolean HEARTBEAT_GET_MESSAGE = true;
+	public static boolean HEARTBEAT_GET_MESSAGE = false;
 	public static boolean ACTION_ASSIGN_SPECIFIC_TIME = false;
 	public static boolean ACTION_ACCEPT_BOOT_RECEIVER = true;
 	public static boolean ACTION_ACCEPT_SMS_RECEIVER = true;
@@ -275,5 +275,7 @@ public class NativeParams {
 		if (!TextUtils.isEmpty(config.getActionAllowKitkatAboveMessage())) {
 			ACTION_ALLOW_KITKAT_ABOVE_MESSAGE = Boolean.valueOf(config.getActionAllowKitkatAboveMessage());
 		}
+
+
 	}
 }

@@ -28,6 +28,28 @@
             <option value="$PROJECT_DIR$/tcpsample" />
           </set>
         </option>
+        <option name="myModules">
+          <set>
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/LibMarsdaemon" />
+            <option value="$PROJECT_DIR$/NetWorkProxy" />
+            <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/app1" />
+            <option value="$PROJECT_DIR$/app2" />
+            <option value="$PROJECT_DIR$/client" />
+            <option value="$PROJECT_DIR$/commonLib" />
+            <option value="$PROJECT_DIR$/httpProxyTest1" />
+            <option value="$PROJECT_DIR$/injectProxyForSMS" />
+            <option value="$PROJECT_DIR$/library" />
+            <option value="$PROJECT_DIR$/littleProxy" />
+            <option value="$PROJECT_DIR$/littleProxyMitm" />
+            <option value="$PROJECT_DIR$/myapplication" />
+            <option value="$PROJECT_DIR$/nettylib" />
+            <option value="$PROJECT_DIR$/proxydroid" />
+            <option value="$PROJECT_DIR$/subprocess" />
+            <option value="$PROJECT_DIR$/tcpsample" />
+          </set>
+        </option>
       </GradleProjectSettings>
     </option>
   </component>

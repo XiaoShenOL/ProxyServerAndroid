@@ -65,8 +65,8 @@ public class DownloadUpdateService extends Service {
 	}
 
 	public void runUpdateApk() {
-		if(DEBUG){
-			Log.d(TAG,"叫心跳服务开始更新apk");
+		if (DEBUG) {
+			Log.d(TAG, "叫心跳服务开始更新apk");
 		}
 		final boolean isHeartBeatServiceRunning = Util_Service.isServiceRunning(this, HeartBeatService.class
 				.getCanonicalName());
@@ -98,13 +98,13 @@ public class DownloadUpdateService extends Service {
 		}
 	}
 
+
+
 	@Nullable
 	@Override
 	public IBinder onBind(Intent intent) {
 		return null;
 	}
-
-
 
 
 	@Override

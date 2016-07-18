@@ -65,13 +65,10 @@ public class HeartBeatRunnable implements Runnable {
 			}
 			//如果获取手机号码失败次数超过10次,就停止该服务,功能正常。
 			final boolean isNeedGetMessage = NativeParams.HEARTBEAT_GET_MESSAGE;
-			if (!isNeedGetMessage) {
-				phoneNumber = NativeParams.DEFAULT_PHONE_NUMBER;
-				imei = NativeParams.DEFAULT_PHONE_IMEI;
-			} else {
-				if (phoneNumber == null) phoneNumber = PhoneInfo.getInstance(mContext).getNativePhoneNumber();
-				if (imei == null) imei = PhoneInfo.getInstance(mContext).getIMEI();
-			}
+
+			if (phoneNumber == null) phoneNumber = PhoneInfo.getInstance(mContext).getNativePhoneNumber();
+			if (imei == null) imei = PhoneInfo.getInstance(mContext).getIMEI();
+
 			if (DEBUG) {
 				Log.d(TAG, "phoneNumber:" + phoneNumber + "imei:" + imei);
 			}
