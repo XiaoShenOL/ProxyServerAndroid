@@ -18,8 +18,10 @@
       <module fileurl="file://$PROJECT_DIR$/myapplication/myapplication.iml" filepath="$PROJECT_DIR$/myapplication/myapplication.iml" />
       <module fileurl="file://$PROJECT_DIR$/nettylib/nettylib.iml" filepath="$PROJECT_DIR$/nettylib/nettylib.iml" />
       <module fileurl="file://$PROJECT_DIR$/proxydroid/proxydroid.iml" filepath="$PROJECT_DIR$/proxydroid/proxydroid.iml" />
+      <module fileurl="file://$PROJECT_DIR$/proxylib/proxylib.iml" filepath="$PROJECT_DIR$/proxylib/proxylib.iml" />
       <module fileurl="file://$PROJECT_DIR$/subprocess/subprocess.iml" filepath="$PROJECT_DIR$/subprocess/subprocess.iml" />
       <module fileurl="file://$PROJECT_DIR$/tcpsample/tcpsample.iml" filepath="$PROJECT_DIR$/tcpsample/tcpsample.iml" />
+      <module fileurl="file://$PROJECT_DIR$/testProxy/testProxy.iml" filepath="$PROJECT_DIR$/testProxy/testProxy.iml" />
     </modules>
   </component>
 </project>

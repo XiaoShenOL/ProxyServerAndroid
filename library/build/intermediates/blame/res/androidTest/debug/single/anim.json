@@ -76,12 +76,12 @@
         "source": "/home/qin/studyres/MyCodes/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/grow_from_bottom.xml"
     },
     {
-        "merged": "/home/qin/studyres/MyCodes/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/grow_from_top.xml",
-        "source": "/home/qin/studyres/MyCodes/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/grow_from_top.xml"
-    },
-    {
         "merged": "/home/qin/studyres/MyCodes/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/fade_in.xml",
         "source": "/home/qin/studyres/MyCodes/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/fade_in.xml"
+    },
+    {
+        "merged": "/home/qin/studyres/MyCodes/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/grow_from_top.xml",
+        "source": "/home/qin/studyres/MyCodes/ProxyServerAndroid/library/build/intermediates/bundles/debug/res/anim/grow_from_top.xml"
     },
     {
         "merged": "/home/qin/studyres/MyCodes/ProxyServerAndroid/library/build/intermediates/res/merged/androidTest/debug/anim/grow_from_topright_to_bottomleft.xml",

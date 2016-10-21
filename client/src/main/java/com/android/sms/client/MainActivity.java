@@ -2,7 +2,6 @@ package com.android.sms.client;
 
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.net.wifi.WifiConfiguration;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -16,7 +15,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.android.proxy.client.GlobalProxyUtil;
 import com.flurry.android.FlurryAgent;
 import com.oplay.nohelper.utils.Util_Service;
 
@@ -35,8 +33,6 @@ import java.util.Map;
 
 import be.shouldit.proxy.lib.APL;
 import be.shouldit.proxy.lib.APLNetworkId;
-import be.shouldit.proxy.lib.WiFiApConfig;
-import be.shouldit.proxy.lib.reflection.android.ProxySetting;
 
 
 public class MainActivity extends ActionBarActivity implements View.OnClickListener, ApkDownloadListener,
@@ -52,6 +48,7 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 	private EditText mEdtSSID;
 	private Button mTvGetPhone;
 	private int port;
+	public static  WifiConfiguration configuration;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -113,16 +110,15 @@ public class MainActivity extends ActionBarActivity implements View.OnClickListe
 						Log.d(TAG, "wifiConfiguration.ssid:" + entry.getValue().SSID);
 						if (entry.getValue().SSID.contains(mEdtSSID.getText().toString())) {
 							Log.d(TAG, "找到该ssid");
-							WifiConfiguration configuration = entry.getValue();
-							WiFiApConfig selectedWifiAp = new WiFiApConfig(configuration, ProxySetting.STATIC, "103.27" +
-									".79.138", Integer.valueOf(mEdtPort.getText().toString()), null, Uri.EMPTY);
-							APL.writeWifiAPConfig(selectedWifiAp,1000,5000);
-							APL.enableWifi();
+							configuration = entry.getValue();
+							Intent it = new Intent(this,GetRemotePortService.class);
+							startService(it);
 						}
 					}
 					break;
 				case R.id.disconnect:
-					GlobalProxyUtil.getInstance(this).stopProxy(this);
+//					GlobalProxyUtil.getInstance(this).stopProxy(this);
+					APL.disableWifi();
 					break;
 				case R.id.appmanager:
 					Intent intent = new Intent(this, AppManager.class);

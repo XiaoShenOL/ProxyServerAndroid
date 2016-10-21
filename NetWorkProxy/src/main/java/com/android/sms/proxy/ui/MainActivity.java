@@ -94,7 +94,6 @@ public class MainActivity extends AppCompatActivity implements Receiver_SMS.OnRe
 						Log.e(TAG, "Problem while trying to create new requested bridge from URI", e);
 					}
 				}
-
 			}
 		}
 

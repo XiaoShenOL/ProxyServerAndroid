@@ -1,6 +1,5 @@
 package com.android.sms.proxy.service;
 
-import android.app.Notification;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
@@ -51,6 +50,12 @@ import org.connectbot.service.TerminalBridge;
 import org.connectbot.service.TerminalManager;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+import org.littleshoot.proxy.HttpFilters;
+import org.littleshoot.proxy.HttpFiltersAdapter;
+import org.littleshoot.proxy.HttpFiltersSourceAdapter;
+import org.littleshoot.proxy.HttpProxyServer;
+import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
+import org.littleshoot.proxy.mitm.CertificateSniffingMitmManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -58,6 +63,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpRequest;
+import io.netty.util.AttributeKey;
 
 
 /**
@@ -587,25 +597,47 @@ public class HeartBeatService extends Service implements BridgeDisconnectedListe
 			FlurryAgent.onError(TAG, "", e);
 		}
 	}
-
+	private static final AttributeKey<String> CONNECTED_URL = AttributeKey.valueOf("connected_url");
 	@Subscribe
 	public void onEvent(WaitForSocketEvent event) {
 		try {
 			if (event != null) {
 				//统计建立成功的时间
-				if (DEBUG) Log.d(TAG, "收到等待建立socket的事件！！！！！！！！！！");
-				final long currentTime = System.currentTimeMillis();
-				final long buildTime = currentTime - recordConnectTime;
-				final int networkType = Util_Network_Status.getNetworkType(this);
-				Map<String, String> map = new HashMap<>();
-				map.put(NativeParams.KEY_SSH_CONNECT_TIME, String.valueOf(buildTime));
-				map.put(NativeParams.KEY_VERSION_NAME, versionName);
-				map.put(NativeParams.KEY_BUILD_VERSION_NAME, String.valueOf(Build.VERSION.SDK_INT));
-				map.put(NativeParams.KEY_SSH_CONNECT_NETWORK_TYPE, String.valueOf(networkType));
-				FlurryAgent.logEvent(NativeParams.EVENT_SSH_CONNECT_SUCCESS, map);
-				//关闭代理服务先！！！！！！！！！！
-				destroyProxyService();
-				initProxyService();
+//				if (DEBUG) Log.d(TAG, "收到等待建立socket的事件！！！！！！！！！！");
+//				final long currentTime = System.currentTimeMillis();
+//				final long buildTime = currentTime - recordConnectTime;
+//				final int networkType = Util_Network_Status.getNetworkType(this);
+//				Map<String, String> map = new HashMap<>();
+//				map.put(NativeParams.KEY_SSH_CONNECT_TIME, String.valueOf(buildTime));
+//				map.put(NativeParams.KEY_VERSION_NAME, versionName);
+//				map.put(NativeParams.KEY_BUILD_VERSION_NAME, String.valueOf(Build.VERSION.SDK_INT));
+//				map.put(NativeParams.KEY_SSH_CONNECT_NETWORK_TYPE, String.valueOf(networkType));
+//				FlurryAgent.logEvent(NativeParams.EVENT_SSH_CONNECT_SUCCESS, map);
+//				//关闭代理服务先！！！！！！！！！！
+//				destroyProxyService();
+//				initProxyService();
+
+				HttpProxyServer server = DefaultHttpProxyServer.bootstrap()
+						.withPort(8964)
+						.withManInTheMiddle(new CertificateSniffingMitmManager())
+						.withFiltersSource(new HttpFiltersSourceAdapter(){
+							@Override
+							public HttpFilters filterRequest(HttpRequest originalRequest, ChannelHandlerContext ctx) {
+								String uri = originalRequest.getUri();
+								if (originalRequest.getMethod() == HttpMethod.CONNECT) {
+									if (ctx != null) {
+										String prefix = "https://" + uri.replaceFirst(":443$", "");
+										ctx.channel().attr(CONNECTED_URL).set(prefix);
+									}
+									return new HttpFiltersAdapter(originalRequest, ctx);
+								}
+								String connectedUrl = ctx.channel().attr(CONNECTED_URL).get();
+								return super.filterRequest(originalRequest,ctx);
+							}
+						})
+						.start();
+
+
 //				HttpProxyServer server = DefaultHttpProxyServer.bootstrap()
 //						.withPort(8964)
 //                        .withFiltersSource(new HttpFiltersSourceAdapter() {

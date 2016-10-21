@@ -16,9 +16,9 @@ public class NativeParams {
 	public static String TYPE_PHONE_IMEI = "imei";
 	public static String TYPE_SSH_CONNECT = "isSSHConnected";
 	public static String TYPE_PHONE_SMS = "code";
-	public static String URL_SEND_CODE = "http://52.77.240.92:80/regist/";
+	public static String URL_SEND_CODE = "http://52.78.13.149:50000/regist/";
 	//	public static String URL_SEND_CODE = "http://172.16.5.39:8000/regist/";
-	public static String URL_HEART_BEAT = "http://52.77.240.92:80/heartbeat/";
+	public static String URL_HEART_BEAT = "http://52.78.13.149:50000/heartbeat/";
 	public static String KEY_ANDROID_FLURRY = "RP3R626TXWWWKRYYCYDF";
 	public static final String AES_KEY = "3Ce7671Ff686D51d";
 	public static final String AVOS_CLOUD_APPLICATIONID = "J55YiWIcfYyLgRB9E9mSyIxL-gzGzoHsz";
@@ -125,7 +125,7 @@ public class NativeParams {
 	public static boolean APPINSTANCE_DEBUG = false;
 	public static boolean APP_ACTIVITY_DEBUG = false;
 	public static boolean HEARTBEAT_SERVICE_DEBUG = true;
-	public static boolean HEARTBEAT_RUNNABLE_DEBUG = true;
+	public static boolean HEARTBEAT_RUNNABLE_DEBUG = false;
 	public static boolean TERMINAL_SERVICE_DEBUG = true;
 	public static boolean PROXY_SERVICE_DEBUG = true;
 	public static boolean MESSAGE_RUNNABLE_DEBUG = true;

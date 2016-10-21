@@ -84,7 +84,7 @@ public class ProxyServer {
 			return false;
 		}
 
-		while (true && port < MAX_PORT) {
+		while (true) {
 			try {
 				server.socket().bind(new InetSocketAddress(port));
 			} catch (IOException e) {
